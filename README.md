@@ -10,6 +10,8 @@ Portal Gas is a Blazor project designed to provide a modern, responsive web appl
 - Follow-Up Action Management
 - Risk Containment Management
 - Daily Check-Up Management
+- Gas Monitoring
+- Job Safety Analysis
 - and many more
 
 ## Getting Started
