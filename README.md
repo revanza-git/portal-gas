@@ -66,7 +66,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## Authors and Acknowledgments
 
-- [Your Name](https://github.com/yourusername) - Initial work
+- [revanza](https://github.com/revanza-git) - Initial work
 - Special thanks to all contributors and the open-source community.
 
 ## Project Status
