@@ -89,10 +89,9 @@ Contributions are welcome! Please follow these steps to contribute:
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
 
-## Authors and Acknowledgments
+## Authors
 
 - [revanza](https://github.com/revanza-git) - Initial work
-- Special thanks to all contributors and the open-source community.
 
 ## Project Status
 
