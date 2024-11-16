@@ -31,6 +31,16 @@ dotnet restore
 dotnet build
 ```
 
+5. Update the database:
+
+To run the application, a database is required. Originally, this project was developed using SQL Server. For convenience, migration files are located in the `Migrations` folder. You have two options:
+
+- **Single SQL Query File**: This file contains all the necessary SQL commands in one script. Execute it once to create the entire database schema.
+- **Folder of Multiple SQL Files**: This folder contains individual SQL files, each corresponding to a specific part of the database schema. Execute them sequentially, one at a time.
+
+Both options result in the same database schema. Choose the method that best suits your workflow or requirements.
+
+
 ### Running the Application
 
 To run the application locally, use the following command:
