@@ -19,7 +19,7 @@ git clone https://github.com/revanza-git/portal-gas.git
 cd portal-gas
 ```
 
-2. Open the solution in Visual Studio 2022.
+2. Open the solution in Visual Studio.
 
 3. Restore the dependencies:
 ```bash
