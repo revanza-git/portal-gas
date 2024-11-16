@@ -2,7 +2,11 @@
 
 ## Description
 
-Portal Gas is a Blazor project designed to provide a modern, responsive web application. This project leverages the latest .NET 8 framework to deliver high performance and scalability. It is based on one of my company's portals, with all sensitive data removed. The project is open-source and can be used as a template for your own web applications. It includes several modules such as:
+Portal Gas is a foundational template for a modern, responsive web application. Built with Blazor and leveraging the latest .NET 8 framework, this project is optimized for high performance and scalability.
+
+This version serves as a template tailored toward gas operations but includes modules to support other business functions. It provides a flexible starting point for building web applications in related industries or general business contexts.
+
+Explore and customize it to fit your specific operational needs. The project includes modules such as:
 - User Management
 - Work Overtime Management
 - News Management
