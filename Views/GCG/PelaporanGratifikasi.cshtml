@@ -1,0 +1,136 @@
+﻿@model PelaporanGratifikasi
+
+@{
+    Layout = "~/Views/Shared/Panel.cshtml";
+}
+@section TitleBar {
+    <strong>Pelaporan Gratifikasi</strong>
+}
+@section PageLevelPlugin {
+    <link rel="stylesheet" href="~/admin/vendor/bootstrap-datepicker/dist/css/bootstrap-datepicker3.css">
+    <link rel="stylesheet" href="~/admin/vendor/select2/dist/css/select2.css" />
+}
+<!-- main area -->
+<div class="main-content">
+    <div class="panel mb25">
+        <div class="panel-heading border">
+            <ol class="breadcrumb mb0 no-padding">
+                <li>
+                    <a href="javascript:;">Content</a>
+                </li>
+                <li>
+                    <a href="javascript:;">GCG</a>
+                </li>
+                <li class="active"><strong>Pelaporan Gratifikasi</strong></li>
+            </ol>
+        </div>
+        <div class="panel-body">
+            @if (TempData["message"] != null)
+            {
+                <div class="alert alert-success"><i class="fa fa-lg fa-check-circle"></i> @TempData["message"]</div>
+            }
+            <div class="row no-margin">
+                <div class="col-lg-12">
+                    <form class="bordered-group" role="form" method="post" asp-action="PelaporanGratifikasi">
+                        <input type="hidden" asp-for="PelaporanGratifikasiID"/>
+                        <input type="hidden" asp-for="Month" />
+                        <input type="hidden" asp-for="Year" />
+                        <div style="text-align:center;">
+                            <h4 class="bold">Pelaporan Gratifikasi Periode @ViewBag.periode</h4>
+                            <hr />
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="AdaPenerimaanGratifikasi" class="control-label bold">Apakah Ada Penerimaan Gratifikasi?</label>
+                            <div>
+                                <div class="radio">
+                                    <label><input asp-for="AdaPenerimaanGratifikasi" type="radio" value="0"> Tidak ada penerimaan bulan lalu</label>&nbsp;&nbsp;
+                                    <label><input asp-for="AdaPenerimaanGratifikasi" type="radio" value="1"> Ada penerimaan gratifikasi</label>
+                                </div>               
+                                <div style="font-style:italic;">@ViewBag.StatusPengisianPenerimaanGratifikasi</div>
+                                <span asp-validation-for="AdaPenerimaanGratifikasi" class="text-danger"></span>
+                            </div>
+                            <br/>
+                            <label asp-for="DeskripsiPenerimaanGratifikasi" class="control-label">Jika Ada, Sebutkan</label>
+                            <div>
+                                <textarea asp-for="DeskripsiPenerimaanGratifikasi" class="form-control" rows="3"></textarea>
+                                <span asp-validation-for="DeskripsiPenerimaanGratifikasi" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="AdaPemberianGratifikasi" class="control-label bold">Apakah Ada Pemberian Gratifikasi?</label>
+                            <div>
+                                <div class="radio">
+                                    <label><input asp-for="AdaPemberianGratifikasi" type="radio" value="0"> Tidak ada pemberian bulan lalu</label>&nbsp;&nbsp;
+                                    <label><input asp-for="AdaPemberianGratifikasi" type="radio" value="1"> Ada pemberian gratifikasi</label>
+                                </div>
+                                <div style="font-style:italic;">@ViewBag.StatusPengisianPemberianGratifikasi</div>
+                                <span asp-validation-for="AdaPemberianGratifikasi" class="text-danger"></span>
+                            </div>
+                            <br />
+                            <label asp-for="DeskripsiPemberianGratifikasi" class="control-label">Jika Ada, Sebutkan</label>
+                            <div>
+                                <textarea asp-for="DeskripsiPemberianGratifikasi" class="form-control" rows="3"></textarea>
+                                <span asp-validation-for="DeskripsiPemberianGratifikasi" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="AdaPermintaanGratifikasi" class="control-label bold">Apakah Ada Permintaan Gratifikasi?</label>
+                            <div>
+                                <div class="radio">
+                                    <label><input asp-for="AdaPermintaanGratifikasi" type="radio" value="0"> Tidak ada permintaan bulan lalu</label>&nbsp;&nbsp;
+                                    <label><input asp-for="AdaPermintaanGratifikasi" type="radio" value="1"> Ada permintaan gratifikasi</label>
+                                </div>
+                                <div style="font-style:italic;">@ViewBag.StatusPengisianPermintaanGratifikasi</div>
+                                <span asp-validation-for="AdaPermintaanGratifikasi" class="text-danger"></span>
+                            </div>
+                            <br />
+                            <label asp-for="DeskripsiPermintaanGratifikasi" class="control-label">Jika Ada, Sebutkan</label>
+                            <div>
+                                <textarea asp-for="DeskripsiPermintaanGratifikasi" class="form-control" rows="3"></textarea>
+                                <span asp-validation-for="DeskripsiPermintaanGratifikasi" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-sm btn-round btn-success"><i class="fa fa-save"></i> Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /main area -->
+@section PageLevelScripts {
+    <script src="~/admin/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="~/admin/vendor/select2/dist/js/select2.js"></script>
+}
+@section InitPageScripts {
+    <script>
+        $(".datepicker").datepicker({
+            format: 'dd/mm/yyyy',
+            autoclose: true
+        });
+
+        $("#Source").select2({
+            placeholder: "Pilih Source",
+            allowClear: true
+        });
+
+        $("#Location").select2({
+            placeholder: "Pilih Location",
+            allowClear: true
+        });
+        $("#Priority").select2({
+            placeholder: "Pilih Priority",
+            allowClear: true
+        });
+        $("#Responsible").select2({
+            placeholder: "Pilih Responsible",
+            allowClear: true
+        });
+        $("#Verifier").select2({
+            placeholder: "Pilih Verifier",
+            allowClear: true
+        });
+    </script>
+}

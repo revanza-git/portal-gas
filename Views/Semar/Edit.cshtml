@@ -1,0 +1,249 @@
+@model Semar
+
+@{
+    Layout = "~/Views/Shared/Panel.cshtml";
+}
+
+@section TitleBar {
+    <strong>Sustainability and Excellent Management of Nusantara Regas (SEMAR)</strong>
+}
+
+@section PageLevelPlugin {
+    <link rel="stylesheet" href="~/admin/vendor/bootstrap-datepicker/dist/css/bootstrap-datepicker3.css">
+    <link rel="stylesheet" href="~/admin/vendor/select2/dist/css/select2.min.css" />
+}
+
+<!-- main area -->
+<div class="main-content">
+    <div class="panel mb25">
+        <div class="panel-heading border">
+            <ol class="breadcrumb mb0 no-padding">
+                <li>
+                    <a href="javascript:;">Content</a>
+                </li>
+                <li>
+                    <a href="javascript:;">SEMAR</a>
+                </li>
+                <li class="active"><strong>@ViewBag.Title</strong></li>
+            </ol>
+        </div>
+        <div class="panel-body">
+            <div class="row no-margin">
+                <div class="col-lg-12">
+                    <form class="form-horizontal bordered-group" role="form" method="post" enctype="multipart/form-data" asp-action="Edit">
+
+                        <div class="form-group">
+                            <label asp-for="SemarID" class="col-sm-2 control-label">SemarID</label>
+                            <div class="col-sm-10">
+                                <input asp-for="SemarID" readonly type="text" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Type" class="col-sm-2 control-label">Type</label>
+                            <div class="col-sm-10">
+                                <select asp-for="Type" class="form-control">
+                                    <option>-- Pilih Tipe Dokumen --</option>
+                                    @if (User.IsInRole("AdminQM"))
+                                    {
+                                        @foreach (var item in ViewBag.SemarTypes)
+                                        {
+                                            <option value="@item.SemarTypeID">@item.Deskripsi</option>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        @foreach (var item in ViewBag.SemarTypes)
+                                        {
+                                            if (item.Type != "STK")
+                                            {
+                                                <option value="@item.SemarTypeID">@item.Deskripsi</option>
+                                            }
+                                        }
+
+                                    }
+                                </select>
+                                <span asp-validation-for="Type" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="NoDocument" class="col-sm-2 control-label">No. Document</label>
+                            <div class="col-sm-10">
+                                <input asp-for="NoDocument" type="text" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Title" class="col-sm-2 control-label">Title</label>
+                            <div class="col-sm-10">
+                                <input asp-for="Title" type="text" class="form-control">
+                                <span asp-validation-for="Title" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="SemarLevel" class="col-sm-2 control-label">Level</label>
+                            <div class="col-sm-10">
+                                <select asp-for="SemarLevel" class="form-control">
+                                    <option>-- Pilih Level SK --</option>
+                                    @if (User.IsInRole("AdminQM"))
+                                    {
+                                        @foreach (var item in ViewBag.SemarLevels)
+                                        {
+                                            <option value="@item.SemarLevelID">@item.Deskripsi</option>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        @foreach (var item in ViewBag.SemarLevels)
+                                        {
+                                            if (item.SemarLevelID == 1)
+                                            {
+                                                <option value="@item.SemarLevelID">@item.Deskripsi</option>
+                                            }
+
+                                        }
+                                    }
+                                </select>
+                                <span asp-validation-for="SemarLevel" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Owner" class="col-sm-2 control-label">Fungsi</label>
+                            <div class="col-sm-10">
+                                <select asp-for="Owner" class="form-control">
+                                    <option>-- Pilih Fungsi --</option>
+                                    @foreach (var item in ViewBag.Departments)
+                                    {
+                                        <option value="@item.DepartmentID">@item.Deskripsi</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="Owner" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="PublishDate" class="col-sm-2 control-label">Publish Date</label>
+                            <div class="col-sm-10">
+                                <input asp-for="PublishDate" value='@Model.PublishDate.ToString("dd/MM/yyyy")' type="text" class="form-control datepicker">
+                                <span asp-validation-for="PublishDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="ExpiredDate" class="col-sm-2 control-label">Expired Date</label>
+                            <div class="col-sm-10">
+                                <input asp-for="ExpiredDate" value='@Model.ExpiredDate.ToString("dd/MM/yyyy")' type="text" class="form-control datepicker">
+                                <span asp-validation-for="ExpiredDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Description" class="col-sm-2 control-label">Catatan</label>
+                            <div class="col-sm-10">
+                                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Revision" class="col-sm-2 control-label">Revision</label>
+                            <div class="col-sm-10">
+                                <textarea asp-for="Revision" class="form-control" rows="3"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">File</label>
+                            <div class="col-sm-10">
+                                <input type="file" name="files" multiple>
+                                <p class="help-block">Upload file document.</p>
+                                @if (Model.FileName != null)
+                                {
+                                    <input type="hidden" asp-for="FileName" />
+                                    <a asp-controller="Semar" asp-action="DownloadFile" asp-route-SemarId="@Model.SemarID" class="btn btn-primary btn-round btn-xs"><i class="fa fa-download"></i> Download File</a>
+                                    <input asp-for="ContentType" type="hidden" class="form-control">
+                                }
+                                <span asp-validation-for="FileName" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Status" class="col-sm-2 control-label">Status</label>
+                            <div class="col-sm-10">
+                                @if (User.IsInRole("AdminQM"))
+                                {
+                                    <select asp-for="Status" class="form-control">
+                                        <option>-- Pilih Status --</option>
+                                        @foreach (var item in ViewBag.Statuses)
+                                        {
+                                            <option value="@item.SemarStatusID">@item.Deskripsi</option>
+                                        }
+                                    </select>
+                                }
+                                else
+                                {
+                                    @if (Model.Status == 1)
+                                    {
+                                        <input type="text" class="form-control" value="Aktif" disabled />
+                                    }
+                                    else
+                                    {
+                                        <input type="text" class="form-control" value="Tidak Aktif" disabled />
+                                    }
+                                }
+
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-sm btn-round btn-success"><i class="fa fa-save"></i> Submit</button>
+                            <a asp-controller="Semar" asp-action="Index" class="btn btn-sm btn-round btn-danger"><i class="fa fa-arrow-left"></i> Back</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /main area -->
+
+@section PageLevelScripts {
+    <script src="~/admin/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="~/admin/vendor/select2/dist/js/select2.min.js"></script>
+}    
+
+@section InitPageScripts {
+    <script>
+        $(".datepicker").datepicker({
+            format: 'dd/mm/yyyy',
+            autoclose: true
+        });
+        $("#SemarLevel").select2({
+            placeholder: "Pilih Semar Level",
+            allowClear: true
+        });
+        $("#Type").select2({
+            placeholder: "Pilih Type",
+            allowClear: true
+        });
+        $("#Status").select2({
+            placeholder: "Pilih Status",
+            allowClear: true
+        });
+
+        if ($('#Type').val() != 5) {
+            $("#SemarLevel").prop('disabled', 'disabled');
+        } else {
+            $("#SemarLevel").prop('disabled', false);
+        }
+
+        $("#Type").on("change", function (e) {
+            if ($(this).val() != 5) {
+                $("#SemarLevel").prop('disabled', 'disabled');
+            } else {
+                $("#SemarLevel").prop('disabled', false);
+            }
+        });
+    </script>
+}

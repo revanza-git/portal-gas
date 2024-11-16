@@ -1,0 +1,38 @@
+@{
+    Layout = "";
+    @model IEnumerable<Recap>
+}
+
+<table id="table1" class="table table-bordered bordered table-striped table-condensed datatable">
+    <thead>
+        <tr>
+            <th>Tanggal Absensi</th>
+            <th>Jam Mulai Kerja</th>
+            <th>Jam Selesai Kerja</th>
+            <th>Keterangan Kerja</th>
+            <th>Jam Awal Lembur</th>
+            <th>Jam Akhir Lembur</th>
+            <th>Total Jam Lembur</th>
+            <th>Keterangan Lembur</th>
+            <th>Pemberi Tugas</th>
+        </tr>
+    </thead>
+    <tbody id="listBody">
+        @foreach (var item in Model)
+        {
+        <tr>
+            <td>@item.TanggalAbsensi</td>
+            <td>@item.JamMulaiKerja</td>
+            <td>@item.JamSelesaiKerja</td>
+            <td>@item.KeteranganKerja</td>
+            <td>@item.JamAwalLembur</td>
+            <td>@item.JamAkhirLembur</td>
+            @{ String tdRound = Math.Round(Double.Parse(@item.TotalJamLembur), 2).ToString(); }
+            <td>@tdRound</td>
+            <td>@item.KeteranganLembur</td>
+
+            <td>@item.PemberiTugas</td>
+        </tr>
+        }
+    </tbody>
+</table>

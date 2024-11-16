@@ -1,0 +1,28 @@
+@model IEnumerable<Aman>
+
+@{
+    Layout = "~/Views/Shared/PanelPortal.cshtml";
+}
+
+ <!-- main area -->
+<div class="main-content">
+    <div class="panel">
+        <div class="panel-heading border">
+            <strong>Corporate Event</strong>
+        </div>
+        <div class="panel-body">
+            <iframe style="border: 0" width="800" height="600" frameborder="0" scrolling="no" src="https://mail.nusantararegas.com:8443/home/portal@nusantararegas.com/Calendar.html"></iframe>
+        </div>
+    </div>
+
+</div>
+<!-- /main area -->
+
+@section PageLevelScripts {
+    <script src="~/admin/vendor/datatables/media/js/jquery.dataTables.js"></script>
+}
+
+@section InitPageScripts {
+    <script src="~/admin/scripts/extentions/bootstrap-datatables.js"></script>
+    <script src="~/admin/scripts/pages/datatables.js"></script>
+}

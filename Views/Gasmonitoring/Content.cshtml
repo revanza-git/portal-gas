@@ -1,0 +1,1115 @@
+﻿@{ 
+    // FSRU
+    List<FSRUData> fsruList = (List<FSRUData>)ViewData["FSRU"];
+
+    // ORF
+    List<ORFData> orfList = (List<ORFData>)ViewData["ORF"];
+    List<ORFData> orfYesterday = (List<ORFData>)ViewData["ORFYesterday"];
+    Decimal volumeBefore1 = 0;
+    Decimal volumeBefore2 = 0;
+    Decimal volumeBefore3 = 0;
+    Decimal volumeBefore4 = 0;
+    if (orfYesterday != null)
+    {
+        try
+        {
+            volumeBefore1 = orfYesterday.FirstOrDefault(x => x.LineID == 1).Volume;
+        } catch (Exception) { }
+
+        try
+        {
+            volumeBefore2 = orfYesterday.FirstOrDefault(x => x.LineID == 2).Volume;
+        }
+        catch (Exception) { }
+
+        try
+        {
+            volumeBefore3 = orfYesterday.FirstOrDefault(x => x.LineID == 3).VolumeA + orfYesterday.FirstOrDefault(x => x.LineID == 3).VolumeB + orfYesterday.FirstOrDefault(x => x.LineID == 3).VolumeC;
+        }
+        catch (Exception) { }
+
+        try
+        {
+            volumeBefore4 = orfYesterday.FirstOrDefault(x => x.LineID == 4).Volume;
+        }
+        catch (Exception) { }
+    }
+
+    List<ORFData> orfYesterday2 = (List<ORFData>)ViewData["ORFYesterday2"];
+    Decimal volumeBefore21 = 0;
+    Decimal volumeBefore22 = 0;
+    Decimal volumeBefore23 = 0;
+    Decimal volumeBefore24 = 0;
+    if (orfYesterday != null)
+    {
+        try
+        {
+            volumeBefore21 = orfYesterday2.FirstOrDefault(x => x.LineID == 1).Volume;
+            volumeBefore22 = orfYesterday2.FirstOrDefault(x => x.LineID == 2).Volume;
+            volumeBefore23 = orfYesterday2.FirstOrDefault(x => x.LineID == 3).VolumeA + orfYesterday2.FirstOrDefault(x => x.LineID == 3).VolumeB + orfYesterday2.FirstOrDefault(x => x.LineID == 3).VolumeC;
+            volumeBefore24 = orfYesterday2.FirstOrDefault(x => x.LineID == 4).Volume;
+        }
+        catch (Exception) { }
+
+        try
+        {
+            volumeBefore21 = orfYesterday2.FirstOrDefault(x => x.LineID == 1).Volume;
+        }
+        catch (Exception) { }
+
+        try
+        {
+            volumeBefore22 = orfYesterday2.FirstOrDefault(x => x.LineID == 2).Volume;
+        }
+        catch (Exception) { }
+
+        try
+        {
+            volumeBefore23 = orfYesterday2.FirstOrDefault(x => x.LineID == 3).VolumeA + orfYesterday2.FirstOrDefault(x => x.LineID == 3).VolumeB + orfYesterday2.FirstOrDefault(x => x.LineID == 3).VolumeC;
+        }
+        catch (Exception) { }
+
+        try
+        {
+            volumeBefore24 = orfYesterday2.FirstOrDefault(x => x.LineID == 4).Volume;
+        }
+        catch (Exception) { }
+    }
+
+    Decimal DailyNet1 = volumeBefore1 - volumeBefore21;
+    Decimal DailyNet2 = volumeBefore2 - volumeBefore22;
+    Decimal DailyNet3 = volumeBefore3 - volumeBefore23;
+    Decimal DailyNet4 = volumeBefore4 - volumeBefore24;
+
+    // FSRU Daily
+    FSRUDataDaily fsruDaily = (FSRUDataDaily)ViewData["FSRUDaily"];
+    Decimal CummulativeRateBefore = (Decimal)ViewData["FSRUCummulativeRate"];
+    Decimal CummulativeRate = CummulativeRateBefore + fsruDaily.Rate;
+
+    // ORF Daily 
+    List<ORFDataDaily> orfDaily = (List<ORFDataDaily>)ViewData["ORFDaily"];
+    ORFDataDaily orfDailyLine1 = orfDaily.FirstOrDefault(x => x.LineID == 1);
+    ORFDataDaily orfDailyLine2 = orfDaily.FirstOrDefault(x => x.LineID == 2);
+    ORFDataDaily orfDailyLine3 = orfDaily.FirstOrDefault(x => x.LineID == 3);
+    ORFDataDaily orfDailyLine4 = orfDaily.FirstOrDefault(x => x.LineID == 4);
+    Decimal totalLine1 = orfDailyLine1.Methane + orfDailyLine1.Nitrogen + orfDailyLine1.CO2 + orfDailyLine1.Ethane + orfDailyLine1.Propane + orfDailyLine1.Water + orfDailyLine1.iButane + orfDailyLine1.nButane + orfDailyLine1.iPentane + orfDailyLine1.nPentane + orfDailyLine1.nHexane;
+    Decimal totalLine2 = orfDailyLine2.Methane + orfDailyLine2.Nitrogen + orfDailyLine2.CO2 + orfDailyLine2.Ethane + orfDailyLine2.Propane + orfDailyLine2.Water + orfDailyLine2.iButane + orfDailyLine2.nButane + orfDailyLine2.iPentane + orfDailyLine2.nPentane + orfDailyLine2.nHexane;
+    Decimal totalLine3 = orfDailyLine3.Methane + orfDailyLine3.Nitrogen + orfDailyLine3.CO2 + orfDailyLine3.Ethane + orfDailyLine3.Propane + orfDailyLine3.Water + orfDailyLine3.iButane + orfDailyLine3.nButane + orfDailyLine3.iPentane + orfDailyLine3.nPentane + orfDailyLine3.nHexane;
+    Decimal totalLine4 = orfDailyLine4.Methane + orfDailyLine4.Nitrogen + orfDailyLine4.CO2 + orfDailyLine4.Ethane + orfDailyLine4.Propane + orfDailyLine4.Water + orfDailyLine4.iButane + orfDailyLine4.nButane + orfDailyLine4.iPentane + orfDailyLine4.nPentane + orfDailyLine4.nHexane;
+    Decimal barg1 = orfDailyLine1.Pressure / (Decimal) 14.5;
+    Decimal barg2 = orfDailyLine2.Pressure / (Decimal) 14.5;
+    Decimal barg3 = orfDailyLine3.Pressure / (Decimal) 14.5;
+    Decimal barg4 = orfDailyLine4.Pressure / (Decimal) 14.5;
+    Decimal c1 = (orfDailyLine1.Temperature - 32 ) / (Decimal) 1.8;
+    Decimal c2 = (orfDailyLine2.Temperature - 32) / (Decimal) 1.8;
+    Decimal c3 = (orfDailyLine3.Temperature - 32) / (Decimal) 1.8;
+    Decimal c4 = (orfDailyLine4.Temperature - 32) / (Decimal) 1.8;
+
+    // TUG Boats
+    List<Boat> boats = (List<Boat>)ViewData["Boats"];
+    List<TUGBoatsData> tugBoatsData = (List<TUGBoatsData>)ViewData["TUGBoats"];
+
+    // Vessel
+    List<VesselData> vesselData = (List<VesselData>) ViewData["VesselD"];
+    List<Vessel> vessels = (List<Vessel>)ViewData["Vessel"];
+
+    // Activity
+    List<GasmonActivity> activities = (List<GasmonActivity>)ViewData["Activity"];
+
+    // Cargo
+    List<Cargo> cargos = (List<Cargo>)ViewData["Cargo"];
+}
+@{
+    Layout = "";
+}
+<ul>
+    <li><a href="#tabs-1">FSRU</a></li>
+    <li><a href="#tabs-2">LINE 350 MK</a></li>
+    <li><a href="#tabs-3">LINE 620 MK</a></li>
+    <li><a href="#tabs-4">LINE 350 TP</a></li>
+    <li><a href="#tabs-5">PERTAGAS</a></li>
+    <li><a href="#tabs-6">TUG BOATS</a></li>
+    <li><a href="#tabs-7">LNG CARRIER</a></li>
+    <li><a href="#tabs-8">ACTIVITIES</a></li>
+</ul>
+<div id="tabs-1">
+    <div class="panelx panel">
+        <div class="panel-heading" style="height:15px">
+            <div class="pull-left"><b>Hourly Report</b></div>
+            <div class="panel-controls">
+                <a href="#" class="panel-collapse" data-toggle="panel-collapse">
+                    <i class="panel-icon-chevron"></i>
+                </a>
+            </div>
+        </div>
+        <div class="panel-body">
+            <table id="table1" class="table table-bordered bordered table-striped table-condensed datatable">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Pressure</th>
+                        <th>Temperature</th>
+                        <th>Flow (MMSCFD)</th>
+                        <th>Flow (m3/h)</th>
+                        <th>ROB LNG (m3)</th>
+                        <th>MMSCF</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in fsruList)
+                    {
+                        <tr>
+                            <td>@item.Time</td>
+                            <td class="editable" data-id="@item.FSRUDataID" data-type="FSRU" data-param="Pressure">@item.Pressure.ToString("N3")</td>
+                            <td class="editable" data-id="@item.FSRUDataID" data-type="FSRU" data-param="Temperature">@item.Temperature.ToString("N3")</td>
+                            <td class="editable" data-id="@item.FSRUDataID" data-type="FSRU" data-param="Flow1">@item.Flow1.ToString("N3")</td>
+                            <td class="editable" data-id="@item.FSRUDataID" data-type="FSRU" data-param="Flow2">@item.Flow2.ToString("N3")</td>
+                            <td class="editable" data-id="@item.FSRUDataID" data-type="FSRU" data-param="RobLNG">@item.RobLNG.ToString("N3")</td>
+                            <td data-id="@item.FSRUDataID" data-type="FSRU" data-param="MMSCF">@item.MMSCF.ToString("N3")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="panelx panel">
+        <div class="panel-heading" style="height:15px">
+            <div class="pull-left"><b>Daily Report</b></div>
+            <div class="panel-controls">
+                <a href="#" class="panel-collapse" data-toggle="panel-collapse">
+                    <i class="panel-icon-chevron"></i>
+                </a>
+            </div>
+        </div>
+        <div class="panel-body">
+            <b>RE-GASIFICATION SENT OUT (Average)</b>
+            <table id="table1a" class="table table-bordered bordered table-striped table-condensed datatable">
+                <thead>
+                    <tr>
+                        <th>Rate (MMscfd)</th>
+                        <th>Press (Bar)</th>
+                        <th>Temp (<sup>o</sup>C)</th>
+                        <th>Cummulative Rate (MMscf)</th>
+                        <th>LNG Tank Inventory (M<sup>3</sup>)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="editable" data-id="@fsruDaily.FSRUDataDailyID" data-type="FSRUDaily" data-param="Rate">@fsruDaily.Rate.ToString("N3")</td>
+                        <td class="editable" data-id="@fsruDaily.FSRUDataDailyID" data-type="FSRUDaily" data-param="Pressure">@fsruDaily.Pressure.ToString("N3")</td>
+                        <td class="editable" data-id="@fsruDaily.FSRUDataDailyID" data-type="FSRUDaily" data-param="Temperature">@fsruDaily.Temperature.ToString("N3")</td>
+                        <td data-id="@fsruDaily.FSRUDataDailyID" data-type="FSRUDaily" data-param="CummulativeRate">@CummulativeRate.ToString("N3")</td>
+                        <td class="editable" data-id="@fsruDaily.FSRUDataDailyID" data-type="FSRUDaily" data-param="LNGTankInventory">@fsruDaily.LNGTankInventory.ToString("N3")</td>
+                    </tr>
+                </tbody>
+            </table>
+            <input type="hidden" id="CummulativeRateBefore" value="@CummulativeRateBefore" />
+            <!--
+            <b>Estimated date carrier should berth</b>
+            <table id="table1b" class="table table-bordered bordered table-striped table-condensed datatable">
+                <thead>
+                    <tr>
+                        <th>Consumptions</th>
+                        <th>Regas Rate (mmscfd)</th>
+                        <th>LNG M<sup>3</sup><br />including fuel for boilers</th>
+                        <th>Days LNG<br />available</th>
+                        <th>Commense Loading<br />3500 m<sup>3</sup>/hr</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>Current</th>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <th>Estimated</th>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+            -->
+            <b>LNG Consumption</b>
+            <table id="table1c" class="table table-bordered bordered table-striped table-condensed datatable">
+                <thead>
+                    <tr>
+                        <th>LNG Consumption</th>
+                        <th>M<sup>3</sup></th>
+                        <th>Kilograms</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>In Boiler as Fuel</th>
+                        <td class="editable" data-id="@fsruDaily.FSRUDataDailyID" data-type="FSRUDaily" data-param="BoFM3">@fsruDaily.BoFM3.ToString("N3")</td>
+                        <td class="editable" data-id="@fsruDaily.FSRUDataDailyID" data-type="FSRUDaily" data-param="BoFKg">@fsruDaily.BoFKg.ToString("N3")</td>
+                    </tr>
+                    <tr>
+                        <th>LNG Deliverd to ORF</th>
+                        <td class="editable" data-id="@fsruDaily.FSRUDataDailyID" data-type="FSRUDaily" data-param="DeliveredToORFM3">@fsruDaily.DeliveredToORFM3.ToString("N3")</td>
+                        <td class="editable" data-id="@fsruDaily.FSRUDataDailyID" data-type="FSRUDaily" data-param="DeliveredToORFKg">@fsruDaily.DeliveredToORFKg.ToString("N3")</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th>Total</th>
+                        @{ var totalM3 = fsruDaily.BoFM3 + fsruDaily.DeliveredToORFM3;
+                           var totalKg = fsruDaily.BoFKg + fsruDaily.DeliveredToORFKg;
+                        }
+                        <td data-id="@fsruDaily.FSRUDataDailyID" data-type="FSRUDaily" data-param="TotalM3">@totalM3.ToString("N3")</td>
+                        <td data-id="@fsruDaily.FSRUDataDailyID" data-type="FSRUDaily" data-param="TotalKg">@totalKg.ToString("N3")</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+<div id="tabs-2">
+    <div class="panelx panel">
+        <div class="panel-heading" style="height:15px">
+            <div class="pull-left"><b><i class="fa fa-file-o"></i> Hourly Report</b></div>
+            <div class="panel-controls">
+                <a href="#" class="panel-collapse" data-toggle="panel-collapse">
+                    <i class="panel-icon-chevron"></i>
+                </a>
+            </div>
+        </div>
+        <div class="panel-body">
+            <table id="table2" class="table display compact table-bordered bordered table-striped table-condensed datatable">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Vol. Actual (MSCF)</th>
+                        <th>Flow/Jam (MMSCF)</th>
+                        <th>GHV (BTU/SCF)</th>
+                        <th>Temperature (F)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in orfList.Where(x => x.LineID == 1))
+                    {
+                        var flow = (item.Volume - volumeBefore1) * 24 / 1000;
+                        <tr>
+                            <td>@item.Time</td>
+                            <td class="editable" data-id="@item.ORFDataID" data-type="ORF" data-param="Volume">@item.Volume.ToString("N3")</td>
+                            <td data-id="@item.ORFDataID" data-type="ORF" data-param="Flow">@flow.ToString("N3")</td>
+                            <td class="editable" data-id="@item.ORFDataID" data-type="ORF" data-param="GHV">@item.GHV.ToString("N3")</td>
+                            <td class="editable" data-id="@item.ORFDataID" data-type="ORF" data-param="Temperature">@item.Temperature.ToString("N2")</td>
+                        </tr>
+                        volumeBefore1 = item.Volume;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="panelx panel">
+        <div class="panel-heading" style="height:15px">
+            <div class="pull-left"><b><i class="fa fa-file-o"></i> Daily Report</b></div>
+            <div class="panel-controls">
+                <a href="#" class="panel-collapse" data-toggle="panel-collapse">
+                    <i class="panel-icon-chevron"></i>
+                </a>
+            </div>
+        </div>
+        <div class="panel-body">
+            <b>Gas Sent</b>
+            <table id="table2a" class="table table-bordered bordered table-striped table-condensed datatable">
+                <thead>
+                    <tr>
+                        <th>Daily Net (MSCFD)</th>
+                        <th>Heating Value (BTU/SCF)</th>
+                        <th>Daily Energy (MMBTUD)</th>
+                        <th>Pressure (Psig)</th>
+                        <th>Pressure (Barg)</th>
+                        <th>Temp (<sup>o</sup>F)</th>
+                        <th>Temp (<sup>o</sup>C)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td data-id="@orfDailyLine1.ORFDataDailyID" data-type="ORFDaily" data-param="DailyNet">@DailyNet1.ToString("N3")</td>
+                        <td class="editable" data-id="@orfDailyLine1.ORFDataDailyID" data-type="ORFDaily" data-param="HeatingValue">@orfDailyLine1.HeatingValue.ToString("N3")</td>
+                        <td class="editable" data-id="@orfDailyLine1.ORFDataDailyID" data-type="ORFDaily" data-param="DailyEnergy">@orfDailyLine1.DailyEnergy.ToString("N3")</td>
+                        <td class="editable" data-id="@orfDailyLine1.ORFDataDailyID" data-type="ORFDaily" data-param="Pressure">@orfDailyLine1.Pressure.ToString("N2")</td>
+                        <td data-id="@orfDailyLine1.ORFDataDailyID" data-type="ORFDaily" data-param="Barg">@barg1.ToString("N2")</td>
+                        <td class="editable" data-id="@orfDailyLine1.ORFDataDailyID" data-type="ORFDaily" data-param="Temperature">@orfDailyLine1.Temperature.ToString("N2")</td>
+                        <td data-id="@orfDailyLine1.ORFDataDailyID" data-type="ORFDaily" data-param="C">@c1.ToString("N2")</td>
+                    </tr>
+                </tbody>
+            </table>
+            <b>Gas Composition</b>
+            <table id="table2b" class="table table-bordered bordered table-striped table-condensed datatable">
+                <thead>
+                    <tr>
+                        <th>GAS COMPOSITION</th>
+                        <td>% Mol</td>
+                        <th>GAS COMPOSITION</th>
+                        <th>% Mol</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>Methane</th>
+                        <td class="editable" data-id="@orfDailyLine1.ORFDataDailyID" data-type="ORFDaily" data-param="Methane">@orfDailyLine1.Methane.ToString("N4")</td>
+                        <th>i-Butane</th>
+                        <td class="editable" data-id="@orfDailyLine1.ORFDataDailyID" data-type="ORFDaily" data-param="iButane">@orfDailyLine1.iButane.ToString("N4")</td>
+                    </tr>
+                    <tr>
+                        <th>Nitrogen</th>
+                        <td class="editable" data-id="@orfDailyLine1.ORFDataDailyID" data-type="ORFDaily" data-param="Nitrogen">@orfDailyLine1.Nitrogen.ToString("N4")</td>
+                        <th>n-Butane</th>
+                        <td class="editable" data-id="@orfDailyLine1.ORFDataDailyID" data-type="ORFDaily" data-param="nButane">@orfDailyLine1.nButane.ToString("N4")</td>
+                    </tr>
+                    <tr>
+                        <th>CO2</th>
+                        <td class="editable" data-id="@orfDailyLine1.ORFDataDailyID" data-type="ORFDaily" data-param="CO2">@orfDailyLine1.CO2.ToString("N4")</td>
+                        <th>i-Pentane</th>
+                        <td class="editable" data-id="@orfDailyLine1.ORFDataDailyID" data-type="ORFDaily" data-param="iPentane">@orfDailyLine1.iPentane.ToString("N4")</td>
+                    </tr>
+                    <tr>
+                        <th>Ethane</th>
+                        <td class="editable" data-id="@orfDailyLine1.ORFDataDailyID" data-type="ORFDaily" data-param="Ethane">@orfDailyLine1.Ethane.ToString("N4")</td>
+                        <th>n-Pentane</th>
+                        <td class="editable" data-id="@orfDailyLine1.ORFDataDailyID" data-type="ORFDaily" data-param="nPentane">@orfDailyLine1.nPentane.ToString("N4")</td>
+                    </tr>
+                    <tr>
+                        <th>Propane</th>
+                        <td class="editable" data-id="@orfDailyLine1.ORFDataDailyID" data-type="ORFDaily" data-param="Propane">@orfDailyLine1.Propane.ToString("N4")</td>
+                        <th>n-Hexane</th>
+                        <td class="editable" data-id="@orfDailyLine1.ORFDataDailyID" data-type="ORFDaily" data-param="nHexane">@orfDailyLine1.nHexane.ToString("N4")</td>
+                    </tr>
+                    <tr>
+                        <th>Water</th>
+                        <td class="editable" data-id="@orfDailyLine1.ORFDataDailyID" data-type="ORFDaily" data-param="Water">@orfDailyLine1.Water.ToString("N4")</td>
+                        <th>% Total</th>
+                        <td data-id="@orfDailyLine1.ORFDataDailyID" data-type="ORFDaily" data-param="TotalLine1">@totalLine1</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div id="tabs-3">
+    <div class="panelx panel">
+        <div class="panel-heading" style="height:15px">
+            <div class="pull-left"><b><i class="fa fa-file-o"></i> Hourly Report</b></div>
+            <div class="panel-controls">
+                <a href="#" class="panel-collapse" data-toggle="panel-collapse">
+                    <i class="panel-icon-chevron"></i>
+                </a>
+            </div>
+        </div>
+        <div class="panel-body">
+            <table id="table3" class="table table-bordered bordered table-striped table-condensed datatable">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Vol. Actual (MSCF)</th>
+                        <th>Flow/Jam (MMSCF)</th>
+                        <th>GHV (BTU/SCF)</th>
+                        <th>Temperature (F)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in orfList.Where(x => x.LineID == 2))
+                    {
+                        var flow = (item.Volume - volumeBefore2) * 24 / 1000;
+                        <tr>
+                            <td>@item.Time</td>
+                            <td class="editable" data-id="@item.ORFDataID" data-type="ORF" data-param="Volume">@item.Volume.ToString("N3")</td>
+                            <td data-id="@item.ORFDataID" data-type="ORF" data-param="Flow">@flow.ToString("N3")</td>
+                            <td class="editable" data-id="@item.ORFDataID" data-type="ORF" data-param="GHV">@item.GHV.ToString("N3")</td>
+                            <td class="editable" data-id="@item.ORFDataID" data-type="ORF" data-param="Temperature">@item.Temperature.ToString("N2")</td>
+                        </tr>
+                        volumeBefore2 = item.Volume;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="panelx panel">
+        <div class="panel-heading" style="height:15px">
+            <div class="pull-left"><b><i class="fa fa-file-o"></i> Daily Report</b></div>
+            <div class="panel-controls">
+                <a href="#" class="panel-collapse" data-toggle="panel-collapse">
+                    <i class="panel-icon-chevron"></i>
+                </a>
+            </div>
+        </div>
+        <div class="panel-body">
+            <b>Gas Sent</b>
+            <table id="table3a" class="table table-bordered bordered table-striped table-condensed datatable">
+                <thead>
+                    <tr>
+                        <th>Daily Net (MSCFD)</th>
+                        <th>Heating Value (BTU/SCF)</th>
+                        <th>Daily Energy (MMBTUD)</th>
+                        <th>Pressure (Psig)</th>
+                        <th>Pressure (Barg)</th>
+                        <th>Temp (<sup>o</sup>F)</th>
+                        <th>Temp (<sup>o</sup>C)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td data-id="@orfDailyLine2.ORFDataDailyID" data-type="ORFDaily" data-param="DailyNet">@DailyNet2.ToString("N3")</td>
+                        <td class="editable" data-id="@orfDailyLine2.ORFDataDailyID" data-type="ORFDaily" data-param="HeatingValue">@orfDailyLine2.HeatingValue.ToString("N3")</td>
+                        <td class="editable" data-id="@orfDailyLine2.ORFDataDailyID" data-type="ORFDaily" data-param="DailyEnergy">@orfDailyLine2.DailyEnergy.ToString("N3")</td>
+                        <td class="editable" data-id="@orfDailyLine2.ORFDataDailyID" data-type="ORFDaily" data-param="Pressure">@orfDailyLine2.Pressure.ToString("N2")</td>
+                        <td data-id="@orfDailyLine2.ORFDataDailyID" data-type="ORFDaily" data-param="Barg">@barg2.ToString("N2")</td>
+                        <td class="editable" data-id="@orfDailyLine2.ORFDataDailyID" data-type="ORFDaily" data-param="Temperature">@orfDailyLine2.Temperature.ToString("N2")</td>
+                        <td data-id="@orfDailyLine2.ORFDataDailyID" data-type="ORFDaily" data-param="C">@c2.ToString("N2")</td>
+                    </tr>
+                </tbody>
+            </table>
+            <b>Gas Composition</b>
+            <table id="table3b" class="table table-bordered bordered table-striped table-condensed datatable">
+                <thead>
+                    <tr>
+                        <th>GAS COMPOSITION</th>
+                        <td>% Mol</td>
+                        <th>GAS COMPOSITION</th>
+                        <th>% Mol</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>Methane</th>
+                        <td class="editable" data-id="@orfDailyLine2.ORFDataDailyID" data-type="ORFDaily" data-param="Methane">@orfDailyLine2.Methane.ToString("N4")</td>
+                        <th>i-Butane</th>
+                        <td class="editable" data-id="@orfDailyLine2.ORFDataDailyID" data-type="ORFDaily" data-param="iButane">@orfDailyLine2.iButane.ToString("N4")</td>
+                    </tr>
+                    <tr>
+                        <th>Nitrogen</th>
+                        <td class="editable" data-id="@orfDailyLine2.ORFDataDailyID" data-type="ORFDaily" data-param="Nitrogen">@orfDailyLine2.Nitrogen.ToString("N4")</td>
+                        <th>n-Butane</th>
+                        <td class="editable" data-id="@orfDailyLine2.ORFDataDailyID" data-type="ORFDaily" data-param="nButane">@orfDailyLine2.nButane.ToString("N4")</td>
+                    </tr>
+                    <tr>
+                        <th>CO2</th>
+                        <td class="editable" data-id="@orfDailyLine2.ORFDataDailyID" data-type="ORFDaily" data-param="CO2">@orfDailyLine2.CO2.ToString("N4")</td>
+                        <th>i-Pentane</th>
+                        <td class="editable" data-id="@orfDailyLine2.ORFDataDailyID" data-type="ORFDaily" data-param="iPentane">@orfDailyLine2.iPentane.ToString("N4")</td>
+                    </tr>
+                    <tr>
+                        <th>Ethane</th>
+                        <td class="editable" data-id="@orfDailyLine2.ORFDataDailyID" data-type="ORFDaily" data-param="Ethane">@orfDailyLine2.Ethane.ToString("N4")</td>
+                        <th>n-Pentane</th>
+                        <td class="editable" data-id="@orfDailyLine2.ORFDataDailyID" data-type="ORFDaily" data-param="nPentane">@orfDailyLine2.nPentane.ToString("N4")</td>
+                    </tr>
+                    <tr>
+                        <th>Propane</th>
+                        <td class="editable" data-id="@orfDailyLine2.ORFDataDailyID" data-type="ORFDaily" data-param="Propane">@orfDailyLine2.Propane.ToString("N4")</td>
+                        <th>n-Hexane</th>
+                        <td class="editable" data-id="@orfDailyLine2.ORFDataDailyID" data-type="ORFDaily" data-param="nHexane">@orfDailyLine2.nHexane.ToString("N4")</td>
+                    </tr>
+                    <tr>
+                        <th>Water</th>
+                        <td class="editable" data-id="@orfDailyLine2.ORFDataDailyID" data-type="ORFDaily" data-param="Water">@orfDailyLine2.Water.ToString("N4")</td>
+                        <th>% Total</th>
+                        <td data-id="@orfDailyLine2.ORFDataDailyID" data-type="ORFDaily" data-param="TotalLine2">@totalLine2</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div id="tabs-4">
+    <div class="panelx panel">
+        <div class="panel-heading" style="height:15px">
+            <div class="pull-left"><b><i class="fa fa-file-o"></i> Hourly Report</b></div>
+            <div class="panel-controls">
+                <a href="#" class="panel-collapse" data-toggle="panel-collapse">
+                    <i class="panel-icon-chevron"></i>
+                </a>
+            </div>
+        </div>
+        <div class="panel-body">
+            <table id="table4" class="table table-bordered bordered table-striped table-condensed datatable">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Vol. Actual A</th>
+                        <th>Vol. Actual B</th>
+                        <th>Vol. Actual C</th>
+                        <th>Flow/Jam (MMSCF)</th>
+                        <th>GHV (BTU/SCF)</th>
+                        <th>Temp (F)</th>
+                        <th>Flow/ Jam A</th>
+                        <th>Flow/ Jam B</th>
+                        <th>Flow/ Jam C</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in orfList.Where(x => x.LineID == 3))
+                    {
+                        var flowA = @item.VolumeA * 24 / 1000;
+                        var flowB = @item.VolumeB * 24 / 1000;
+                        var flowC = @item.VolumeC * 24 / 1000;
+                        var flow = flowA + flowB + flowC;
+                        <tr>
+                            <td>@item.Time</td>
+                            <td class="editable" data-id="@item.ORFDataID" data-type="ORF" data-param="VolumeA">@item.VolumeA.ToString("N3")</td>
+                            <td class="editable" data-id="@item.ORFDataID" data-type="ORF" data-param="VolumeB">@item.VolumeB.ToString("N3")</td>
+                            <td class="editable" data-id="@item.ORFDataID" data-type="ORF" data-param="VolumeC">@item.VolumeC.ToString("N3")</td>
+                            <td data-id="@item.ORFDataID" data-type="ORF" data-param="Flow">@flow.ToString("N3")</td>
+                            <td class="editable" data-id="@item.ORFDataID" data-type="ORF" data-param="GHV">@item.GHV.ToString("N3")</td>
+                            <td class="editable" data-id="@item.ORFDataID" data-type="ORF" data-param="T">@item.Temperature.ToString("N3")</td>
+                            <td data-id="@item.ORFDataID" data-type="ORF" data-param="FlowA">@flowA.ToString("N3")</td>
+                            <td data-id="@item.ORFDataID" data-type="ORF" data-param="FlowB">@flowB.ToString("N3")</td>
+                            <td data-id="@item.ORFDataID" data-type="ORF" data-param="FlowC">@flowC.ToString("N3")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="panelx panel">
+        <div class="panel-heading" style="height:15px">
+            <div class="pull-left"><b><i class="fa fa-file-o"></i> Daily Report</b></div>
+            <div class="panel-controls">
+                <a href="#" class="panel-collapse" data-toggle="panel-collapse">
+                    <i class="panel-icon-chevron"></i>
+                </a>
+            </div>
+        </div>
+        <div class="panel-body">
+            <b>Gas Sent</b>
+            <table id="table4a" class="table table-bordered bordered table-striped table-condensed datatable">
+                <thead>
+                    <tr>
+                        <th>Daily Net (MSCFD)</th>
+                        <th>Heating Value (BTU/SCF)</th>
+                        <th>Daily Energy (MMBTUD)</th>
+                        <th>Pressure (Psig)</th>
+                        <th>Pressure (Barg)</th>
+                        <th>Temp (<sup>o</sup>F)</th>
+                        <th>Temp (<sup>o</sup>C)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td data-id="@orfDailyLine3.ORFDataDailyID" data-type="ORFDaily" data-param="DailyNet">@DailyNet3.ToString("N3")</td>
+                        <td class="editable" data-id="@orfDailyLine3.ORFDataDailyID" data-type="ORFDaily" data-param="HeatingValue">@orfDailyLine3.HeatingValue.ToString("N3")</td>
+                        <td class="editable" data-id="@orfDailyLine3.ORFDataDailyID" data-type="ORFDaily" data-param="DailyEnergy">@orfDailyLine3.DailyEnergy.ToString("N3")</td>
+                        <td class="editable" data-id="@orfDailyLine3.ORFDataDailyID" data-type="ORFDaily" data-param="Pressure">@orfDailyLine3.Pressure.ToString("N2")</td>
+                        <td data-id="@orfDailyLine3.ORFDataDailyID" data-type="ORFDaily" data-param="Barg">@barg3.ToString("N2")</td>
+                        <td class="editable" data-id="@orfDailyLine3.ORFDataDailyID" data-type="ORFDaily" data-param="Temperature">@orfDailyLine3.Temperature.ToString("N2")</td>
+                        <td data-id="@orfDailyLine3.ORFDataDailyID" data-type="ORFDaily" data-param="C">@c3.ToString("N2")</td>
+                    </tr>
+                </tbody>
+            </table>
+            <b>Gas Composition</b>
+            <table id="table4b" class="table table-bordered bordered table-striped table-condensed datatable">
+                <thead>
+                    <tr>
+                        <th>GAS COMPOSITION</th>
+                        <td>% Mol</td>
+                        <th>GAS COMPOSITION</th>
+                        <th>% Mol</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>Methane</th>
+                        <td class="editable" data-id="@orfDailyLine3.ORFDataDailyID" data-type="ORFDaily" data-param="Methane">@orfDailyLine3.Methane.ToString("N4")</td>
+                        <th>i-Butane</th>
+                        <td class="editable" data-id="@orfDailyLine3.ORFDataDailyID" data-type="ORFDaily" data-param="iButane">@orfDailyLine3.iButane.ToString("N4")</td>
+                    </tr>
+                    <tr>
+                        <th>Nitrogen</th>
+                        <td class="editable" data-id="@orfDailyLine3.ORFDataDailyID" data-type="ORFDaily" data-param="Nitrogen">@orfDailyLine3.Nitrogen.ToString("N4")</td>
+                        <th>n-Butane</th>
+                        <td class="editable" data-id="@orfDailyLine3.ORFDataDailyID" data-type="ORFDaily" data-param="nButane">@orfDailyLine3.nButane.ToString("N4")</td>
+                    </tr>
+                    <tr>
+                        <th>CO2</th>
+                        <td class="editable" data-id="@orfDailyLine3.ORFDataDailyID" data-type="ORFDaily" data-param="CO2">@orfDailyLine3.CO2.ToString("N4")</td>
+                        <th>i-Pentane</th>
+                        <td class="editable" data-id="@orfDailyLine3.ORFDataDailyID" data-type="ORFDaily" data-param="iPentane">@orfDailyLine3.iPentane.ToString("N4")</td>
+                    </tr>
+                    <tr>
+                        <th>Ethane</th>
+                        <td class="editable" data-id="@orfDailyLine3.ORFDataDailyID" data-type="ORFDaily" data-param="Ethane">@orfDailyLine3.Ethane.ToString("N4")</td>
+                        <th>n-Pentane</th>
+                        <td class="editable" data-id="@orfDailyLine3.ORFDataDailyID" data-type="ORFDaily" data-param="nPentane">@orfDailyLine3.nPentane.ToString("N4")</td>
+                    </tr>
+                    <tr>
+                        <th>Propane</th>
+                        <td class="editable" data-id="@orfDailyLine3.ORFDataDailyID" data-type="ORFDaily" data-param="Propane">@orfDailyLine3.Propane.ToString("N4")</td>
+                        <th>n-Hexane</th>
+                        <td class="editable" data-id="@orfDailyLine3.ORFDataDailyID" data-type="ORFDaily" data-param="nHexane">@orfDailyLine3.nHexane.ToString("N4")</td>
+                    </tr>
+                    <tr>
+                        <th>Water</th>
+                        <td class="editable" data-id="@orfDailyLine3.ORFDataDailyID" data-type="ORFDaily" data-param="Water">@orfDailyLine3.Water.ToString("N4")</td>
+                        <th>% Total</th>
+                        <td data-id="@orfDailyLine3.ORFDataDailyID" data-type="ORFDaily" data-param="TotalLine3">@totalLine3</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>  
+    </div>
+</div>
+<div id="tabs-5">
+    <div class="panelx panel">
+        <div class="panel-heading" style="height:15px">
+            <div class="pull-left"><b><i class="fa fa-file-o"></i> Hourly Report</b></div>
+            <div class="panel-controls">
+                <a id="p5" href="#" class="panel-collapse" data-toggle="panel-collapse">
+                    <i class="panel-icon-chevron"></i>
+                </a>
+            </div>
+        </div>
+        <div class="panel-body">
+            <table id="table5" class="table table-bordered bordered table-striped table-condensed datatable">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Vol. Actual (MSCF)</th>
+                        <th>Flow/Jam (MMSCF)</th>
+                        <th>GHV (BTU/SCF)</th>
+                        <th>Temperature (F)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in orfList.Where(x => x.LineID == 4))
+                    {
+                        var flow = (item.Volume - volumeBefore4) * 24 / 1000;
+                        <tr>
+                            <td>@item.Time</td>
+                            <td class="editable" data-id="@item.ORFDataID" data-type="ORF" data-param="Volume">@item.Volume.ToString("N3")</td>
+                            <td data-id="@item.ORFDataID" data-type="ORF" data-param="Flow">@flow.ToString("N3")</td>
+                            <td class="editable" data-id="@item.ORFDataID" data-type="ORF" data-param="GHV">@item.GHV.ToString("N3")</td>
+                            <td class="editable" data-id="@item.ORFDataID" data-type="ORF" data-param="Temperature">@item.Temperature.ToString("N2")</td>
+                        </tr>
+                        volumeBefore4 = item.Volume;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="panelx panel">
+        <div class="panel-heading" style="height:15px">
+            <div class="pull-left"><b><i class="fa fa-file-o"></i> Daily Report</b></div>
+            <div class="panel-controls">
+                <a href="#" class="panel-collapse" data-toggle="panel-collapse">
+                    <i class="panel-icon-chevron"></i>
+                </a>
+            </div>
+        </div>
+        <div class="panel-body">
+            <b>Gas Sent</b>
+            <table id="table5a" class="table table-bordered bordered table-striped table-condensed datatable">
+                <thead>
+                    <tr>
+                        <th>Daily Net (MSCFD)</th>
+                        <th>Heating Value (BTU/SCF)</th>
+                        <th>Daily Energy (MMBTUD)</th>
+                        <th>Pressure (Psig)</th>
+                        <th>Pressure (Barg)</th>
+                        <th>Temp (<sup>o</sup>F)</th>
+                        <th>Temp (<sup>o</sup>C)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td data-id="@orfDailyLine4.ORFDataDailyID" data-type="ORFDaily" data-param="DailyNet">@DailyNet4.ToString("N3")</td>
+                        <td class="editable" data-id="@orfDailyLine4.ORFDataDailyID" data-type="ORFDaily" data-param="HeatingValue">@orfDailyLine4.HeatingValue.ToString("N3")</td>
+                        <td class="editable" data-id="@orfDailyLine4.ORFDataDailyID" data-type="ORFDaily" data-param="DailyEnergy">@orfDailyLine4.DailyEnergy.ToString("N3")</td>
+                        <td class="editable" data-id="@orfDailyLine4.ORFDataDailyID" data-type="ORFDaily" data-param="Pressure">@orfDailyLine4.Pressure.ToString("N2")</td>
+                        <td data-id="@orfDailyLine4.ORFDataDailyID" data-type="ORFDaily" data-param="Barg">@barg4.ToString("N2")</td>
+                        <td class="editable" data-id="@orfDailyLine4.ORFDataDailyID" data-type="ORFDaily" data-param="Temperature">@orfDailyLine4.Temperature.ToString("N2")</td>
+                        <td data-id="@orfDailyLine4.ORFDataDailyID" data-type="ORFDaily" data-param="C">@c4.ToString("N2")</td>
+                    </tr>
+                </tbody>
+            </table>
+            <b>Gas Composition</b>
+            <table id="table5b" class="table table-bordered bordered table-striped table-condensed datatable">
+                <thead>
+                    <tr>
+                        <th>GAS COMPOSITION</th>
+                        <td>% Mol</td>
+                        <th>GAS COMPOSITION</th>
+                        <th>% Mol</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>Methane</th>
+                        <td class="editable" data-id="@orfDailyLine4.ORFDataDailyID" data-type="ORFDaily" data-param="Methane">@orfDailyLine4.Methane.ToString("N4")</td>
+                        <th>i-Butane</th>
+                        <td class="editable" data-id="@orfDailyLine4.ORFDataDailyID" data-type="ORFDaily" data-param="iButane">@orfDailyLine4.iButane.ToString("N4")</td>
+                    </tr>
+                    <tr>
+                        <th>Nitrogen</th>
+                        <td class="editable" data-id="@orfDailyLine4.ORFDataDailyID" data-type="ORFDaily" data-param="Nitrogen">@orfDailyLine4.Nitrogen.ToString("N4")</td>
+                        <th>n-Butane</th>
+                        <td class="editable" data-id="@orfDailyLine4.ORFDataDailyID" data-type="ORFDaily" data-param="nButane">@orfDailyLine4.nButane.ToString("N4")</td>
+                    </tr>
+                    <tr>
+                        <th>CO2</th>
+                        <td class="editable" data-id="@orfDailyLine4.ORFDataDailyID" data-type="ORFDaily" data-param="CO2">@orfDailyLine4.CO2.ToString("N4")</td>
+                        <th>i-Pentane</th>
+                        <td class="editable" data-id="@orfDailyLine4.ORFDataDailyID" data-type="ORFDaily" data-param="iPentane">@orfDailyLine4.iPentane.ToString("N4")</td>
+                    </tr>
+                    <tr>
+                        <th>Ethane</th>
+                        <td class="editable" data-id="@orfDailyLine4.ORFDataDailyID" data-type="ORFDaily" data-param="Ethane">@orfDailyLine4.Ethane.ToString("N4")</td>
+                        <th>n-Pentane</th>
+                        <td class="editable" data-id="@orfDailyLine4.ORFDataDailyID" data-type="ORFDaily" data-param="nPentane">@orfDailyLine4.nPentane.ToString("N4")</td>
+                    </tr>
+                    <tr>
+                        <th>Propane</th>
+                        <td class="editable" data-id="@orfDailyLine4.ORFDataDailyID" data-type="ORFDaily" data-param="Propane">@orfDailyLine4.Propane.ToString("N4")</td>
+                        <th>n-Hexane</th>
+                        <td class="editable" data-id="@orfDailyLine4.ORFDataDailyID" data-type="ORFDaily" data-param="nHexane">@orfDailyLine4.nHexane.ToString("N4")</td>
+                    </tr>
+                    <tr>
+                        <th>Water</th>
+                        <td class="editable" data-id="@orfDailyLine4.ORFDataDailyID" data-type="ORFDaily" data-param="Water">@orfDailyLine4.Water.ToString("N4")</td>
+                        <th>% Total</th>
+                        <td data-id="@orfDailyLine4.ORFDataDailyID" data-type="ORFDaily" data-param="TotalLine4">@totalLine4</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div id="tabs-6">
+    <table id="table6" class="table table-bordered bordered table-striped table-condensed datatable">
+        <thead>
+            <tr>
+                <th>TB Name</th>
+                <th>Fuel Oil Consumption (ltrs)</th>
+                <th>Fuel Oil ROB (ltrs)</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (Boat boat in boats)
+        {
+            var tug = tugBoatsData.FirstOrDefault(x => x.BoatID == boat.BoatID);
+            <tr>
+                <th>@boat.Name</th>
+                <td class="editable" data-id="@tug.TUGBoatsDataID" data-type="TUGBoats" data-param="FuelOilConsumption">@tug.FuelOilConsumption.ToString("N3")</td>
+                <td class="editable" data-id="@tug.TUGBoatsDataID" data-type="TUGBoats" data-param="FuelOilROB">@tug.FuelOilROB.ToString("N3")</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+<div id="tabs-7">
+@foreach (Vessel vessel in vessels)
+{
+    var carrier = vesselData.FirstOrDefault(x => x.VesselID == vessel.VesselID);
+    <div class="panelx panel">
+        <div class="panel-heading" style="height:15px">
+            <div class="pull-left"><b><i class="fa fa-file-o"></i> @vessel.Name</b></div>
+            <div class="panel-controls">
+                <a id="p5" href="#" class="panel-collapse" data-toggle="panel-collapse">
+                    <i class="panel-icon-chevron"></i>
+                </a>
+            </div>
+        </div>
+        <div class="panel-body">
+            <table class="table table-bordered bordered table-striped table-condensed datatable">
+                <thead>
+                    <tr>
+                        <th>Field Name</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>Kode Cargo</th>
+                        <td data-id="@carrier.VesselDataID" data-type="Vessel" data-param="CargoID">
+                            <select class="select2" onchange="SubmitData(@carrier.VesselDataID, 'Vessel', 'CargoID', this.value)">
+                                <option value="0"></option>
+                                @foreach (Cargo cargo in cargos)
+                                {
+                                    if (@carrier.CargoID == cargo.CargoID)
+                                    {
+                                        <option selected value="@cargo.CargoID">@cargo.Code</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@cargo.CargoID">@cargo.Code</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Position / Location</th>
+                        <td class="editable" data-id="@carrier.VesselDataID" data-type="Vessel" data-param="Position">@carrier.Position</td>
+                    </tr>
+                    <tr>
+                        <th>Next Port</th>
+                        <td class="editable" data-id="@carrier.VesselDataID" data-type="Vessel" data-param="NextPort">@carrier.NextPort</td>
+                    </tr>
+                    <tr>
+                        <th>ETA Next Port</th>
+                        <td class="editable" data-id="@carrier.VesselDataID" data-type="Vessel" data-param="ETANextPort">@carrier.ETANextPort</td>
+                    </tr>
+                    <tr>
+                        <th>Wind Speed/Direction</th>
+                        <td class="editable" data-id="@carrier.VesselDataID" data-type="Vessel" data-param="WindSpeedDirection">@carrier.WindSpeedDirection</td>
+                    </tr>
+                    <tr>
+                        <th>Cargo Quantity On Board (M<sup>3</sup>) </th>
+                        <td class="editable" data-id="@carrier.VesselDataID" data-type="Vessel" data-param="CargoQuantityOnBoard">@carrier.CargoQuantityOnBoard.ToString("N3")</td>
+                    </tr>
+                    <tr>
+                        <th>Boil Off (M<sup>3</sup>/D)</th>
+                        <td class="editable" data-id="@carrier.VesselDataID" data-type="Vessel" data-param="BoilOff">@carrier.BoilOff.ToString("N3")</td>
+                    </tr>
+                    <tr>
+                        <th>BUNKER ROB - HFO</th>
+                        <td class="editable" data-id="@carrier.VesselDataID" data-type="Vessel" data-param="BunkerROBHFO">@carrier.BunkerROBHFO.ToString("N1")</td>
+                    </tr>
+                    <tr>
+                        <th>BUNKER ROB - MDO</th>
+                        <td class="editable" data-id="@carrier.VesselDataID" data-type="Vessel" data-param="BunkerROBMDO">@carrier.BunkerROBMDO.ToString("N1")</td>
+                    </tr>
+                    <tr>
+                        <th>BUNKER ROB - MGO</th>
+                        <td class="editable" data-id="@carrier.VesselDataID" data-type="Vessel" data-param="BunkerROBMGO">@carrier.BunkerROBMGO.ToString("N1")</td>
+                    </tr>
+                    <tr>
+                        <th>CONSUMPT - HFO</th>
+                        <td class="editable" data-id="@carrier.VesselDataID" data-type="Vessel" data-param="ConsumpHFO">@carrier.ConsumpHFO.ToString("N1")</td>
+                    </tr>
+                    <tr>
+                        <th>CONSUMPT - MDO</th>
+                        <td class="editable" data-id="@carrier.VesselDataID" data-type="Vessel" data-param="ConsumpMDO">@carrier.ConsumpMDO.ToString("N1")</td>
+                    </tr>
+                    <tr>
+                        <th>CONSUMPT - MGO</th>
+                        <td class="editable" data-id="@carrier.VesselDataID" data-type="Vessel" data-param="ConsumpMGO">@carrier.ConsumpMGO.ToString("N1")</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+</div>
+<div id="tabs-8">
+    <div class="panelx panel">
+        <div class="panel-heading" style="height:15px">
+            <div class="panel-controls">
+                <a href="#" class="panel-collapse" data-toggle="panel-collapse">
+                    <i class="panel-icon-chevron"></i>
+                </a>
+            </div>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <b>FSRU</b>
+                    <table class="table table-bordered bordered table-striped table-condensed datatable">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Remark</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="act_fsru_content">
+                            @foreach (GasmonActivity activity in activities.Where(x => x.Source == 1))
+                            {
+                                <tr>
+                                    <td class="activity">@activity.Time</td>
+                                    <td class="activity">@activity.Remark</td>
+                                    <td><button onclick="DeleteActivity('@activity.ActivityID')"><i class="fa fa-minus"></i></button></td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td class="activity"><input id="act_fsru_time" type="text" style="width:40px;" /></td>
+                                <td class="activity"><input id="act_fsru_remark" type="text" style="width:260px;" /></td>
+                                <td><button id="act_fsru"><i class="fa fa-plus"></i></button></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <b>ORF</b>
+                    <table class="table table-bordered bordered table-striped table-condensed datatable">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Remark</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="act_orf_content">
+                            @foreach (GasmonActivity activity in activities.Where(x => x.Source == 2))
+                            {
+                                <tr>
+                                    <td class="activity">@activity.Time</td>
+                                    <td class="activity">@activity.Remark</td>
+                                    <td><button onclick="DeleteActivity('@activity.ActivityID')"><i class="fa fa-minus"></i></button></td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td class="activity"><input id="act_orf_time" type="text" style="width:50px;" /></td>
+                                <td class="activity"><input id="act_orf_remark" type="text" style="width:250px;" /></td>
+                                <td><button id="act_orf"><i class="fa fa-plus"></i></button></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panelx panel">
+        <div class="panel-heading" style="height:15px">
+            <div class="panel-controls">
+                <a href="#" class="panel-collapse" data-toggle="panel-collapse">
+                    <i class="panel-icon-chevron"></i>
+                </a>
+            </div>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <b>TUG Boats</b>
+                    <table class="table table-bordered bordered table-striped table-condensed datatable">
+                        <thead>
+                            <tr>
+                                <th colspan="3">TB. SEMAR 81</th>
+                            </tr>
+                            <tr>
+                                <th>Time</th>
+                                <th>Remark</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="act_tug81_content">
+                            @foreach (GasmonActivity activity in activities.Where(x => x.Source == 81))
+                            {
+                            <tr>
+                                <td class="activity">@activity.Time</td>
+                                <td class="activity">@activity.Remark</td>
+                                <td><button onclick="DeleteActivity('@activity.ActivityID')"><i class="fa fa-minus"></i></button></td>
+                            </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td class="activity"><input id="act_tug81_time" type="text" style="width:50px;" /></td>
+                                <td class="activity"><input id="act_tug81_remark" type="text" style="width:250px;" /></td>
+                                <td><button id="act_tug81"><i class="fa fa-plus"></i></button></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                    <table class="table table-bordered bordered table-striped table-condensed datatable">
+                        <thead>
+                            <tr>
+                                <th colspan="3">TB. SEMAR 82</th>
+                            </tr>
+                            <tr>
+                                <th>Time</th>
+                                <th>Remark</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="act_tug82_content">
+                            @foreach (GasmonActivity activity in activities.Where(x => x.Source == 82))
+                            {
+                            <tr>
+                                <td class="activity">@activity.Time</td>
+                                <td class="activity">@activity.Remark</td>
+                                <td><button onclick="DeleteActivity('@activity.ActivityID')"><i class="fa fa-minus"></i></button></td>
+                            </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td class="activity"><input id="act_tug82_time" type="text" style="width:50px;" /></td>
+                                <td class="activity"><input id="act_tug82_remark" type="text" style="width:250px;" /></td>
+                                <td><button id="act_tug82"><i class="fa fa-plus"></i></button></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                    <table class="table table-bordered bordered table-striped table-condensed datatable">
+                        <thead>
+                            <tr>
+                                <th colspan="3">TB. SEMAR 83</th>
+                            </tr>
+                            <tr>
+                                <th>Time</th>
+                                <th>Remark</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="act_tug83_content">
+                            @foreach (GasmonActivity activity in activities.Where(x => x.Source == 83))
+                            {
+                            <tr>
+                                <td class="activity">@activity.Time</td>
+                                <td class="activity">@activity.Remark</td>
+                                <td><button onclick="DeleteActivity('@activity.ActivityID')"><i class="fa fa-minus"></i></button></td>
+                            </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td class="activity"><input id="act_tug83_time" type="text" style="width:50px;" /></td>
+                                <td class="activity"><input id="act_tug83_remark" type="text" style="width:250px;" /></td>
+                                <td><button id="act_tug83"><i class="fa fa-plus"></i></button></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <b>LNG Carrier</b>
+                    @foreach (Vessel vessel in vessels)
+                    {
+                        var id_content = "act_carrier" + vessel.VesselID + "_content";
+                        var id_time = "act_carrier" + vessel.VesselID + "_time";
+                        var id_remark = "act_carrier" + vessel.VesselID + "_remark";
+                        var id_submit = "act_carrier" + vessel.VesselID;
+                        <table class="table table-bordered bordered table-striped table-condensed datatable">
+                            <thead>
+                                <tr>
+                                    <th colspan="3">@vessel.Name</th>
+                                </tr>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Remark</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="@id_content">
+                                @foreach (GasmonActivity activity in activities.Where(x => x.Source == vessel.VesselID))
+                                {
+                            <tr>
+                                <td class="activity">@activity.Time</td>
+                                <td class="activity">@activity.Remark</td>
+                                <td><button onclick="DeleteActivity('@activity.ActivityID')"><i class="fa fa-minus"></i></button></td>
+                            </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td class="activity"><input id="@id_time" type="text" style="width:50px;" /></td>
+                                    <td class="activity"><input id="@id_remark" type="text" style="width:250px;" /></td>
+                                    <td><button id="@id_submit"><i class="fa fa-plus"></i></button></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

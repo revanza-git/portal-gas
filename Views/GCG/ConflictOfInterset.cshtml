@@ -1,0 +1,72 @@
+﻿@model ApplicationUser
+
+@{
+    Layout = "~/Views/Shared/Panel.cshtml";
+}
+
+@section PageLevelPlugin {
+    <style>
+        table {
+            border-spacing: 25px;
+        }
+        /* cellspacing */
+
+        th, td {
+            padding: 25px;
+            vertical-align: text-top;
+        }
+        /* cellpadding */
+    </style>
+}
+
+@section TitleBar {
+    <strong>PEDOMAN CONFLICT OF INTEREST</strong>
+}
+
+<!-- main area -->
+<div class="main-content">
+    <div class="panel">
+        <div class="panel-heading border">
+            <ol class="breadcrumb mb0 no-padding">
+                <li>
+                    <a href="javascript:;">Content</a>
+                </li>
+                <li>
+                    <a href="javascript:;">GCG</a>
+                </li>
+                <li class="active"><strong>Pedoman Conflict of Interest </strong></li>
+            </ol>
+        </div>
+        <div class="panel-body">
+            <div style="text-align:center;">
+                <h4>PEDOMAN CONFLICT OF INTEREST</h4>
+                <hr />
+                <h5>SURAT PERNYATAAN INSAN PT NUSANTARA REGAS</h5>
+            </div>
+            <div style="padding-top:10px">
+                <p>
+                    Dengan ini saya menyatakan bahwa saya secara pribadi:
+                </p>
+
+                <div style="padding-top:25px">
+                    @if (!Model.ConflictOfInterestDt.HasValue)
+                    {
+                        <form method="post" asp-action="CodeOfConduct">
+                            <button type="submit" name="submit" class="btn btn-sm btn-success"><i class="fa fa-check"></i> Setuju</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <p>Telah ditandatangani pada @Model.ConflictOfInterestDt</p>
+                        <p>Tidak mempunyai benturan kepentingan dalam menjalankan tugas, kewajiban, dan kewenangan jabatan tersebut di atas di PT NUSANTARA REGAS.</p>
+                        <p>Apabila setelah tanggal tandatanganinya surat pernyataan ini kemudian timbul keadaan dimana saya memiliki benturan kepentingan atau potensi benturan kepentingan, saya akan segera melaporkan keadaan tersebut kepada Sekretaris Perusahaan selaku Chief Compliance Officer dengan cara mengisi form berikut.</p>
+                        <p>Demikian pernyataan ini dibuat dan ditandatangani untuk memenuhi ketentuan yang berlaku.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- /main area -->
+

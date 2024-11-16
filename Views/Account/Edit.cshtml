@@ -1,0 +1,196 @@
+﻿@model AccountViewModel
+
+@{
+    Layout = "~/Views/Shared/Panel.cshtml";
+}
+@section TitleBar {
+    <strong>User Management</strong>
+}
+@section PageLevelPlugin {
+    <link rel="stylesheet" href="~/admin/vendor/chosen_v1.4.0/chosen.min.css">
+    <link rel="stylesheet" href="~/admin/vendor/jquery.tagsinput/jquery.tagsinput.css">
+    <link rel="stylesheet" href="~/admin/vendor/checkbo/src/0.1.4/css/checkBo.min.css">
+    <link rel="stylesheet" href="~/admin/vendor/intl-tel-input/build/css/intlTelInput.css">
+    <link rel="stylesheet" href="~/admin/vendor/dropzone/dist/min/basic.min.css">
+    <link rel="stylesheet" href="~/admin/vendor/dropzone/dist/min/dropzone.min.css">
+    <link rel="stylesheet" href="~/admin/vendor/bootstrap-daterangepicker/daterangepicker-bs3.css">
+    <link rel="stylesheet" href="~/admin/vendor/bootstrap-datepicker/dist/css/bootstrap-datepicker3.css">
+    <link rel="stylesheet" href="~/admin/vendor/bootstrap-timepicker/css/bootstrap-timepicker.min.css">
+    <link rel="stylesheet" href="~/admin/vendor/clockpicker/dist/bootstrap-clockpicker.min.css">
+    <link rel="stylesheet" href="~/admin/vendor/mjolnic-bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css">
+    <link rel="stylesheet" href="~/admin/vendor/bootstrap-touchspin/dist/jquery.bootstrap-touchspin.min.css">
+    <link rel="stylesheet" href="~/admin/vendor/select2/dist/css/select2.css" />
+}
+<!-- main area -->
+<div class="main-content">
+    <div class="panel mb25">
+        <div class="panel-heading border">
+            <ol class="breadcrumb mb0 no-padding">
+                <li>
+                    <a href="javascript:;">User Management</a>
+                </li>
+                <li class="active"><strong>@ViewBag.Title</strong></li>
+            </ol>
+        </div>
+        <div class="panel-body">
+            <div class="row no-margin">
+                <div class="col-lg-12">
+                    <form class="form-horizontal bordered-group" role="form" method="post" asp-action="Edit">
+                        <input asp-for="Id" type="hidden" />
+                        <div class="form-group">
+                            <label asp-for="UserName" class="col-sm-2 control-label">UserName</label>
+                            <div class="col-sm-10">
+                                <input asp-for="UserName" type="text" class="form-control">
+                                <span asp-validation-for="UserName" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Name" class="col-sm-2 control-label">Name</label>
+                            <div class="col-sm-10">
+                                <input asp-for="Name" type="text" class="form-control">
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Email" class="col-sm-2 control-label">Email</label>
+                            <div class="col-sm-10">
+                                <input asp-for="Email" type="text" class="form-control">
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Department" class="col-sm-2 control-label">Department</label>
+                            <div class="col-sm-10">
+                                <select asp-for="Department" class="form-control">
+                                    <option></option>    
+                                    @foreach (var item in ViewBag.Department)
+                                    {
+                                        <option value="@item.DepartmentID">@item.Deskripsi</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="Department" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="NIP" class="col-sm-2 control-label">NIP</label>
+                            <div class="col-sm-10">
+                                <input asp-for="NIP" type="text" class="form-control">
+                                <span asp-validation-for="NIP" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="IsTkjp" class="col-sm-2 control-label">TKJP</label>
+                            <div class="col-sm-10">
+                                <div class="radio">
+                                    <label><input asp-for="IsTkjp" id="tkjpyes" type="radio" value=true> Ya</label>
+                                    <label><input asp-for="IsTkjp" id="tkjpno" type="radio" value=false> Tidak</label>
+                                </div>
+                                <span asp-validation-for="IsTkjp" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Jabatan" class="col-sm-2 control-label">Jabatan TKJP</label>
+                            <div class="col-sm-10">
+                                <select asp-for="Jabatan" class="form-control">
+                                    <option value="0"></option>
+                                    @foreach (var item in ViewBag.Jabatan)
+                                    {
+                                        if (item.Hide == false) { 
+                                            <option value="@item.JabatanID">@item.Deskripsi</option>
+                                        } 
+                                    }
+                                </select>
+                                <span asp-validation-for="Jabatan" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Role" class="col-sm-2 control-label">Role</label>
+                            <div class="col-sm-10">
+                                <select asp-for="Role" class="form-control">
+                                    <option></option>
+
+                                    @foreach (var item in ViewBag.Roles)
+                                    {
+                                        if (item.Name != "SuperAdmin")
+                                        {
+                                            <option value="@item.Id">@item.Name</option>
+                                        }
+                                    }
+                                </select>
+                                <span asp-validation-for="Role" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="GCGAdmin" class="col-sm-2 control-label">GCG Admin</label>
+                            <div class="col-sm-10">
+                                <div class="radio">
+                                    <label><input asp-for="GCGAdmin" type="radio" value=true> Ya</label>
+                                    <label><input asp-for="GCGAdmin" type="radio" value=false> Tidak</label>
+                                </div>
+                                <span asp-validation-for="GCGAdmin" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="GCG" class="col-sm-2 control-label">GCG</label>
+                            <div class="col-sm-10">
+                                <div class="radio">
+                                    <label><input checked asp-for="GCG" type="radio" value=true> Ya</label>
+                                    <label><input asp-for="GCG" type="radio" value=false> Tidak</label>
+                                </div>
+                                <span asp-validation-for="GCG" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-sm btn-round btn-success"><i class="fa fa-save"></i> Submit</button>
+                            <a asp-controller="Account" asp-action="Index" class="btn btn-sm btn-round btn-danger"><i class="fa fa-arrow-left"></i> Back</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /main area -->
+@section PageLevelScripts {
+    <script src="~/admin/vendor/select2/dist/js/select2.js"></script>
+}
+@section InitPageScripts {
+    <script>
+        $("#Department").select2({
+            placeholder: "Pilih Department",
+            allowClear: true
+        });
+
+        $("#Role").select2({
+            placeholder: "Pilih Role",
+            allowClear: true
+        });
+
+        $("#Jabatan").select2({
+            placeholder: "Pilih Jabatan",
+            allowClear: true
+        });
+
+        if ($("#tkjpyes").is(":checked")) {
+            $("#Jabatan").removeAttr("disabled");
+            $("#Jabatan").focus();
+        } else {
+            $("#Jabatan").attr("disabled", "disabled");
+        }
+        
+        $("input[name='IsTkjp']").click(function () {
+            if ($("#tkjpyes").is(":checked")) {
+                $("#Jabatan").removeAttr("disabled");
+                
+                //$("#Jabatan").focus();
+            } else {
+                $("#Jabatan").attr("disabled", "disabled");
+                $('#Jabatan option[value=0]').attr('selected', 'selected').change();
+            }
+        });
+   
+    </script>
+}

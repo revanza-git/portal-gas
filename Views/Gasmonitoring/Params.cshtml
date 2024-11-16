@@ -1,0 +1,30 @@
+﻿@{
+    Layout = "";
+    @model IEnumerable<GasmonParameter>
+    List<Cargo> cargoList = (List<Cargo>)ViewData["cargo"];
+}
+
+
+@foreach (GasmonParameter param in Model)
+{
+    if (param.ParameterID == "target_pasokan")
+    {
+        <tr>
+            <td style="text-align:left">@param.Tahun</td>
+            <td style="text-align:left">@param.Label</td>
+            <td style="text-align:left">@cargoList.Count</td>
+            <td style="text-align:left">@param.Satuan</td>
+            <td><btn id="@param.ParameterID" class="btn-primary btn-sm"><i class="fa fa-edit"></i> Edit</btn></td>
+        </tr>
+    }
+    else
+    {
+        <tr>
+            <td style="text-align:left">@param.Tahun</td>
+            <td style="text-align:left">@param.Label</td>
+            <td style="text-align:left"><input id="@param.ParameterID" value="@param.Value" /></td>
+            <td style="text-align:left">@param.Satuan</td>
+            <td></td>
+        </tr>
+    }
+}

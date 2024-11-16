@@ -1,0 +1,106 @@
+﻿@using System.Collections.Generic
+@using Microsoft.AspNetCore.Http
+@model LoginViewModel
+@inject SignInManager<ApplicationUser> SignInManager
+
+@{
+    Layout = null;
+}
+
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <title>Login Page - Admin</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+        <link rel="shortcut icon" href="~/admin/favicon.ico">
+
+        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
+        <!-- page level plugin styles -->
+        <!-- /page level plugin styles -->
+
+        <!-- build:css({.tmp,app}) styles/app.min.css -->
+        <link rel="stylesheet" href="~/admin/vendor/bootstrap/dist/css/bootstrap.css">
+        <link rel="stylesheet" href="~/admin/vendor/perfect-scrollbar/css/perfect-scrollbar.css">
+        <link rel="stylesheet" href="~/admin/styles/roboto.css">
+        <link rel="stylesheet" href="~/admin/styles/font-awesome.css">
+        <link rel="stylesheet" href="~/admin/styles/panel.css">
+        <link rel="stylesheet" href="~/admin/styles/feather.css">
+        <link rel="stylesheet" href="~/admin/styles/animate.css">
+        <link rel="stylesheet" href="~/admin/styles/urban.css">
+        <link rel="stylesheet" href="~/admin/styles/urban.skins.css">
+        <!-- endbuild -->
+    </head>
+
+    <body>
+    <div class="app layout-fixed-header bg-white usersession">
+        <div class="full-height">
+            <div class="center-wrapper">
+                <div class="center-content">
+                    <div class="row no-margin">
+                        <div class="col-xs-10 col-xs-offset-1 col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4">
+                            <form asp-controller="Account" asp-action="Login" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal">
+                                <div class="text-center mb15">
+                                    <img src="~/admin/images/logo-regas2.png" />
+                                </div>
+                                <p class="text-center mb30">Welcome to Portal Administration System.<br />Please sign in to your account</p>
+                                <div asp-validation-summary="All" class="text-danger"></div>
+                                <div class="form-group">
+                                    <label asp-for="UserName" class="col-md-2 control-label"></label>
+                                    <div class="col-md-10">
+                                        <input asp-for="UserName" class="form-control" />
+                                        <span asp-validation-for="UserName" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label asp-for="Password" class="col-md-2 control-label"></label>
+                                    <div class="col-md-10">
+                                        <input asp-for="Password" class="form-control" />
+                                        <span asp-validation-for="Password" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-md-offset-2 col-md-10">
+                                        <div class="checkbox">
+                                            <label asp-for="RememberMe">
+                                                <input asp-for="RememberMe" />
+                                                @Html.DisplayNameFor(m => m.RememberMe)
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-md-offset-2 col-md-10">
+                                        <button type="submit" class="btn btn-primary"><i class="fa fa-sign-in"></i> Log in</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!-- build:js({.tmp,app}) scripts/app.min.js -->
+        <script src="~/admin/scripts/extentions/modernizr.js"></script>
+        <script src="~/admin/vendor/jquery/dist/jquery.js"></script>
+        <script src="~/admin/vendor/bootstrap/dist/js/bootstrap.js"></script>
+        <script src="~/admin/vendor/jquery.easing/jquery.easing.js"></script>
+        <script src="~/admin/vendor/fastclick/lib/fastclick.js"></script>
+        <script src="~/admin/vendor/onScreen/jquery.onscreen.js"></script>
+        <script src="~/admin/vendor/jquery-countTo/jquery.countTo.js"></script>
+        <script src="~/admin/vendor/perfect-scrollbar/js/perfect-scrollbar.jquery.js"></script>
+        <script src="~/admin/scripts/ui/accordion.js"></script>
+        <script src="~/admin/scripts/ui/animate.js"></script>
+        <script src="~/admin/scripts/ui/link-transition.js"></script>
+        <script src="~/admin/scripts/ui/panel-controls.js"></script>
+        <script src="~/admin/scripts/ui/preloader.js"></script>
+        <script src="~/admin/scripts/ui/toggle.js"></script>
+        <script src="~/admin/scripts/urban-constants.js"></script>
+        <script src="~/admin/scripts/extentions/lib.js"></script>
+        <!-- endbuild -->
+    </body>
+</html>

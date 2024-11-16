@@ -1,0 +1,60 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+
+    <environment names="Development,Staging,Production">
+        <link rel="shortcut icon" href="~/admin/favicon.ico">
+        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+        <!-- page level plugin styles -->
+        @RenderSection("PageLevelPlugin", required: false)
+        <!-- /page level plugin styles -->
+        <!-- build:css({.tmp,app}) styles/app.min.css -->
+        <link rel="stylesheet" href="~/admin/vendor/bootstrap/dist/css/bootstrap.css">
+        <link rel="stylesheet" href="~/admin/vendor/perfect-scrollbar/css/perfect-scrollbar.css">
+        <link rel="stylesheet" href="~/admin/styles/roboto.css">
+        <link rel="stylesheet" href="~/admin/styles/font-awesome.css">
+        <link rel="stylesheet" href="~/admin/styles/panel.css">
+        <link rel="stylesheet" href="~/admin/styles/feather.css">
+        <link rel="stylesheet" href="~/admin/styles/animate.css">
+        <link rel="stylesheet" href="~/admin/styles/urban.css">
+        <link rel="stylesheet" href="~/admin/styles/urban.skins.css">
+        <!-- endbuild -->
+    </environment>
+</head>
+<body>
+    <div class="app layout-fixed-header">
+        @RenderBody()
+    </div>
+
+    <environment names="Development,Staging,Production">
+        <!-- build:js({.tmp,app}) scripts/app.min.js -->
+        <script src="~/admin/scripts/extentions/modernizr.js"></script>
+        <script src="~/admin/vendor/jquery/dist/jquery.js"></script>
+        <script src="~/admin/vendor/bootstrap/dist/js/bootstrap.js"></script>
+        <script src="~/admin/vendor/jquery.easing/jquery.easing.js"></script>
+        <script src="~/admin/vendor/fastclick/lib/fastclick.js"></script>
+        <script src="~/admin/vendor/onScreen/jquery.onscreen.js"></script>
+        <script src="~/admin/vendor/jquery-countTo/jquery.countTo.js"></script>
+        <script src="~/admin/vendor/perfect-scrollbar/js/perfect-scrollbar.jquery.js"></script>
+        <script src="~/admin/scripts/ui/accordion.js"></script>
+        <script src="~/admin/scripts/ui/animate.js"></script>
+        <script src="~/admin/scripts/ui/link-transition.js"></script>
+        <script src="~/admin/scripts/ui/panel-controls.js"></script>
+        <script src="~/admin/scripts/ui/preloader.js"></script>
+        <script src="~/admin/scripts/ui/toggle.js"></script>
+        <script src="~/admin/scripts/urban-constants.js"></script>
+        <script src="~/admin/scripts/extentions/lib.js"></script>
+        <!-- endbuild -->
+        <!-- page level scripts -->
+        @RenderSection("PageLevelScripts", required: false)
+        <!-- /page level scripts -->
+        <!-- initialize page scripts -->
+        @RenderSection("InitPageScripts",required: false)
+        <!-- /initialize page scripts -->
+        @RenderSection("Scripts", required: false)
+    </environment>
+</body>
+</html>

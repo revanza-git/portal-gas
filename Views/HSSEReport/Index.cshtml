@@ -1,0 +1,113 @@
+@model IEnumerable<HSSEReport>
+@{
+    Layout = "~/Views/Shared/Panel.cshtml";
+}
+
+@section PageLevelPlugin {
+    <link rel="stylesheet" href="~/admin/vendor/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css" />
+    <link rel="stylesheet" href="~/admin/vendor/datatables/Buttons-1.5.1/css/buttons.dataTables.min.css" /> 
+}
+
+@section TitleBar {
+    <strong>HSSE Report</strong>
+}
+
+<!-- main area -->
+<div class="main-content">
+    <div class="panel">
+        <div class="panel-heading border">
+            <ol class="breadcrumb mb0 no-padding">
+                <li>
+                    <a href="javascript:;">Content</a>
+                </li>
+                <li>
+                    <a href="javascript:;">HSSE Report</a>
+                </li>
+                <li class="active"><strong>List</strong></li>
+            </ol>
+        </div>
+
+        <div class="panel-body">
+            @if (TempData["message"] != null)
+            {
+                <div class="alert alert-success"><i class="fa fa-lg fa-check-circle"></i> @TempData["message"]</div>
+            }
+            @if (User.IsInRole("Admin") || User.IsInRole("AtasanAdmin") || User.IsInRole("AdminQM"))
+            {
+                <div class="pb25">
+                    <a asp-controller="HSSEReport" asp-action="Add" class="btn btn-primary btn-round btn-sm"><i class="fa fa-plus"></i> Add New</a>
+                </div>
+            }
+            <table id="table1" class="table table-bordered bordered table-striped table-condensed datatable">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Company</th>
+                        <th>Service</th>
+                        <th>Reported By</th>
+                        <th>Reporting Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.HSSEReportID</td>
+                        <td>@item.Company</td>
+                        <td>@item.Service</td>
+                        <td>@item.ReportedBy</td>
+                        <td>@item.ReportingDate</td>
+                        <td>Active</td>
+                        <td>
+                            <form method="post" asp-action="Delete">
+                                <input type="hidden" name="HSSEReportID" value="@item.HSSEReportID"/>
+                                @if (User.IsInRole("Admin") || User.IsInRole("AtasanAdmin"))
+                                {
+                                    <button type="button" onclick="window.open('/HSSEReport/Edit/@item.HSSEReportID','_self')" class="btn btn-warning btn-round btn-xs"><i class="fa fa-pencil"></i></button>
+                                    <button type="submit" onclick="return confirm('Are you sure you want to delete HSSE Report @item.HSSEReportID ?');" class="btn btn-round btn-xs btn-danger"><i class="fa fa-times"></i></button>
+                                }
+                                else
+                                {
+                                    <button type="button" onclick="window.open('/HSSEReport/ViewAction/@item.HSSEReportID','_self')" class="btn btn-success btn-round btn-xs"><i class="fa fa-eye"></i></button>
+                                }
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- /main area -->
+
+
+@section PageLevelScripts {
+    <script src="~/admin/vendor/datatables/datatables.min.js"></script>
+    <script src="~/admin/vendor/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/dataTables.buttons.min.js"></script>
+    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/buttons.flash.min.js"></script>
+    <script src="~/admin/vendor/datatables/JSZip-2.5.0/jszip.min.js"></script>
+    <script src="~/admin/vendor/datatables/pdfmake-0.1.32/pdfmake.min.js"></script>
+    <script src="~/admin/vendor/datatables/pdfmake-0.1.32/vfs_fonts.js"></script>
+    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/buttons.html5.min.js"></script>
+    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/buttons.print.min.js"></script>
+}
+
+@section InitPageScripts {
+    <script>
+        $('#table1').DataTable({
+            "order": [[0, "desc"]],
+            "dom": 'Bfrtip',
+            "buttons": [
+                'excel', 'pdf'
+            ]
+        });
+    </script>
+}
+
+
+
+

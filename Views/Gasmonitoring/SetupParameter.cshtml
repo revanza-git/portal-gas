@@ -1,0 +1,217 @@
+﻿@model IEnumerable<GasmonParameter>
+@{
+    Layout = "~/Views/Shared/Panel.cshtml";
+
+    List<Cargo> cargoList = (List<Cargo>)ViewData["cargo"];
+}
+
+@section PageLevelPlugin {
+    <link rel="stylesheet" href="~/admin/vendor/jquery-ui-1.12.1/jquery-ui.min.css" />
+    <link rel="stylesheet" href="~/admin/vendor/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css" />
+    <link rel="stylesheet" href="~/admin/vendor/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css" />
+    <link rel="stylesheet" href="~/admin/vendor/datatables/Buttons-1.5.1/css/buttons.dataTables.min.css" />
+    <style>
+        td {
+            text-align: center;
+        }
+
+        .editable {
+            color: steelblue;
+        }
+
+        .activity {
+            padding: 2px 2px 2px 2px;
+        }
+    </style>
+
+}
+
+@section TitleBar {
+    <strong>Gas Monitoring</strong>
+}
+
+<!-- main area -->
+<div class="main-content">
+    <div class="panel">
+        <div class="panel-heading border">
+            <ol class="breadcrumb mb0 no-padding">
+                <li>
+                    <a href="javascript:;">Content</a>
+                </li>
+                <li>
+                    <a href="javascript:;">Gas Monitoring</a>
+                </li>
+                <li class="active"><strong>Setup Parameter</strong></li>
+            </ol>
+        </div>
+        <div class="panel-body">
+            @if (TempData["message"] != null)
+            {
+                <div class="alert alert-success"><i class="fa fa-lg fa-check-circle"></i> @TempData["message"]</div>
+            }
+            <div>
+                <table class="table table-bordered bordered table-striped table-condensed datatable">
+                    <thead>
+                        <tr>
+                            <th>Tahun</th>
+                            <th>Parameter</th>
+                            <th>Value</th>
+                            <th>Satuan</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="params">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+    <!-- /main area -->
+<!--  Modal -->
+<div id="ModalCargoList" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="overflow-y:auto;height:90%;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title"><i class="fa fa-ship fa-lg"></i>  Daftar Cargo</h5>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered bordered table-striped table-condensed datatable">
+                    <thead>
+                         <tr>
+                            <th>Tahun</th>
+                            <th>Kode</th>
+                            <th>Tanggal</th>
+                            <th>Target?</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="cargo_content">
+                        @foreach (Cargo cargo in cargoList)
+                        {
+                            var IsTarget = "";
+                            if (cargo.IsTarget == 1)
+                            {
+                                IsTarget = "checked";
+                            }
+                            <tr>
+                                <td class="activity">@cargo.Tahun</td>
+                                <td class="activity">@cargo.Code</td>
+                                <td class="activity">@cargo.Date.ToString("dd/MM/yyyy")</td>
+                                <td class="activity"><input @IsTarget type="checkbox" disabled/></td>
+                                <td><button onclick="deleteCargo('@cargo.CargoID')"><i class="fa fa-minus"></i></button></td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td class=""></td>
+                            <td class=""><input id="code" type="text" style="width:50px;" /></td>
+                            <td class=""><input id="date" type="text" style="width:100px;" /></td>
+                            <td class=""><input id="target" type="checkbox" /></td>
+                            <td><button id="addCargo"><i class="fa fa-plus"></i></button></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-round btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    @section PageLevelScripts {
+        <script src="~/admin/vendor/jquery-ui-1.12.1/jquery-ui.min.js"></script>
+        <script src="~/admin/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+        <script src="~/admin/vendor/datatables/datatables.min.js"></script>
+        <script src="~/admin/vendor/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
+        <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/dataTables.buttons.min.js"></script>
+        <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/buttons.flash.min.js"></script>
+        <script src="~/admin/vendor/datatables/JSZip-2.5.0/jszip.min.js"></script>
+        <script src="~/admin/vendor/datatables/pdfmake-0.1.32/pdfmake.min.js"></script>
+        <script src="~/admin/vendor/datatables/pdfmake-0.1.32/vfs_fonts.js"></script>
+        <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/buttons.html5.min.js"></script>
+        <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/buttons.print.min.js"></script>
+    }
+
+    @section InitPageScripts {
+    <script>
+        $(document).ready(function () {
+            load_params();
+            $('body').on('blur', '#target_penjualan',function(){
+                $.ajax({
+                    url: "UpdateParameter",
+                    method: "GET",
+                    data: {
+                        id: "target_penjualan",
+                        value: $('#target_penjualan').val(),
+                    },
+                    dataType: "html",
+                    success: function (result) {
+                    }
+                });
+            });
+            $('body').on('click', '#target_pasokan', function () {
+                $('#ModalCargoList').modal("show");        
+            });
+
+            $('body').on('click', '#addCargo', function () {
+                var isTarget = $('#target').is(":checked") == true ? 1 : 0;
+               
+                $.ajax({
+                    url: "AddCargo",
+                    method: "GET",
+                    data: {
+                        "code": $('#code').val(),
+                        "date": $('#date').val(),
+                        "isTarget": isTarget
+                    },
+                    dataType: "html",
+                    success: function (result) {
+                        load_params();
+                        $('#cargo_content').html(result);
+                        $('#code').val("");
+                        $('#date').val("");
+                    }
+                });
+            });
+
+            $('.datatable').DataTable();
+
+            $("#date").datepicker({
+                format: 'dd/mm/yyyy',
+                autoclose: true
+            });
+        });
+
+        function deleteCargo(id) {
+            $.ajax({
+                url: "DeleteCargo",
+                method: "GET",
+                data: {
+                    id: id,
+                },
+                dataType: "html",
+                success: function (result) {
+                    load_params();
+                    $('#cargo_content').html(result);
+                }
+            });
+
+        }
+
+        function load_params() {
+            $.ajax({
+                url: "GetParams",
+                method: "GET",
+                dataType: "html",
+                success: function (result) {
+                    $('#params').html(result);
+                }
+            });
+        }
+    </script>
+    }

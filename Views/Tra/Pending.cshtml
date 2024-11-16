@@ -1,0 +1,89 @@
+@Model Tra
+
+@{
+    Layout = "~/Views/Shared/Panel.cshtml";
+}
+
+@section PageLevelPlugin {
+    <link rel="stylesheet" href="~/admin/vendor/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css" />
+}
+
+
+
+@section TitleBar {
+    <strong>JSA & Risk Assessment</strong>
+}
+
+<!-- main area -->
+<div class="main-content">
+    <div class="panel">
+        <div class="panel-heading border">
+            <ol class="breadcrumb mb0 no-padding">
+                <li>
+                    <a href="javascript:;">Content</a>
+                </li>
+                <li>
+                    <a href="javascript:;">JSA & Risk Assessment</a>
+                </li>
+                <li class="active"><strong>Pending List</strong></li>
+            </ol>
+        </div>
+
+        <div class="panel-body">
+            @if (TempData["message"] != null)
+            {
+                <div class="alert alert-success"><i class="fa fa-lg fa-check-circle"></i> @TempData["message"]</div>
+            }
+            <table id="table1" class="table table-bordered bordered table-striped table-condensed datatable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Perusahaan / Kontraktor</th>
+                        <th>Project</th>
+                        <th>Penanggung Jawab</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @{EFTraRepository repository = ViewBag.repository; }
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.TraID</td>
+                        <td>@repository.GetVendorName(item.Company)</td>
+                        <td>@repository.GetProjectName(item.Project)</td>
+                        <td>@item.PenanggungJawab</td>
+                        <td>@item.Date</td>
+                        @{
+                            var status = repository.GetTraStatuses().FirstOrDefault(x => x.TraStatusID == item.Status).Deskripsi;
+                        }
+                        <td>@status</td>
+                        <td>
+                                <a asp-controller="Tra" asp-action="ViewPending" asp-route-ID="@item.TraID" class="btn btn-success btn-round btn-xs"><i class="fa fa-eye"></i> View</a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+<!-- /main area -->
+
+
+@section PageLevelScripts {
+    <script src="~/admin/vendor/datatables/datatables.min.js"></script>
+    <script src="~/admin/vendor/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
+}
+
+@section InitPageScripts {
+    <script>
+        $('#table1').DataTable({
+            "order": [[0, "desc"]]
+        });
+    </script>
+}
+

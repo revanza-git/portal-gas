@@ -1,0 +1,407 @@
+﻿@model Admin.Models.Aman
+
+@{
+    Layout = "~/Views/Shared/Panel.cshtml";
+}
+@section TitleBar {
+    <strong>Action Management (AMAN)</strong>
+}
+    @section PageLevelPlugin {
+    <link rel="stylesheet" href="~/admin/vendor/chosen_v1.4.0/chosen.min.css">
+    <link rel="stylesheet" href="~/admin/vendor/jquery.tagsinput/jquery.tagsinput.css">
+    <link rel="stylesheet" href="~/admin/vendor/checkbo/src/0.1.4/css/checkBo.min.css">
+    <link rel="stylesheet" href="~/admin/vendor/intl-tel-input/build/css/intlTelInput.css">
+    <link rel="stylesheet" href="~/admin/vendor/dropzone/dist/min/basic.min.css">
+    <link rel="stylesheet" href="~/admin/vendor/dropzone/dist/min/dropzone.min.css">
+    <link rel="stylesheet" href="~/admin/vendor/bootstrap-daterangepicker/daterangepicker-bs3.css">
+    <link rel="stylesheet" href="~/admin/vendor/bootstrap-datepicker/dist/css/bootstrap-datepicker3.css">
+    <link rel="stylesheet" href="~/admin/vendor/bootstrap-timepicker/css/bootstrap-timepicker.min.css">
+    <link rel="stylesheet" href="~/admin/vendor/clockpicker/dist/bootstrap-clockpicker.min.css">
+    <link rel="stylesheet" href="~/admin/vendor/mjolnic-bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css">
+    <link rel="stylesheet" href="~/admin/vendor/bootstrap-touchspin/dist/jquery.bootstrap-touchspin.min.css">
+    <link rel="stylesheet" href="~/admin/vendor/select2/dist/css/select2.css" />
+}
+    <!-- main area -->
+    <div class="main-content">
+        <div class="panel mb25">
+            <div class="panel-heading border">
+                <ol class="breadcrumb mb0 no-padding">
+                    <li>
+                        <a href="javascript:;">Content</a>
+                    </li>
+                    <li>
+                        <a asp-controller="AMAN" asp-action="Index">AMAN</a>
+                    </li>
+                    <li class="active"><strong>View</strong></li>
+                </ol>
+            </div>
+            <div class="panel-body">
+                <div class="row no-margin">
+                    <div class="col-lg-12">
+                        @if (TempData["message"] != null)
+                        {
+                        <div class="alert alert-success">@TempData["message"]</div>
+                        }
+                    <form class="form-horizontal bordered-group" role="form" method="post" asp-action="Edit">
+                        <div class="form-group">
+                            <label asp-for="AmanID" class="col-sm-2 control-label">AmanID</label>
+                            <div class="col-sm-10">
+                                <input disabled id="AmanID" asp-for="AmanID" type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="StartDate" class="col-sm-2 control-label">Start Date</label>
+                            <div class="col-sm-10">
+                                <input disabled asp-for="StartDate" value='@Model.StartDate.ToString("dd/MM/yyyy")' type="text" class="form-control" data-provide="datepicker">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="EndDate" class="col-sm-2 control-label">End Date</label>
+                            <div class="col-sm-10">
+                                <input disabled asp-for="EndDate" value='@Model.EndDate.ToString("dd/MM/yyyy")' type="text" class="form-control" data-provide="datepicker">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Source" class="col-sm-2 control-label">Source</label>
+                            <div class="col-sm-10">
+                                <select disabled asp-for="Source" class="form-control">
+                                    <option>-- Pilih --</option>
+
+                                    @foreach (var item in ViewBag.AmanSources)
+                                    {
+                                        <option value="@item.AmanSourceID">@item.Deskripsi</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Location" class="col-sm-2 control-label">Location</label>
+                            <div class="col-sm-10">
+                                <select disabled asp-for="Location" class="form-control">
+                                    <option>-- Pilih --</option>
+                                    @foreach (var item in ViewBag.Locations)
+                                    {
+                                        <option value="@item.LocationID">@item.Deskripsi</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Findings" class="col-sm-2 control-label">Findings / Oportunities</label>
+                            <div class="col-sm-10">
+                                <textarea disabled asp-for="Findings" class="form-control" rows="3"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Recommendation" class="col-sm-2 control-label">Recomendation</label>
+                            <div class="col-sm-10">
+                                <textarea disabled asp-for="Recommendation" class="form-control" rows="3"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Responsible" class="col-sm-2 control-label">Responsible</label>
+                            <div class="col-sm-10">
+                                <select disabled asp-for="Responsible" class="form-control">
+                                    <option></option>
+                                    @foreach (var user in ViewBag.Users)
+                                    {
+                                        <option value="@user.UserName">@user.Name</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Verifier" class="col-sm-2 control-label">Verifier</label>
+                            <div class="col-sm-10">
+                                <select disabled asp-for="Verifier" class="form-control">
+                                    <option></option>
+                                    @foreach (var user in ViewBag.Users)
+                                    {
+                                        <option value="@user.UserName">@user.Name</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Auditor(s)</label>
+                            <div class="col-sm-10">
+                                <select id="Auditors-view" class="form-control" multiple="multiple" disabled>
+                                    @if (ViewBag.Auditors != null)
+                                    {
+                                        var auditors = ViewBag.Auditors.Split(", ");
+                                        @foreach (var item in auditors)
+                                        {
+                                            @foreach (var user in ViewBag.Users)
+                                            {
+
+                                                if (user.Name == item)
+                                                {
+                                                    <option value="@user.Name" selected>@user.Name</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@user.Name">@user.Name</option>
+                                                }
+
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        @foreach (var user in ViewBag.Users)
+                                        {
+                                            <option value="@user.Name">@user.Name</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Priority" class="col-sm-2 control-label">Priority</label>
+                            <div class="col-sm-10">
+                                <select disabled asp-for="Priority" class="form-control">
+                                    <option>-- Pilih --</option>
+                                    @foreach (var item in ViewBag.Priorities)
+                                    {
+                                        <option value="@item.PriorityID">@item.Deskripsi</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Classification" class="col-sm-2 control-label">Classification</label>
+                            <div class="col-sm-10">
+                                <div class="radio">
+                                    <label><input disabled asp-for="Classification" type="radio" value="1"> Rahasia</label>
+                                    <label><input disabled asp-for="Classification" type="radio" value="2"> Tidak Rahasia</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Progress" class="col-sm-2 control-label">Progress (%)</label>
+                            <div class="col-sm-10">
+                                <input disabled asp-for="Progress" type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">NOC Reference</label>
+                            <div class="col-sm-10">
+                                <input disabled id="noc-referer" type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Status" class="col-sm-2 control-label">Status</label>
+                            <div class="col-sm-10">
+                                <select disabled asp-for="Status" class="form-control">
+                                    <option>-- Pilih --</option>
+                                    @foreach (var item in ViewBag.AmanStatuses)
+                                    {
+                                        <option value="@item.AmanStatusID">@item.Deskripsi</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Status" class="col-sm-2 control-label">Attachment</label>
+                            <div class="col-sm-10">
+                                @if (Model.FileName != null)
+                                {
+                                    <a asp-controller="Aman" asp-action="DownloadFile" asp-route-Id="@Model.AmanID" class="btn btn-success btn-round btn-xs"><i class="fa fa-download"></i> Download File</a>
+                                }
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <a asp-controller="Aman" asp-action="Index" class="btn btn-sm btn-round btn-danger"><i class="fa fa-arrow-left"></i> Back</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <table class="table table-bordered bordered table-striped table-condensed datatable">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Old End Date</th>
+                        <th>New End Date</th>
+                        <th>Reasons</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int no = 1;
+                    }
+                    @foreach (var item in ViewBag.Reschedules)
+                    {
+                        <tr>
+                            <td>@no</td>
+                            <td>@item.OldEndDate.ToString("dd MMMM yyyy")</td>
+                            <td>@item.NewEndDate.ToString("dd MMMM yyyy")</td>
+                            <td>@item.Reason</td>
+                            @if (item.Status == 1)
+                            {
+                                <td>Pending</td>
+
+                            }
+                            else if (item.Status == 2)
+                            {
+                                <td>Approved</td>
+                            }
+                            else if (item.Status == 3)
+                            {
+                                <td>Rejected</td>
+                            }
+                            <td>
+                                @if (item.Status == 1)
+                                {
+                                    <form class="form-horizontal bordered-group" role="form" method="post" asp-action="ApproveReschedule">
+                                        <input type="hidden" name="RescheduleID" value="@item.RescheduleID" />
+                                        <input type="hidden" name="NewEndDate" value="@item.NewEndDate" />
+                                        <input type="hidden" name="AmanID" value="@item.AmanID" />
+                                        @if (Model.Verifier == User.Identity.Name && Model.Status == 2)
+                                        {
+                                            <button type="submit" name="Action" value="Approve" onclick="return confirm('Are you sure you want to approve this item?');" class="btn btn-success btn-round btn-xs"><i class="fa fa-check"></i> Approve</button>
+                                            <button type="submit" name="Action" value="Reject" onclick="return confirm('Are you sure you want to reject this item?');" class="btn btn-danger btn-round btn-xs"><i class="fa fa-close"></i> Reject</button>
+                                        }
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                        no++;
+                    }
+                </tbody>
+            </table>
+            <div class="form-group">
+                @if ((User.IsInRole("AtasanAdmin") || (User.IsInRole("AdminQM"))) && Model.Status == 1)
+                {
+                    <a asp-controller="Aman" asp-action="Approve" asp-route-amanId="@Model.AmanID" class="btn btn-sm btn-round btn-success"><i class="fa fa-check"></i> Approve</a>
+
+                    @:&nbsp;
+                }
+                @if (Model.Responsible == User.Identity.Name || (User.IsInRole("AdminQM")) && Model.Status == 2)
+                {
+                    <a data-toggle="modal" data-target="#ModalUpdateProgress" class="btn btn-sm btn-round btn-info"><i class="fa fa-edit"></i> Update Progress</a>
+
+                    @:&nbsp;
+                    <a data-toggle="modal" data-target="#ModalReschedule" class="btn btn-sm btn-round btn-danger"><i class="fa fa-exchange"></i> Reschedule</a>
+
+                    @:&nbsp;
+                }
+                @if (Model.Verifier == User.Identity.Name || (User.IsInRole("AdminQM")) && Model.Status == 2 && Model.Progress == 100)
+                {
+                    <a asp-controller="Aman" asp-action="Close" id="amanClose" asp-route-amanId="@Model.AmanID" class="btn btn-sm btn-round btn-primary"><i class="fa fa-power-off"></i> Close</a>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /main area --><!-- Modal -->
+<div id="ModalUpdateProgress" class="modal fade" role="dialog">
+
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title"><i class="fa fa-edit fa-lg"></i>  Update Progress AMAN</h5>
+            </div>
+            <form class="form-horizontal bordered-group" role="form" method="post" enctype="multipart/form-data" asp-action="UpdateProgress">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label asp-for="AmanID" class="col-sm-2 control-label">AmanID</label>
+                        <div class="col-sm-10">
+                            <input readonly asp-for="AmanID" type="text" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Progress" class="col-sm-2 control-label">Progress (%)</label>
+                        <div class="col-sm-10">
+                            <input asp-for="Progress" type="text" class="form-control" ui-jq="mask" ui-options="100%">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Progress" class="col-sm-2 control-label">Attachment</label>
+                        <div class="col-sm-10">
+                            <input type="file" name="files" multiple>
+                            <p class="help-block">Upload attachment hanya jika progress sudah 100%</p>
+                            @if (Model.FileName != null)
+                            {
+                                <a asp-controller="Aman" asp-action="DownloadFile" asp-route-Id="@Model.AmanID" class="btn btn-success btn-round btn-xs"><i class="fa fa-download"></i> Download File</a>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-round btn-success btn-sm"><i class="fa fa-save"></i> Save</button>
+                    <button type="button" class="btn btn-round btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> CLose</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div id="ModalReschedule" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title"><i class="fa fa-calendar fa-lg"></i>  Reschedue AMAN</h5>
+            </div>
+            <form class="form-horizontal bordered-group" role="form" method="post" asp-action="Reschedule">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label asp-for="AmanID" class="col-sm-2 control-label">AmanID</label>
+                        <div class="col-sm-10">
+                            <input readonly asp-for="AmanID" type="text" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Old End Date</label>
+                        <div class="col-sm-10">
+                            <input readonly name="OldEndDate" id="OldEndDate" type="text" class="form-control" value="@Model.EndDate">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">New End Date</label>
+                        <div class="col-sm-10">
+                            <input name="NewEndDate" id="NewEndDate" type="text" class="form-control" data-provide="datepicker" value="@Model.EndDate">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Reason</label>
+                        <div class="col-sm-10">
+                            <textarea name="Reason" id="Reason" class="form-control" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-round btn-success btn-sm"><i class="fa fa-save"></i> Save</button>
+                    <button type="button" class="btn btn-round btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> CLose</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section PageLevelScripts {
+    @*<script src="~/admin/scripts/amanView.js"></script>*@
+    <script src="~/env.js"></script>
+    <script src="~/admin/scripts/chosen_v1.4.0/chosen.jquery.min.js"></script>
+    <script src="~/admin/vendor/chosen_v1.4.0/chosen.jquery.min.js"></script>
+    <script src="~/admin/vendor/jquery.tagsinput/jquery.tagsinput.min.js"></script>
+    <script src="~/admin/vendor/checkbo/src/0.1.4/js/checkBo.min.js"></script>
+    <script src="~/admin/vendor/intl-tel-input//build/js/intlTelInput.min.js"></script>
+    <script src="~/admin/vendor/dropzone/dist/min/dropzone.min.js"></script>
+    <script src="~/admin/vendor/moment/min/moment.min.js"></script>
+    <script src="~/admin/vendor/bootstrap-daterangepicker/daterangepicker.js"></script>
+    <script src="~/admin/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="~/admin/vendor/select2/dist/js/select2.js"></script>
+}
+    @section InitPageScripts {
+    <script src="~/admin/scripts/pages/form-custom.js"></script>
+    <script>
+        $("#Auditors-view").select2({
+            placeholder: " ",
+            allowClear: false
+        });
+    </script>
+}

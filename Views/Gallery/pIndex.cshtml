@@ -1,0 +1,65 @@
+@Model Gallery
+
+@{
+    Layout = "~/Views/Shared/PanelPortal.cshtml";
+}
+
+
+@section PageLevelPlugin {
+    <link rel="stylesheet" href="~/admin/vendor/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css" />
+}
+
+<!-- main area -->
+<div class="main-content">
+    <div class="panel">
+        <div class="panel-heading border">
+            <strong>Gallery</strong>
+        </div>
+        <div class="panel-body">
+            <table id="table1" class="table table-bordered bordered table-striped table-condensed datatable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Deskripsi</th>
+                        <th>DateTime</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{var no = 1;}
+                    @foreach (var item in Model)
+                    {
+                    <tr>
+                        <td>@no</td>
+                        <td>@item.Deskripsi</td>
+                        <td>@item.CreatedOn</td>
+                        <td>
+                            <a asp-controller="Gallery" asp-action="pViewPhoto" asp-route-ID="@item.GalleryID" class="btn btn-round btn-primary btn-xs"><i class="fa fa-photo"></i> Photo</a>&nbsp;
+                            <a asp-controller="Gallery" asp-action="pViewVideo" asp-route-ID="@item.GalleryID" class="btn btn-round btn-success btn-xs"><i class="fa fa-video-camera"></i> Video</a>
+                        </td>
+                    </tr>
+                        no++;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+<!-- /main area -->
+
+
+@section PageLevelScripts {
+    <script src="~/admin/vendor/datatables/datatables.min.js"></script>
+    <script src="~/admin/vendor/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
+}
+
+@section InitPageScripts {
+    <script>
+        $('#table1').DataTable({
+            "order": [[0, "desc"]]
+        });
+    </script>
+}
+
+

@@ -1,0 +1,79 @@
+@model IEnumerable<Semar>
+
+@{
+    Layout = "~/Views/Shared/PanelPortal.cshtml";
+}
+
+
+@section PageLevelPlugin {
+    <link rel="stylesheet" href="~/admin/vendor/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css" />
+}
+
+<!-- main area -->
+<div class="main-content">
+    <div class="panel">
+        <div class="panel-heading">
+            <strong>Sustainability and Excellent Management of Nusantara Regas (SEMAR)</strong>
+        </div>
+        <div class="panel-body"> 
+            <table id="table1" class="table table-bordered bordered table-striped table-condensed">
+                <thead>
+                    <tr>
+                        <th>SemarID</th>
+                        <th>Type</th>
+                        <th>Title</th>
+                        <th>Publish Date</th>
+                        <th>Owner</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.SemarID</td>
+                        @{String tdType = "";}
+                        @foreach (var type in ViewBag.SemarTypes)
+                        {
+                            if (type.SemarTypeID == item.Type)
+                            {
+                                tdType = type.Deskripsi;
+                            }
+                        }
+                        <td>@tdType</td>
+                        <td>@item.Title</td>
+                        <td>@item.PublishDate.ToString("dd/MM/yyyy")</td>
+                        @{String tdOwner = "";}
+                        @foreach (var department in ViewBag.Departments)
+                        {
+                            if (department.DepartmentID == item.Owner)
+                            {
+                                tdOwner = department.Deskripsi;
+                            }
+                        }
+                        <td>@tdOwner</td>
+                        <td>
+                              <a asp-controller="Semar" asp-action="pView" asp-route-Id="@item.SemarID" class="btn btn-success btn-round btn-xs"><i class="fa fa-eye"></i> View</a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+<!-- /main area -->
+
+@section PageLevelScripts {
+    <script src="~/admin/vendor/datatables/datatables.min.js"></script>
+    <script src="~/admin/vendor/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
+}
+
+@section InitPageScripts {
+    <script>
+        $('#table1').DataTable({
+            "order": [[0, "desc"]]
+        });
+    </script>
+}

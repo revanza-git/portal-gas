@@ -1,0 +1,89 @@
+@Model Gallery
+
+@{
+    Layout = "~/Views/Shared/Panel.cshtml";
+}
+
+@section PageLevelPlugin {
+    <link rel="stylesheet" href="~/admin/vendor/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css" />
+}
+
+@section TitleBar {
+    <strong>Gallery</strong>
+}
+
+<!-- main area -->
+<div class="main-content">
+    <div class="panel">
+        <div class="panel-heading border">
+            <ol class="breadcrumb mb0 no-padding">
+                <li>
+                    <a href="javascript:;">Content</a>
+                </li>
+                <li>
+                    <a href="javascript:;">Gallery</a>
+                </li>
+                <li class="active"><strong>List</strong></li>
+            </ol>
+        </div>
+        <div class="panel-body">
+            @if (TempData["message"] != null)
+            {
+                <div class="alert alert-success"><i class="fa fa-lg fa-check-circle"></i> @TempData["message"]</div>
+            }
+            @if (User.IsInRole("Admin") || User.IsInRole("AtasanAdmin") || User.IsInRole("AdminQM"))
+            {
+                <div class="pb25">
+                    <a asp-controller="Gallery" asp-action="Add" class="btn btn-primary btn-round btn-sm"><i class="fa fa-plus"></i> Add New</a>
+                </div>
+            }
+            <table id="table1" class="table table-bordered bordered table-striped table-condensed datatable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Deskripsi</th>
+                        <th>DateTime</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{ var no = 1;}
+                    @foreach (var item in Model)
+                    {
+                    <tr>
+                        <td>@no</td>
+                        <td>@item.Deskripsi</td>
+                        <td>@item.CreatedOn</td>
+                        <td>
+                            <form method="post" asp-action="DeleteGallery">
+                                <input type="hidden" name="GalleryID" value="@item.GalleryID" />
+                                <button type="button" onclick="window.open('/Gallery/ViewPhoto/@item.GalleryID','_self')" class="btn btn-round btn-primary btn-xs"><i class="fa fa-photo"></i> Photo</button>
+                                <button type="button" onclick="window.open('/Gallery/ViewVideo/@item.GalleryID','_self')" class="btn btn-round btn-success btn-xs"><i class="fa fa-video-camera"></i> Video</button>
+                                <button type="button" onclick="window.open('/Gallery/Edit/@item.GalleryID','_self')" class="btn btn-round btn-warning btn-xs"><i class="fa fa-edit"></i> Edit</button>
+                                <button type="submit" onclick="return confirm('Are you sure you want to delete gallery @item.Deskripsi ?');" class="btn btn-round btn-danger btn-xs"><i class="fa fa-times"></i> Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    no++;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+<!-- /main area -->
+
+
+@section PageLevelScripts {
+    <script src="~/admin/vendor/datatables/datatables.min.js"></script>
+    <script src="~/admin/vendor/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
+}
+
+@section InitPageScripts {
+    <script>
+        $('#table1').DataTable({
+            "order": [[0, "desc"]]
+        });
+    </script>
+}

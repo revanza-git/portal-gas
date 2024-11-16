@@ -1,0 +1,198 @@
+@model IEnumerable<Semar>
+
+@{
+    Layout = "~/Views/Shared/Panel.cshtml";
+}
+
+@section PageLevelPlugin {
+    <link rel="stylesheet" href="~/admin/vendor/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css" />
+}
+
+@section TitleBar {
+    <strong>Sustainability and Excellent Management of Nusantara Regas (SEMAR)</strong>
+}
+
+<!-- main area -->
+<div class="main-content">
+    <div class="panel">
+        @inject UserManager<ApplicationUser> UserManager
+        <div class="panel-heading border">
+            <ol class="breadcrumb mb0 no-padding">
+                <li>
+                    <a href="javascript:;">Content</a>
+                </li>
+                <li>
+                    <a href="javascript:;">SEMAR</a>
+                </li>
+                <li class="active"><strong>List</strong></li>
+            </ol>
+        </div>
+
+        <div class="panel-body">
+            @if (TempData["message"] != null)
+            {
+                <div class="alert alert-success"><i class="fa fa-lg fa-check-circle"></i> @TempData["message"]</div>
+            }
+            <div class="row">
+
+                
+                <div class="pb25 col-md-2">
+                    <a asp-controller="Semar" asp-action="Add" class="btn btn-primary btn-round btn-sm"><i class="fa fa-plus"></i> Add New</a>
+                </div>
+                
+                <div class="col-md-2">
+
+                    <form method="get">
+                        Produk:
+                        <select id="type" onchange="load_params()">
+                            <option>-- Pilih Produk --</option>
+                            <option value="99">STK :</option>
+                            @foreach (var item in ViewBag.SemarTypes)
+                            {
+                                @if (item.Type == "STK")
+                                {
+                                    <option value="@item.SemarTypeID">&nbsp;&nbsp;@item.Deskripsi</option>
+                                }
+                            }
+                            @foreach (var item in ViewBag.SemarTypes)
+                            {
+                                @if (item.Type != "STK")
+                                {
+                                    <option value="@item.SemarTypeID">@item.Deskripsi</option>
+                                }
+                            }
+                        </select>
+                    </form>
+                </div>
+            </div>
+            <div id="list">
+                <table id="table1" class="table table-bordered bordered table-striped table-condensed datatable">
+                    <thead>
+                        <tr>
+                            <th>SemarID</th>
+                            <th>Type</th>
+                            <th>NoDocument</th>
+                            <th>Title</th>
+                            <th>Fungsi</th>
+                            <th>Publish Date</th>
+                            <th>Expired Date</th>
+                            @*<th>Classification</th>*@
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listBody">
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.SemarID</td>
+                                @{String tdType = "";}
+                                @foreach (var type in ViewBag.SemarTypes)
+                                {
+                                    if (type.SemarTypeID == item.Type)
+                                    {
+                                        tdType = type.Deskripsi;
+                                    }
+                                }
+                                
+                                <td>@tdType</td>
+                                <td>@item.NoDocument</td>
+                                <td>@item.Title</td>
+                                @{String tdFungsi = "";}
+                                @foreach (var fungsi in ViewBag.Departments)
+                                {
+                                    if (fungsi.DepartmentID == item.Owner)
+                                    {
+                                        tdFungsi = fungsi.Deskripsi;
+                                    }
+                                }
+                                <td>@tdFungsi</td>
+                                <td>@item.PublishDate.ToString("dd/MM/yyyy")</td>
+                                <td>@item.ExpiredDate.ToString("dd/MM/yyyy")</td>
+                                @{String tdClassification = "";}
+                                @foreach (var classification in ViewBag.Classifications)
+                                {
+                                    if (classification.ClassificationID == item.Classification)
+                                    {
+                                        tdClassification = classification.Deskripsi;
+                                    }
+                                }
+                                @*<td>@tdClassification</td>*@
+                                @{String tdStatus = "";}
+                                @foreach (var status in ViewBag.Statuses)
+                                {
+                                    if (status.SemarStatusID == item.Status)
+                                    {
+                                        tdStatus = status.Deskripsi;
+                                    }
+                                }
+                                <td>@tdStatus</td>
+                                <td>
+                                    @{
+                                        var isOwner = @UserManager.FindByNameAsync(UserManager.GetUserName(User)).Result.Department == item.Owner ? true : false;
+                                    }
+                                    <form method="post" asp-action="Delete">
+                                        <input type="hidden" name="SemarID" value="@item.SemarID" />
+                                        @if (isOwner || User.IsInRole("AdminQM"))
+                                        {
+                                            <a asp-controller="Semar" asp-action="Edit" asp-route-id="@item.SemarID" class="btn btn-warning btn-round btn-xs"><i class="fa fa-pencil"></i></a>
+                                        }
+
+                                        <a asp-controller="Semar" asp-action="ViewAction" asp-route-id="@item.SemarID" class="btn btn-success btn-round btn-xs"><i class="fa fa-eye"></i></a>
+
+                                        <button type="submit" onclick="return confirm('Are you sure you want to delete Semar @item.SemarID ?');" class="btn btn-round btn-xs btn-danger"><i class="fa fa-times"></i></button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- /main area -->
+
+
+@section PageLevelScripts {
+    <script src="~/admin/vendor/datatables/datatables.min.js"></script>
+    <script src="~/admin/vendor/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/dataTables.buttons.min.js"></script>
+    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/buttons.flash.min.js"></script>
+    <script src="~/admin/vendor/datatables/JSZip-2.5.0/jszip.min.js"></script>
+    <script src="~/admin/vendor/datatables/pdfmake-0.1.32/pdfmake.min.js"></script>
+    <script src="~/admin/vendor/datatables/pdfmake-0.1.32/vfs_fonts.js"></script>
+    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/buttons.html5.min.js"></script>
+    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/buttons.print.min.js"></script>
+}
+
+@section InitPageScripts {
+    <script>
+        $('#table1').DataTable({
+            order: [[7, "desc"]],
+        });
+
+        $("#product").on("change", function () {
+            if ($(this).val() == 1) { } else { }
+        });
+
+        function load_params() {
+            $('#listBody').html("<span class='fa-stack fa-lg' style='position:static;height:0em;'>\n\
+                                        <i class='fa fa-spinner fa-spin fa-stack-2x fa-fw'></i>\n\
+                                   </span>");
+            $.ajax({
+                url: "Semar/GetSemars?type=" + $('#type').val(),
+                method: "GET",
+                dataType: "html",
+                success: function (result) {
+                    $('#list').html(result);
+
+                    $('#table1').DataTable({
+                        order: [[7, "desc"]],
+                    });
+                }
+            });
+        }
+    </script>
+}

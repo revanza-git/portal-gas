@@ -1,0 +1,235 @@
+@model IEnumerable<NOC>
+
+@{
+    Layout = "~/Views/Shared/PanelPortal.cshtml";
+}
+
+@{
+    var departments = (List<Department>)ViewBag.Departments;
+    var statuses = (List<NOCStatus>)ViewBag.Statuses;
+}
+
+
+
+
+@section PageLevelPlugin {
+    <link rel="stylesheet" href="~/admin/vendor/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css" />
+    <link rel="stylesheet" href="~/admin/vendor/datatables/Buttons-1.5.1/css/buttons.dataTables.min.css" />
+    <link rel="stylesheet" href="~/admin/vendor/bootstrap-daterangepicker/daterangepicker-bs3.css" />
+    <link rel="stylesheet" href="~/admin/vendor/amcharts_3.21.12/amcharts/plugins/export/export.css" type="text/css" media="all" />
+    <style>
+        #chart1, #chart2, #chart3, #chart4, #chart5, #chart6 {
+            width: 100%;
+            height: 500px;
+            font: 11px;
+        }
+    </style>
+}
+
+
+    <!-- main area -->
+    <div class="main-content">
+        <div class="panel">
+            <div class="panel-heading border">
+                <strong>Nusantara Regas Observation Card (NOC)</strong>
+            </div>
+            <div class="panel-body">
+            @if (TempData["message"] != null)
+            {
+                <div class="alert alert-success"><i class="fa fa-lg fa-check-circle"></i> @TempData["message"]</div>
+            }
+            <div class="row">
+                <form method="post">
+                    <div class="form-group">
+                        <label class="col-sm-1 control-label">Periode:</label>
+                        <div class="col-sm-3">
+                            <div class="input-prepend input-group input-group-sm">
+                                <span class="add-on input-group-addon"><i class="fa fa-calendar"></i></span>
+                                <input type="text" name="daterange" class="form-control drp" />
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <br /><br />
+            <div class="row">
+                <div class="col-md-6">
+                    <div style="font-size:12px;text-align:center">
+                        <strong>Status Temuan</strong>
+                    </div>
+                    <div id="chart1"></div>
+                </div>
+                <div class="col-md-6">
+                    <div id="chart2_title" style="font-size:12px;text-align:center;font-weight:bold;">
+                        Rekap NOC Tahun 2022
+                    </div>
+                    <div id="chart2"></div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-10 center">
+                    <div style="font-size:12px;text-align:center">
+                        <strong>Unsafe Action</strong>
+                    </div>
+                    <div id="chart5"></div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-10 center">
+                    <div style="font-size:12px;text-align:center">
+                        <strong>Unsafe Condition</strong>
+                    </div>
+                    <div id="chart6"></div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-10 center">
+                    <div style="font-size:12px;text-align:center">
+                        <strong>Laporan Per Fungsi</strong>
+                    </div>
+                    <div id="chart3"></div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-10 center">
+                    <div style="font-size:12px;text-align:center">
+                        <strong>Laporan Per Individu</strong>
+                    </div>
+                    <div id="chart4"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 center" style="overflow:auto;">
+                    <div style="font-size:12px;text-align:center">
+                        <strong>Table NOC</strong>
+                    </div>
+                    <table id="table1" class="table table-bordered bordered table-striped table-condensed datatable">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Waktu</th>
+                                <th>Lokasi</th>
+                                <th>Daftar Pengamatan</th>
+                                <th>Deskripsi</th>
+                                <th>Tindakan</th>
+                                <th>Rekomendasi</th>
+                                <th>Prioritas</th>
+                                <th>Status</th>
+                                <th>Due Date</th>
+                                <th>Nama Observer</th>
+                                <th>Direktorat Observer</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.NOCID</td>
+                                    <td>@item.EntryDate.ToString("dd/MM/yyyy hh:mm")</td>
+                                    @{
+                                        String tdLokasi = "";
+                                    }
+                                    @foreach (var lokasi in ViewBag.Locations)
+                                    {
+                                        if (lokasi.LocationID == item.Lokasi)
+                                        {
+                                            tdLokasi = lokasi.Deskripsi;
+                                        }
+                                    }
+                                    <td>@tdLokasi</td>
+                                    @{
+                                        String tdPengamatan = "";
+                                    }
+                                    @foreach (var observation in ViewBag.ObservationLists)
+                                    {
+                                        if (observation.ObservationListID == item.DaftarPengamatan)
+                                        {
+                                            tdPengamatan = observation.Deskripsi;
+                                        }
+                                    }
+                                    <td>@tdPengamatan</td>
+                                    <td>@item.Deskripsi</td>
+                                    <td>@item.Tindakan</td>
+                                    <td>@item.Rekomendasi</td>
+                                    @{
+                                        String tdPrioritas = "";
+                                    }
+                                    @foreach (var priority in ViewBag.Priorities)
+                                    {
+                                        if (priority.PriorityID == item.Prioritas)
+                                        {
+                                            tdPrioritas = priority.Deskripsi;
+                                        }
+                                    }
+                                    <td>@tdPrioritas</td>
+                                    <td>
+                                        @statuses.FirstOrDefault(x => x.NOCStatusID == item.Status).Deskripsi
+                                    </td>
+                                    <td>@item.DueDate.ToString("dd/MM/yyyy")</td>
+                                    <td>@item.NamaObserver</td>
+                                    <td>
+                                        @departments.FirstOrDefault(x => x.DepartmentID == item.DivisiObserver).Deskripsi
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- /main area -->
+@section PageLevelScripts {
+    <script src="~/admin/scripts/nocPIndex.js"></script>
+    <script src="~/env.js"></script>
+    <script src="~/admin/vendor/datatables/datatables.min.js"></script>
+    <script src="~/admin/vendor/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/dataTables.buttons.min.js"></script>
+    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/buttons.flash.min.js"></script>
+    <script src="~/admin/vendor/datatables/JSZip-2.5.0/jszip.min.js"></script>
+    <script src="~/admin/vendor/datatables/pdfmake-0.1.32/pdfmake.min.js"></script>
+    <script src="~/admin/vendor/datatables/pdfmake-0.1.32/vfs_fonts.js"></script>
+    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/buttons.html5.min.js"></script>
+    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/buttons.print.min.js"></script>
+    <script src="~/admin/vendor/moment/moment.js"></script>
+    <script src="~/admin/vendor/bootstrap-daterangepicker/daterangepicker.js"></script>
+    <script src="~/admin/vendor/amcharts_3.21.12/amcharts/amcharts.js"></script>
+    <script src="~/admin/vendor/amcharts_3.21.12/amcharts/serial.js"></script>
+    <script src="~/admin/vendor/amcharts_3.21.12/amcharts/funnel.js"></script>
+    <script src="~/admin/vendor/amcharts_3.21.12/amcharts/pie.js"></script>
+    <script src="~/admin/vendor/amcharts_3.21.12/amcharts/plugins/export/export.min.js"></script>
+    <script src="~/admin/vendor/amcharts_3.21.12/amcharts/themes/light.js"></script>
+}
+
+    @section InitPageScripts {
+    <script>
+        $('#table1').DataTable({
+            "order": [[0, "desc"]],
+            "dom": 'Bfrtip',
+            "buttons": [
+                'excel'
+            ]
+        });
+    </script>
+    <script>
+        let currentMonthYear = moment(new Date()).format("MM/YYYY");
+        let startDate = "01/" + currentMonthYear;
+        let endDate = moment(new Date()).format("DD/MM/YYYY");
+        let dateValue = startDate + " - " + endDate;
+
+        //initial value;
+        $('.drp').val(dateValue);
+        // Daterange picker
+        $('.drp').daterangepicker({
+            format: 'DD/MM/YYYY',
+            startDate: startDate,
+            endDate: new Date()
+        });
+    </script>
+}

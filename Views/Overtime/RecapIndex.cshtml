@@ -1,0 +1,154 @@
+@model IEnumerable<Recap>
+
+@{
+    Layout = "~/Views/Shared/Panel.cshtml";
+}
+
+@section PageLevelPlugin {
+    <link rel="stylesheet" href="~/admin/vendor/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css" />
+    <link rel="stylesheet" href="~/admin/vendor/datatables/Buttons-1.5.1/css/buttons.dataTables.min.css" />
+    <link rel="stylesheet" href="~/admin/vendor/bootstrap-daterangepicker/daterangepicker-bs3.css">
+    <link rel="stylesheet" href="~/admin/vendor/bootstrap-datepicker/dist/css/bootstrap-datepicker3.css">
+    <link rel="stylesheet" href="~/admin/vendor/bootstrap-timepicker/css/bootstrap-timepicker.min.css">
+    <link rel="stylesheet" href="~/admin/vendor/clockpicker/dist/bootstrap-clockpicker.min.css">
+    <link rel="stylesheet" href="~/admin/vendor/mjolnic-bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css">
+    <link rel="stylesheet" href="~/admin/vendor/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" />
+    <link rel="stylesheet" href="~/admin/vendor/bootstrap-touchspin/dist/jquery.bootstrap-touchspin.min.css">
+    <link rel="stylesheet" href="~/admin/vendor/select2/dist/css/select2.css" />
+}
+
+@section TitleBar {
+    <strong>Nusantara Regas Overtime Recap View</strong>
+}
+
+<!-- main area -->
+<div class="main-content">
+    <div class="panel">
+        @inject UserManager<ApplicationUser> UserManager
+        <div class="panel-heading border">
+            <ol class="breadcrumb mb0 no-padding">
+                <li>
+                    <a href="javascript:;">Content</a>
+                </li>
+                <li>
+                    <a href="javascript:;">Overtime</a>
+                </li>
+                <li>
+                    <a href="javascript:;">Recap</a>
+                </li>
+                <li class="active"><strong>List</strong></li>
+            </ol>
+        </div>
+
+        <div class="panel-body">
+            @if (TempData["message"] != null)
+            {
+                <div class="alert alert-success">
+                    <i class="fa fa-lg fa-check-circle"></i> @TempData["message"]
+                </div>
+            }
+
+            <div class="row container-fluid pb15">
+                <div class="col-sm-3">
+                    <div class="input-prepend input-group input-group-sm">
+                        <span class="add-on input-group-addon"><i class="fa fa-calendar"></i></span>
+                        <select class="form-control" id="bulan">
+                            <option value="" disabled selected>Pilih Bulan</option>
+                            <option value="1">Januari</option>
+                            <option value="2">Februari</option>
+                            <option value="3">Maret</option>
+                            <option value="4">April</option>
+                            <option value="5">Mei</option>
+                            <option value="6">Juni</option>
+                            <option value="7">Juli</option>
+                            <option value="8">Agustus</option>
+                            <option value="9">September</option>
+                            <option value="10">Oktober</option>
+                            <option value="11">November</option>
+                            <option value="12">Desember</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-sm-4">
+                    <div class="input-prepend input-group input-group-sm">
+                        <span class="add-on input-group-addon"><i class="fa fa-user"></i></span>
+                        <select class="form-control" id="userName" style="border-radius: 0px !important;" required>
+                            <option value="" disabled selected>Pilih Pekerja</option>
+                            @foreach (var item in ViewBag.Tkjp)
+                            {
+                                <option value="@item.UserName">@item.Name</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-sm-3">
+                    <div class="input-prepend input-group input-group-sm">
+                        <span class="add-on input-group-addon"><i class="fa fa-calendar"></i></span>
+                        <input type="number" class="form-control" placeholder="Isi Tahun" id="tahun" required>
+                    </div>
+                </div>
+
+                <div class="col-sm-1">
+                    <a class="btn btn-primary btn-round btn-sm" onclick="load_params()"><i class="fa fa-eye"></i> View</a>
+                </div>
+            </div>
+
+            <div class="row container-fluid pb25">
+                <div class="col-sm-3">
+                    <a class="btn btn-primary btn-round btn-sm" onclick="download_recap()"><i class="fa fa-download"></i> Download</a>
+                </div>
+            </div>
+
+            <div id="list">
+                <table id="table1" class="table table-bordered bordered table-striped table-condensed datatable">
+                    <thead>
+                        <tr>
+                            <th>Tanggal Absensi</th>
+                            <th>Jam Mulai Kerja</th>
+                            <th>Jam Selesai Kerja</th>
+                            <th>Keterangan Kerja</th>
+                            <th>Jam Awal Lembur</th>
+                            <th>Jam Akhir Lembur</th>
+                            <th>Total Jam Lembur</th>
+                            <th>Keterangan Lembur</th>
+                            <th>Pemberi Tugas</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listBody">
+                          <!-- Data will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="row container-fluid">
+                <a asp-controller="Overtime" asp-action="Index" class="btn btn-sm btn-round btn-warning"><i class="fa fa-arrow-left"></i> Back</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- /main area -->
+@section PageLevelScripts {
+    <script src="~/env.js"></script>
+    <script src="~/admin/vendor/datatables/datatables.min.js"></script>
+    <script src="~/admin/vendor/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/dataTables.buttons.min.js"></script>
+    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/buttons.flash.min.js"></script>
+    <script src="~/admin/vendor/datatables/JSZip-2.5.0/jszip.min.js"></script>
+    <script src="~/admin/vendor/datatables/pdfmake-0.1.32/pdfmake.min.js"></script>
+    <script src="~/admin/vendor/datatables/pdfmake-0.1.32/vfs_fonts.js"></script>
+    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/buttons.html5.min.js"></script>
+    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/buttons.print.min.js"></script>
+    <script src="~/admin/vendor/moment/moment.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/admin/vendor/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="~/admin/vendor/bootstrap-daterangepicker/daterangepicker.js"></script>
+    <script src="~/admin/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="~/admin/vendor/bootstrap-timepicker/js/bootstrap-timepicker.min.js"></script>
+    <script src="~/admin/vendor/clockpicker/dist/jquery-clockpicker.min.js"></script>
+    <script src="~/admin/vendor/select2/dist/js/select2.js"></script>
+    <script src="~/admin/scripts/recapOverviewIndex.js"></script>
+}

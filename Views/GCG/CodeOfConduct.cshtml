@@ -1,0 +1,103 @@
+﻿@model CocCoi
+
+@{
+    Layout = "~/Views/Shared/Panel.cshtml";
+}
+
+@section PageLevelPlugin {
+    <link rel="stylesheet" href="~/admin/vendor/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css" />
+    <style>
+        table {
+            border-spacing: 25px;
+        }
+        /* cellspacing */
+
+        th, td {
+            padding: 25px;
+            vertical-align: text-top;
+        }
+        /* cellpadding */
+    </style>
+}
+
+@section TitleBar {
+    <strong>PEDOMAN PERILAKU (CODE OF CONDUCT)</strong>
+}
+
+<!-- main area -->
+<div class="main-content">
+    <div class="panel">
+        <div class="panel-heading border">
+            <ol class="breadcrumb mb0 no-padding">
+                <li>
+                    <a href="javascript:;">Content</a>
+                </li>
+                <li>
+                    <a href="javascript:;">GCG</a>
+                </li>
+                <li class="active"><strong>Pedoman Perilaku </strong></li>
+            </ol>
+        </div>
+        <div class="panel-body">
+            @if (TempData["message"] != null)
+            {
+                <div class="alert alert-success"><i class="fa fa-lg fa-check-circle"></i> @TempData["message"]</div>
+            }
+            <div style="text-align:center;">
+                <h4>PEDOMAN PERILAKU (CODE OF CONDUCT)<br />PT NUSANTARA REGAS</h4>
+                <hr />
+                <h5>SURAT PERNYATAAN INSAN PT NUSANTARA REGAS</h5>
+            </div>
+            <div style="padding-top:10px">
+                <p>
+                    Dengan ini saya menyatakan:
+                </p>
+                <table>
+                    <tr>
+                        <td>1.&nbsp;</td>
+                        <td>Telah membaca dan memahami Pedoman Perilaku (Code of Conduct) PT NUSANTARA REGAS dan bersedia untuk mematuhi semua ketentuan yang tercantum di dalamnya serta menerima sanksi atas pelanggaran yang saya lakukan (jika ada).</td>
+                    </tr>
+                    <tr>
+                        <td>2.</td>
+                        <td>
+                            Sebagai Pekerja yang bertanggung jawab atas penerapan Pedoman Perilaku (Code of Conduct), saya berkomitmen untuk:
+                            <table>
+                                <tr>
+                                    <td>a.&nbsp;</td>
+                                    <td>Melakukan upaya-upaya untuk menjamin kepatuhan terhadap Pedoman Perilaku (Code of Conduct) di unit kerja yang menjadi tanggung jawab saya.</td>
+                                </tr>
+                                <tr>
+                                    <td>b.</td>
+                                    <td>
+                                        Melaporkan semua pelanggaran yang terjadi di unit kerja saya melalui whistleblowing system PT Nusantara Regas (jika ada).
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>c.</td>
+                                    <td>
+                                        Mendukung pelaksanaan penegakan Pedoman Perilaku (Code of Conduct) yang dilakukan di lingkungan unit kerja saya.
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+                <div style="padding-top:25px">
+                    @if (Model.CoC == false)
+                    {
+                    <form method="post" asp-action="CodeOfConduct">
+                        <button type="submit" name="submit" class="btn btn-sm btn-success"><i class="fa fa-check"></i> Setuju</button>
+                    </form>
+                    }
+                    else
+                    {
+                        <p>Telah ditandatangani pada @Model.CoCSignedTime</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- /main area -->
+

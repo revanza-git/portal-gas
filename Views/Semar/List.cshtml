@@ -1,0 +1,87 @@
+@{
+    Layout = "";
+    @model IEnumerable<Semar>
+}
+<table id="table1" class="table table-bordered bordered table-striped table-condensed datatable">
+    @inject UserManager<ApplicationUser> UserManager
+    <thead>
+        <tr>
+            <th>SemarID</th>
+            <th>Type</th>
+            <th>NoDocument</th>
+            <th>Title</th>
+            <th>Fungsi</th>
+            <th>Publish Date</th>
+            <th>Expired Date</th>
+            @*<th>Classification</th>*@
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody id="listBody">
+        @foreach (Semar semar in Model)
+        {
+            <tr>
+                <td>@semar.SemarID</td>
+                @{String tdType = "";}
+                @foreach (var type in ViewBag.SemarTypes)
+                {
+                    if (type.SemarTypeID == semar.Type)
+                    {
+                        tdType = type.Deskripsi;
+                    }
+                }
+                <td>@tdType</td>
+                <td>@semar.NoDocument</td>
+                <td>@semar.Title</td>
+                @{String tdFungsi = "";}
+                @foreach (var fungsi in ViewBag.Departments)
+                {
+                    if (fungsi.DepartmentID == semar.Owner)
+                    {
+                        tdFungsi = fungsi.Deskripsi;
+                    }
+                }
+                <td>@tdFungsi</td>
+                <td>@semar.PublishDate.ToString("dd/MM/yyyy")</td>
+                <td>@semar.ExpiredDate.ToString("dd/MM/yyyy")</td>
+                @{String tdClassification = "";}
+                @foreach (var classification in ViewBag.Classifications)
+                {
+                    if (classification.ClassificationID == semar.Classification)
+                    {
+                        tdClassification = classification.Deskripsi;
+                    }
+                }
+                @*<td>@tdClassification</td>*@
+                @{String tdStatus = "";}
+                @foreach (var status in ViewBag.Statuses)
+                {
+                    if (status.SemarStatusID == semar.Status)
+                    {
+                        tdStatus = status.Deskripsi;
+                    }
+                }
+                <td>@tdStatus</td>
+                <td>
+                    @{
+                        var isOwner = @UserManager.FindByNameAsync(UserManager.GetUserName(User)).Result.Department == semar.Owner ? true : false;
+                    }
+                    <form method="post" asp-action="Delete">
+                        <input type="hidden" name="SemarID" value="@semar.SemarID" />
+                        @if (isOwner || User.IsInRole("AdminQM"))
+                        {
+                            @*<button type="button" onclick="window.open('/Semar/Edit/@semar.SemarID','_self')" class="btn btn-warning btn-round btn-xs"><i class="fa fa-pencil"></i></button>*@
+                            <a asp-controller="Semar" asp-action="Edit" asp-route-id="@semar.SemarID" class="btn btn-warning btn-round btn-xs"><i class="fa fa-pencil"></i></a>
+                        }
+                                        
+                        @*<button type="button" onclick="window.open('/Semar/ViewAction/@semar.SemarID','_self')" class="btn btn-success btn-round btn-xs"><i class="fa fa-eye"></i></button>*@
+                        <a asp-controller="Semar" asp-action="ViewAction" asp-route-id="@semar.SemarID" class="btn btn-success btn-round btn-xs"><i class="fa fa-eye"></i></a>
+                                         
+                        <button type="submit" onclick="return confirm('Are you sure you want to delete Semar @semar.SemarID ?');" class="btn btn-round btn-xs btn-danger"><i class="fa fa-times"></i></button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

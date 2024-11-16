@@ -1,0 +1,190 @@
+﻿@model Admin.Models.Aman
+<style>
+    table {
+        border-spacing: 0px;
+        border: 0px solid black;
+    }
+    td,th {
+        border: 0px solid black;
+        padding: 5px 5px 5px 5px;
+        font-size: 13pt;
+        color: black;
+    }
+
+    table2 {
+        border-spacing: 0px;
+        border: 1px solid black;
+    }
+
+    td2 {
+        border: 1px solid black;
+        padding: 5px 5px 5px 5px;
+        font-size: 13pt;
+        color: black;
+    }
+</style>
+<div style="text-align:center;">
+    &nbsp;<br /><br />
+    <h2>Action Management (AMAN)</h2>
+    <br />
+</div>
+<div style="text-align:center;position:absolute;left:100px;width:100%">
+    <table width="100%" style="text-align:left">
+        <tr>
+            <th width="20%">AmanID</th>
+            <td width="80%">@Model.AmanID</td>
+        </tr>
+        <tr>
+            <th>Start Date</th>
+            <td>@Model.StartDate.ToString("dd/MM/yyyy")</td>
+        </tr>
+        <tr>
+            <th>End Date</th>
+            <td>@Model.EndDate.ToString("dd/MM/yyyy")</td>
+        </tr>
+        <tr>
+            <th>Source</th>
+            <td>
+                @foreach (var item in ViewBag.AmanSources)
+                {
+                    if (item.AmanSourceID == Model.Source)
+                    {
+                        @item.Deskripsi
+                    }
+                }
+            </td>
+        </tr>
+        <tr>
+            <th>Location</th>
+            <td>
+                @foreach (var item in ViewBag.Locations)
+                {
+                    if (item.LocationID == Model.Location)
+                    {
+                        @item.Deskripsi
+                    }
+                }
+            </td>
+        </tr>
+        <tr>
+            <th>Findings / Oportunities</th>
+            <td>@Model.Findings</td>
+        </tr>
+        <tr>
+            <th>Recomendation</th>
+            <td>@Model.Recommendation</td>
+        </tr>
+        <tr>
+            <th>Responsible</th>
+            <td>
+                @foreach (var user in ViewBag.Users)
+                {
+                    if (user.UserName == Model.Responsible)
+                    {
+                        @user.Name
+                    }
+                }
+            </td>
+        </tr>
+        <tr>
+            <th>Verifier</th>
+            <td>
+                @foreach (var user in ViewBag.Users)
+                {
+                    if (user.UserName == Model.Verifier)
+                    {
+                        @user.Name
+                    }
+                }
+            </td>
+        </tr>
+        <tr>
+            <th>Auditor(s)</th>
+            <td>
+                @Model.Auditors
+            </td>
+        </tr>
+        <tr>
+            <th>Priority</th>
+            <td>
+                @foreach (var item in ViewBag.Priorities)
+                {
+                    if (item.PriorityID == Model.Priority)
+                    {
+                        @item.Deskripsi
+                    }
+                }
+            </td>
+        </tr>
+        <tr>
+            <th>Classification</th>
+            <td>
+                @if (Model.Classification == 1)
+                {
+                    <label>Rahasia</label>
+                }
+                else
+                {
+                    <label>Tidak Rahasia</label>
+                }
+            </td>
+        </tr>
+        <tr>
+            <th>Progress</th>
+            <td>@Model.Progress %</td>
+        </tr>
+        <tr>
+            <th>Status</th>
+            <td>
+                @foreach (var item in ViewBag.AmanStatuses)
+                {
+                    if (item.AmanStatusID == Model.Status)
+                    {
+                        @item.Deskripsi
+                    }
+                }
+            </td>
+        </tr>
+        <tr>
+            <th>Reschedule History</th>
+            <td>
+            </td>
+        </tr>
+    </table>
+
+    @if (ViewBag.ReschedulesCount > 0)
+    {
+    <table style="border: 1px solid black;">
+            <tr>
+                <th style="border: 1px solid black;">No</th>
+                <th style="border: 1px solid black;">Old End Date</th>
+                <th style="border: 1px solid black;">New End Date</th>
+                <th style="border: 1px solid black;">Reasons</th>
+                <th style="border: 1px solid black;">Status</th>
+            </tr>
+            @{ int no = 1; }
+            @foreach (var item in ViewBag.Reschedules)
+            {
+                <tr>
+                    <td style="border: 1px solid black;">@no</td>
+                    <td style="border: 1px solid black;">@item.OldEndDate.ToString("dd MMMM yyyy")</td>
+                    <td style="border: 1px solid black;">@item.NewEndDate.ToString("dd MMMM yyyy")</td>
+                    <td style="border: 1px solid black;">@item.Reason</td>
+                    @if (item.Status == 1)
+                    {
+                        <td style="border: 1px solid black;">Pending</td>
+                    }
+                    else if (item.Status == 2)
+                    {
+                        <td style="border: 1px solid black;">Approved</td>
+                    }
+                    else if (item.Status == 3)
+                    {
+                        <td style="border: 1px solid black;">Rejected</td>
+                    }
+                </tr>
+                no++;
+            }
+    </table>
+    }
+</div>

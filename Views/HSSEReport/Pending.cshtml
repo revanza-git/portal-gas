@@ -1,0 +1,83 @@
+@model IEnumerable<HSSEReport>
+@{
+    Layout = "~/Views/Shared/Panel.cshtml";
+}
+
+@section PageLevelPlugin {
+    <link rel="stylesheet" href="~/admin/vendor/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css" />
+}
+
+
+
+@section TitleBar {
+    <strong>HSSE Pending Report</strong>
+}
+
+<!-- main area -->
+<div class="main-content">
+    <div class="panel">
+        <div class="panel-heading border">
+            <ol class="breadcrumb mb0 no-padding">
+                <li>
+                    <a href="javascript:;">Content</a>
+                </li>
+                <li>
+                    <a href="javascript:;">HSSE Report</a>
+                </li>
+                <li class="active"><strong>Pending List</strong></li>
+            </ol>
+        </div>
+
+        <div class="panel-body">
+            @if (TempData["message"] != null)
+            {
+                <div class="alert alert-success"><i class="fa fa-lg fa-check-circle"></i> @TempData["message"]</div>
+            }
+            <table id="table1" class="table table-bordered bordered table-striped table-condensed datatable">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Company</th>
+                        <th>Service</th>
+                        <th>Reported By</th>
+                        <th>Reporting Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.HSSEReportID</td>
+                        <td>@item.Company</td>
+                        <td>@item.Service</td>
+                        <td>@item.ReportedBy</td>
+                        <td>@item.ReportingDate</td>
+                        <td>Pending</td>
+                        <td>
+                            <a asp-controller="HSSEReport" asp-action="ViewPending" asp-route-ID="@item.HSSEReportID" class="btn btn-success btn-round btn-xs"><i class="fa fa-eye"></i> View</a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- /main area -->
+
+
+@section PageLevelScripts {
+    <script src="~/admin/vendor/datatables/datatables.min.js"></script>
+    <script src="~/admin/vendor/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
+}
+
+@section InitPageScripts {
+    <script>
+        $('#table1').DataTable({
+            "order": [[0, "desc"]]
+        });
+    </script>
+}
+

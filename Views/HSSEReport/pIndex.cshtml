@@ -1,0 +1,64 @@
+@model IEnumerable<HSSEReport>
+@{
+    Layout = "~/Views/Shared/PanelPortal.cshtml";
+}
+
+@section PageLevelPlugin {
+    <link rel="stylesheet" href="~/admin/vendor/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css" />
+}
+
+<!-- main area -->
+<div class="main-content">
+    <div class="panel">
+        <div class="panel-heading border">
+            <strong>HSSE Report</strong>
+        </div>
+
+        <div class="panel-body">
+            <table id="table1" class="table table-bordered bordered table-striped table-condensed datatable">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Company</th>
+                        <th>Service</th>
+                        <th>Reported By</th>
+                        <th>Reporting Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.HSSEReportID</td>
+                        <td>@item.Company</td>
+                        <td>@item.Service</td>
+                        <td>@item.ReportedBy</td>
+                        <td>@item.ReportingDate.ToString("dd/mm/yyyy")</td>
+                        <td>Active</td>
+                        <td>
+                            <a asp-controller="HSSEReport" asp-action="pView" asp-route-ID="@item.HSSEReportID" class="btn btn-success btn-round btn-xs"><i class="fa fa-eye"></i> View</a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- /main area -->
+
+@section PageLevelScripts {
+    <script src="~/admin/vendor/datatables/datatables.min.js"></script>
+    <script src="~/admin/vendor/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
+}
+
+@section InitPageScripts {
+    <script>
+        $('#table1').DataTable({
+            "order": [[0, "desc"]]
+        });
+    </script>
+}
+

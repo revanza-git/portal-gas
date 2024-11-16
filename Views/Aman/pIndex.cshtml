@@ -1,0 +1,330 @@
+@model IEnumerable<Aman>
+
+@{
+    Layout = "~/Views/Shared/PanelPortal.cshtml";
+}
+
+@section PageLevelPlugin {
+    <link rel="stylesheet" href="~/admin/vendor/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css" />
+    <link rel="stylesheet" href="~/admin/vendor/datatables/Buttons-1.5.1/css/buttons.dataTables.min.css" />
+    <link rel="stylesheet" href="~/admin/vendor/bootstrap-daterangepicker/daterangepicker-bs3.css" />
+    <link rel="stylesheet" href="~/admin/vendor/amcharts_3.21.12/amcharts/plugins/export/export.css" type="text/css" media="all" />
+    <style>
+        #chart1, #chart2, #chart3 {
+            width: 100%;
+            height: 500px;
+            font: 11px;
+        }
+    </style>
+}
+
+<!-- main area -->
+<div class="main-content">
+    <div class="panel">
+        <div class="panel-heading border">
+            <strong>Action Management (AMAN)</strong>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                <form method="post">
+                    <div class="form-group">
+                        <label class="col-sm-1 control-label">Periode:</label>
+                        <div class="col-sm-3">
+                            <div class="input-prepend input-group input-group-sm">
+                                <span class="add-on input-group-addon"><i class="fa fa-calendar"></i></span>
+                                <input type="text" name="daterange" class="form-control drp" value="@ViewBag.startdate - @ViewBag.enddate" onchange="this.form.submit()" />
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <br/><br/>
+            <div class="row">
+                <div class="col-md-6">
+                    <div style="font-size:12px;text-align:center">
+                        <strong>Grafik#1 Perbandingan AMAN Open vs Closed</strong>
+                    </div>
+                    <div id="chart1"></div>
+                </div>
+                <div class="col-md-6">
+                    <div style="font-size:12px;text-align:center">
+                        <strong>Grafik#2 Perbandingan AMAN Closed Ontime vs Closed Overdue</strong>
+                    </div>
+                    <div id="chart2"></div>
+                </div>
+            </div>
+           
+            <div class="row">
+                <div class="col-md-10 center">
+                    <div style="font-size:12px;text-align:center">
+                        <strong>Grafik#3 AMAN berdasarkan departemen</strong>                        
+                    </div>
+                    <div id="chart3"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 center" style="overflow:auto;">
+                    <div style="font-size:12px;text-align:center">
+                        <strong>Table AMAN</strong>
+                    </div>
+                    <div>
+                        <table id="table1" class="table table-bordered bordered table-striped table-condensed datatable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Findings</th>
+                                    <th>Progress</th>
+                                    <th>Status</th>
+                                    <th>Source</th>
+                                    <th>Location</th>
+                                    <th>Recommendation</th>
+                                    <th>Creator</th>
+                                    <th>Responsible</th>
+                                    <th>Verifier</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>Closing Date</th>
+                                    <th>Priority</th>
+                                    <th>Classification</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>@item.AmanID</td>
+                                        <td>@item.Findings</td>
+                                        <td>@item.Progress %</td>
+                                            @{String tdStatus = "";}
+                                            @foreach (var status in ViewBag.Statuses)
+                                            {
+                                                if (status.AmanStatusID == item.Status)
+                                                {
+                                                    tdStatus = status.Deskripsi;
+                                                }
+                                            }
+                                        <td>@tdStatus</td>
+                                        @{String tdSource = "";}
+                                        @foreach (var source in ViewBag.AmanSources)
+                                        {
+                                            if (source.AmanSourceID == item.Source)
+                                            {
+                                                tdSource = source.Deskripsi;
+                                            }
+                                        }
+                                        <td>@tdSource</td>
+                                        @{String tdLocation = "";}
+                                        @foreach (var location in ViewBag.Locations)
+                                        {
+                                            if (location.LocationID == item.Location)
+                                            {
+                                                tdLocation = location.Deskripsi;
+                                            }
+                                        }
+                                        <td>@tdLocation</td>
+                                        <td>@item.Recommendation</td>
+                                        @{String tdCreator = "";}
+                                        @foreach (var creator in ViewBag.Users)
+                                        {
+                                            if (creator.UserName == item.Creator)
+                                            {
+                                                tdCreator = creator.Name;
+                                            }
+                                        }
+                                        <td>@tdCreator</td>
+                                        @{String tdResponsible = "";}
+                                        @foreach (var responsible in ViewBag.Users)
+                                        {
+                                            if (responsible.UserName == item.Responsible)
+                                            {
+                                                tdResponsible = responsible.Name;
+                                            }
+                                        }
+                                        <td>@tdResponsible</td>
+                                        @{String tdVerifier = "";}
+                                        @foreach (var verifier in ViewBag.Users)
+                                        {
+                                            if (verifier.UserName == item.Verifier)
+                                            {
+                                                tdVerifier = verifier.Name;
+                                            }
+                                        }
+                                        <td>@tdVerifier</td>
+                                        <td>@item.StartDate.ToString("dd/MM/yyyy")</td>
+                                        <td>@item.EndDate.ToString("dd/MM/yyyy")</td>
+                                        @{ String closingDate = "";}
+                                        @if (item.ClosingDate.ToString().Length == 0)
+                                        {
+                                            closingDate = "";
+                                        }
+                                        else
+                                        { 
+                                            closingDate = item.ClosingDate.ToString().Substring(0, 10);
+                                        }
+                                        <td>@closingDate</td>
+                                        @{String tdPriority = "";}
+                                        @foreach (var priority in ViewBag.Priorities)
+                                        {
+                                            if (priority.PriorityID == item.Priority)
+                                            {
+                                                tdPriority = priority.Deskripsi;
+                                            }
+                                        }
+                                        <td>@tdPriority</td>
+                                        @{String tdClassification = "";}
+                                        @foreach (var classification in ViewBag.Classifications)
+                                        {
+                                            if (classification.ClassificationID == item.Classification)
+                                            {
+                                                tdClassification = classification.Deskripsi;
+                                            }
+                                        }
+                                        <td>@tdClassification</td>
+                                        <td>                                  
+                                            <a asp-controller="Aman" asp-action="pView" asp-route-Id="@item.AmanID" class="btn btn-success btn-xs"><i class="fa fa-eye"></i></a>                                       
+                                        </td>
+                                    </tr>
+                                    }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /main area -->
+
+
+@section PageLevelScripts {
+    <script src="~/admin/vendor/datatables/datatables.min.js"></script>
+    <script src="~/admin/vendor/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/dataTables.buttons.min.js"></script>
+    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/buttons.flash.min.js"></script>
+    <script src="~/admin/vendor/datatables/JSZip-2.5.0/jszip.min.js"></script>
+    <script src="~/admin/vendor/datatables/pdfmake-0.1.32/pdfmake.min.js"></script>
+    <script src="~/admin/vendor/datatables/pdfmake-0.1.32/vfs_fonts.js"></script>
+    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/buttons.html5.min.js"></script>
+    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/buttons.print.min.js"></script>
+    <script src="~/admin/vendor/moment/moment.js"></script>
+    <script src="~/admin/vendor/bootstrap-daterangepicker/daterangepicker.js"></script>
+    <script src="~/admin/vendor/amcharts_3.21.12/amcharts/amcharts.js"></script>
+    <script src="~/admin/vendor/amcharts_3.21.12/amcharts/serial.js"></script>
+    <script src="~/admin/vendor/amcharts_3.21.12/amcharts/funnel.js"></script>
+    <script src="~/admin/vendor/amcharts_3.21.12/amcharts/pie.js"></script>
+    <script src="~/admin/vendor/amcharts_3.21.12/amcharts/plugins/export/export.min.js"></script>
+    <script src="~/admin/vendor/amcharts_3.21.12/amcharts/themes/light.js"></script>
+}
+
+
+@section InitPageScripts {
+    <script>
+        $('#table1').DataTable({
+            "order": [[0, "desc"]],
+            "dom": 'Bfrtip',
+            "buttons": [
+                'excel'
+            ]
+        });    
+    </script>
+    <!-- Chart code -->
+    <script>
+         var chart = AmCharts.makeChart("chart1", {
+             "type": "pie",
+             "theme": "light",
+             "dataProvider": [{
+                 "status": "Open",
+                 "jumlah": @ViewBag.Open,
+                 "color": "#ff0000"
+             }, {
+                 "status": "Closed",
+                 "jumlah": @ViewBag.Closed,
+                 "color": "#00ff00"
+             }],
+             "valueField": "jumlah",
+             "titleField": "status",
+             "colorField": "color",
+             "balloon": {
+                 "fixedPosition": true
+             }
+         });
+
+         var chart = AmCharts.makeChart("chart2", {
+             "type": "pie",
+             "theme": "chalk",
+             "dataProvider": [{
+                 "status": "Ontime",
+                 "jumlah": @ViewBag.ClosedOntime,
+                 "color" : "green"
+             }, {
+                 "status": "Overdue",
+                 "jumlah": @ViewBag.ClosedOverdue,
+                 "color" : "red"
+             }],
+             "valueField": "jumlah",
+             "titleField": "status",
+             "colorField": "color",
+             "balloon": {
+                 "fixedPosition": true
+             }
+         });
+    </script>
+    <script>
+         var chart = AmCharts.makeChart("chart3", {
+             "type": "serial",
+             "theme": "light",
+             "categoryField": "department",
+             "rotate": true,
+             "startDuration": 1,
+             "categoryAxis": {
+                 "gridPosition": "start",
+                 "position": "left"
+             },
+             "trendLines": [],
+             "graphs": [
+                 {
+                     "balloonText": "Open:[[value]]",
+                     "fillAlphas": 0.8,
+                     "id": "AmGraph-1",
+                     "lineAlpha": 0.2,
+                     "title": "Open",
+                     "type": "column",
+                     "valueField": "open",
+                     "fillColors" : "red"
+                 },
+                 {
+                     "balloonText": "Closed:[[value]]",
+                     "fillAlphas": 0.8,
+                     "id": "AmGraph-2",
+                     "lineAlpha": 0.2,
+                     "title": "Closed",
+                     "type": "column",
+                     "valueField": "closed",
+                     "fillColors" : "green"
+                 }
+             ],
+             "guides": [],
+             "valueAxes": [
+                 {
+                     "id": "ValueAxis-1",
+                     "position": "top",
+                     "axisAlpha": 0
+                 }
+             ],
+             "allLabels": [],
+             "balloon": {},
+             "titles": [],
+             "dataProvider": @Html.Raw(ViewBag.Graph3Json)
+         });
+    </script>
+    <script>
+            // Daterange picker
+            $('.drp').daterangepicker({
+                format: 'DD/MM/YYYY',
+                startDate: '@ViewBag.startdate',
+                endDate: '@ViewBag.enddate'
+            });
+    </script>
+}

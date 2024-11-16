@@ -1,0 +1,371 @@
+﻿@model IEnumerable<ORFData>
+@{
+    Layout = "~/Views/Shared/Panel.cshtml";
+}
+
+@section PageLevelPlugin {
+    <link rel="stylesheet" href="~/admin/vendor/jquery-ui-1.12.1/jquery-ui.min.css" />
+    <link rel="stylesheet" href="~/admin/vendor/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css" />
+    <link rel="stylesheet" href="~/admin/vendor/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css" />
+    <link rel="stylesheet" href="~/admin/vendor/datatables/Buttons-1.5.1/css/buttons.dataTables.min.css" />
+    <link rel="stylesheet" href="~/admin/vendor/select2/dist/css/select2.css" />
+    <style>
+        td { text-align: center;}
+        .editable {
+            color: steelblue;
+        }
+        .activity {
+            padding: 2px 2px 2px 2px;
+        }
+    </style>
+
+}
+
+@section TitleBar {
+    <strong>Gas Monitoring</strong>
+}
+
+<!-- main area -->
+<div class="main-content">
+    <div class="panel">
+        <div class="panel-heading border">
+            <ol class="breadcrumb mb0 no-padding">
+                <li>
+                    <a href="javascript:;">Content</a>
+                </li>
+                <li>
+                    <a href="javascript:;">Gas Monitoring</a>
+                </li>
+                <li class="active"><strong>Data Entry</strong></li>
+            </ol>
+        </div>
+        <div class="panel-body">
+            @if (TempData["message"] != null)
+            {
+                <div class="alert alert-success"><i class="fa fa-lg fa-check-circle"></i> @TempData["message"]</div>
+            }
+            <div>
+                <label style="font-weight:bold">Periode:</label>&nbsp;&nbsp;
+                <input id="periode" style="text-align:center" type="text" />
+            </div>
+            <p/>
+
+            <div id="tabs"></div>
+    </div>
+
+</div>
+</div>
+<!-- /main area -->
+
+@section PageLevelScripts {
+    <script src="~/admin/vendor/jquery-ui-1.12.1/jquery-ui.min.js"></script>
+    <script src="~/admin/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="~/admin/vendor/datatables/datatables.min.js"></script>
+    <script src="~/admin/vendor/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/dataTables.buttons.min.js"></script>
+    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/buttons.flash.min.js"></script>
+    <script src="~/admin/vendor/datatables/JSZip-2.5.0/jszip.min.js"></script>
+    <script src="~/admin/vendor/datatables/pdfmake-0.1.32/pdfmake.min.js"></script>
+    <script src="~/admin/vendor/datatables/pdfmake-0.1.32/vfs_fonts.js"></script>
+    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/buttons.html5.min.js"></script>
+    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/buttons.print.min.js"></script>
+    <script src="~/admin/vendor/select2/dist/js/select2.js"></script>
+}
+
+@section InitPageScripts {
+    <script>
+        $(document).ready(function () {
+            $("#periode").datepicker({
+                changeMonth: true,
+                changeYear: true,
+                showButtonPanel: true,
+                autoClose: true,
+                format: 'dd/mm/yyyy',
+            }).datepicker("setDate", new Date());
+
+            $("#periode").on('change', function () {
+                $('.datepicker').hide();
+            });
+
+            load_tabs();
+
+            $("#periode").change(function () {
+                load_tabs();
+            });
+
+            $('body').on('click', '#act_fsru',function(){
+                $.ajax({
+                    url: "AddActivity",
+                    method: "GET",
+                    data: {
+                        source: 1,
+                        time: $('#act_fsru_time').val(),
+                        remark: $('#act_fsru_remark').val(),
+                    },
+                    dataType: "html",
+                    success: function (result) {
+                        $('#act_fsru_content').html(result);
+                        $('#act_fsru_time').val("");
+                        $('#act_fsru_remark').val("");
+                    }
+                });
+            });
+
+            $('body').on('click', '#act_orf', function () {
+                $.ajax({
+                    url: "AddActivity",
+                    method: "GET",
+                    data: {
+                        source: 2,
+                        time: $('#act_orf_time').val(),
+                        remark: $('#act_orf_remark').val(),
+                    },
+                    dataType: "html",
+                    success: function (result) {
+                        $('#act_orf_content').html(result);
+                        $('#act_orf_time').val("");
+                        $('#act_orf_remark').val("");
+                    }
+                });
+            });
+
+            $('body').on('click', '#act_tug81', function () {
+                $.ajax({
+                    url: "AddActivity",
+                    method: "GET",
+                    data: {
+                        source: 81,
+                        time: $('#act_tug81_time').val(),
+                        remark: $('#act_tug81_remark').val(),
+                    },
+                    dataType: "html",
+                    success: function (result) {
+                        $('#act_tug81_content').html(result);
+                        $('#act_tug81_time').val("");
+                        $('#act_tug81_remark').val("");
+                    }
+                });
+            });
+
+            $('body').on('click', '#act_tug82', function () {
+                $.ajax({
+                    url: "AddActivity",
+                    method: "GET",
+                    data: {
+                        source: 82,
+                        time: $('#act_tug82_time').val(),
+                        remark: $('#act_tug82_remark').val(),
+                    },
+                    dataType: "html",
+                    success: function (result) {
+                        $('#act_tug82_content').html(result);
+                        $('#act_tug82_time').val("");
+                        $('#act_tug82_remark').val("");
+                    }
+                });
+            });
+
+            $('body').on('click', '#act_tug83', function () {
+                $.ajax({
+                    url: "AddActivity",
+                    method: "GET",
+                    data: {
+                        source: 83,
+                        time: $('#act_tug83_time').val(),
+                        remark: $('#act_tug83_remark').val(),
+                    },
+                    dataType: "html",
+                    success: function (result) {
+                        $('#act_tug83_content').html(result);
+                        $('#act_tug83_time').val("");
+                        $('#act_tug83_remark').val("");
+                    }
+                });
+            });
+
+            for (var id = 61; id <= 63; id++) {
+                $('body').on('click', '#act_carrier' + id, function (event) {
+                    id = event.target.id.substring(11);
+                    $.ajax({
+                        url: "AddActivity",
+                        method: "GET",
+                        data: {
+                            source: id,
+                            time: $('#act_carrier'+id+'_time').val(),
+                            remark: $('#act_carrier'+id+'_remark').val(),
+                        },
+                        dataType: "html",
+                        success: function (result) {
+                            $('#act_carrier'+id+'_content').html(result);
+                            $('#act_carrier'+id+'_time').val("");
+                            $('#act_carrier'+id+'_remark').val("");
+                        }
+                    }); 
+                }); 
+            }
+        });
+
+
+        function load_tabs() {
+            var loading = "<i class='fa fa-refresh fa-spin'></i> Loading data. Please wait!";
+            if ($('#tabs').html().length > 0)
+                $('#tabs').tabs("destroy");
+
+            $('#tabs').html(loading);
+
+            $.ajax({
+                url: "GetContent",
+                method: "GET",
+                data: {
+                    date: $('#periode').val()
+                },
+                dataType: "html",
+                success: function (result) {
+                    $('#tabs').html(result);
+                    $('#tabs').tabs({
+                        classes: {
+                            "ui-tabs": "highlight"
+                        }
+                    });
+
+                    $('.datatable').DataTable({
+                        "autoWidth": false,
+                        "pageLength": 25,
+                        searching: false, paging: false, info: false,ordering: false
+                    });
+
+                    $('.editable').on('click', function () {
+                        if ($(this).html().search("input") < 0) {
+                            var value = $(this).html().trim();
+                            var id = $(this).data("id");
+                            var type = $(this).data("type");
+                            var param = $(this).data("param");
+                            var option1 = $(this).data("option1");
+                            console.log(id + " " + type);
+
+                            $(this).html("<input value='" + value + "' onblur='SubmitData(\"" + id + "\",\"" + type + "\",\"" + param + "\",this.value)' type='text'/>");
+                            $(this).find("input").focus();
+                        }
+                    });
+                    //$('[data-toggle=panel-collapse]').click();
+                }
+            });
+        }
+
+        function SubmitData(id, type, param, value) {
+            var strType = ["Position", "NextPort", "ETANextPort", "WindSpeedDirection"];
+            if (strType.indexOf(param) < 0)
+              value = value.replace(/[^\d,]/g, '');
+            $.ajax({
+                url : "UpdateData",
+                method: "GET",
+                dataType: "text",
+                data: {
+                    "id": id,
+                    "type" : type,
+                    "param": param,
+                    "value": value
+                },
+                success: function (result) {
+                    var gasComposition = ["Methane", "Nitrogen", "CO2", "Ethane", "Propane", "Water", "iButane", "nButane", "iPentane", "nPentane", "nHexane"];
+                    var twoDigits = ["Temperature", "Pressure"];
+                    var digits;
+                    if (twoDigits.indexOf(param) >= 0)
+                        digits = 2;
+                    else if (gasComposition.indexOf(param) >= 0)
+                        digits = 4;
+                    else
+                        digits = 3;
+
+                    //console.log(id + "-" + type + "-" + param + "-" + value);
+                    if (param == "CargoID")
+                        ;
+                    else if (strType.indexOf(param) >= 0)
+                        $('[data-id="' + id + '"][data-param="' + param + '"]').html(value);
+                    else
+                        $('[data-id="' + id + '"][data-param="' + param + '"]').html(parseFloat(value.replace(/,/, '.')).toLocaleString("id-ID", { minimumFractionDigits: digits }));
+
+                    if (type == "FSRU" && param == "RobLNG") {
+                        var value2 = (value.replace(/,/, '.') / 47).toLocaleString("id-ID", { minimumFractionDigits: 3 });
+                        $('[data-id="' + id + '"][data-param="MMSCF"]').html(value2);
+                    } else if (type == "ORF" && param == "Volume") {
+                        GetVolumeBefore(id, function (volumeBefore) {
+                            var flow = (parseFloat(value.replace(/,/, '.')) - parseFloat(volumeBefore)) * 24 / 1000;
+                            $('[data-id="' + id + '"][data-param="Flow"]').html(flow.toLocaleString("id-ID", { minimumFractionDigits: 3 }));
+                        });
+                    } else if (type == "ORF" && ["VolumeA", "VolumeB", "VolumeC"].indexOf(param) >= 0) {
+                        var flowA = parseFloat($('[data-id="' + id + '"][data-param="VolumeA"]').html().replace(/[^\d,]/g, '').replace(/,/, '.')) * 24 / 1000;
+                        var flowB = parseFloat($('[data-id="' + id + '"][data-param="VolumeB"]').html().replace(/[^\d,]/g, '').replace(/,/, '.')) * 24 / 1000;
+                        var flowC = parseFloat($('[data-id="' + id + '"][data-param="VolumeC"]').html().replace(/[^\d,]/g, '').replace(/,/, '.')) * 24 / 1000;
+                        var flow = flowA + flowB + flowC;
+                        if(param == "VolumeA")
+                            $('[data-id="' + id + '"][data-param="FlowA"]').html(parseFloat(flowA).toLocaleString("id-ID", { minimumFractionDigits: 3 }));
+                        else if (param == "VolumeB")
+                            $('[data-id="' + id + '"][data-param="FlowB"]').html(parseFloat(flowB).toLocaleString("id-ID", { minimumFractionDigits: 3 }));
+                        else if (param == "VolumeC")
+                            $('[data-id="' + id + '"][data-param="FlowC"]').html(parseFloat(flowC).toLocaleString("id-ID", { minimumFractionDigits: 3 }));
+                        $('[data-id="' + id + '"][data-param="Flow"]').html(parseFloat(flow).toLocaleString("id-ID", { minimumFractionDigits: 3 }))
+                    } else if (type == "FSRUDaily" && param == "Rate") {
+                        var CummulativeRate = parseFloat($('#CummulativeRateBefore').val().replace(/[^\d,]/g, '').replace(/,/, '.')) + parseFloat(value.replace(/,/, '.'));
+                        $('[data-id="' + id + '"][data-param="CummulativeRate"]').html(CummulativeRate.toLocaleString("id-ID"));
+                    } else if (type == "FSRUDaily" && (param == "DeliveredToORFM3" || param == "BoFM3")) {
+                        var TotalM3 = parseFloat($('[data-id="' + id + '"][data-param="DeliveredToORFM3"]').html().replace(/[^\d,]/g, '').replace(/,/, '.')) + parseFloat($('[data-id="' + id + '"][data-param="BoFM3"]').html().replace(/[^\d,]/g, '').replace(/,/, '.'));
+                        $('[data-id="' + id + '"][data-param="TotalM3"]').html(parseFloat(TotalM3).toLocaleString("id-ID", { minimumFractionDigits: 3 }))
+                    } else if (type == "FSRUDaily" && (param == "DeliveredToORFKg" || param == "BoFKg")) {
+                        var TotalKg = parseFloat($('[data-id="' + id + '"][data-param="DeliveredToORFKg"]').html().replace(/[^\d,]/g, '').replace(/,/, '.')) + parseFloat($('[data-id="' + id + '"][data-param="BoFKg"]').html().replace(/[^\d,]/g, '').replace(/,/, '.'));
+                        $('[data-id="' + id + '"][data-param="TotalKg"]').html(parseFloat(TotalKg).toLocaleString("id-ID", { minimumFractionDigits: 3 }))
+                    } else if (type == "ORFDaily" && gasComposition.indexOf(param) >=0) {
+                        var Total = parseFloat($('[data-id="' + id + '"][data-param="Methane"]').html().replace(/[^\d,]/g, '').replace(/,/, '.')) +
+                        parseFloat($('[data-id="' + id + '"][data-param="Nitrogen"]').html().replace(/[^\d,]/g, '').replace(/,/, '.')) +
+                        parseFloat($('[data-id="' + id + '"][data-param="CO2"]').html().replace(/[^\d,]/g, '').replace(/,/, '.')) +
+                        parseFloat($('[data-id="' + id + '"][data-param="Ethane"]').html().replace(/[^\d,]/g, '').replace(/,/, '.')) +
+                        parseFloat($('[data-id="' + id + '"][data-param="Propane"]').html().replace(/[^\d,]/g, '').replace(/,/, '.')) +
+                        parseFloat($('[data-id="' + id + '"][data-param="Water"]').html().replace(/[^\d,]/g, '').replace(/,/, '.')) +
+                        parseFloat($('[data-id="' + id + '"][data-param="iButane"]').html().replace(/[^\d,]/g, '').replace(/,/, '.')) +
+                        parseFloat($('[data-id="' + id + '"][data-param="nButane"]').html().replace(/[^\d,]/g, '').replace(/,/, '.')) +
+                        parseFloat($('[data-id="' + id + '"][data-param="iPentane"]').html().replace(/[^\d,]/g, '').replace(/,/, '.')) +
+                        parseFloat($('[data-id="' + id + '"][data-param="nPentane"]').html().replace(/[^\d,]/g, '').replace(/,/, '.')) +
+                        parseFloat($('[data-id="' + id + '"][data-param="nHexane"]').html().replace(/[^\d,]/g, '').replace(/,/, '.'));
+                        $('[data-id="' + id + '"][data-param="TotalLine1"]').html(parseFloat(Total).toLocaleString("id-ID", { minimumFractionDigits: 4 }))
+                    } else if (type == "ORFDaily" && param == "Pressure") {
+                        var barg = parseFloat($('[data-id="' + id + '"][data-param="Pressure"]').html().replace(/[^\d,]/g, '').replace(/,/, '.')) / 14.5;
+                        $('[data-id="' + id + '"][data-param="Barg"]').html(parseFloat(barg).toLocaleString("id-ID", { minimumFractionDigits: 2 }))
+                    } else if (type == "ORFDaily" && param == "Temperature") {
+                        var c = (parseFloat($('[data-id="' + id + '"][data-param="Temperature"]').html().replace(/[^\d,]/g, '').replace(/,/, '.')) - 32) / 1.8;
+                        $('[data-id="' + id + '"][data-param="C"]').html(parseFloat(c).toLocaleString("id-ID", { minimumFractionDigits: 2 }))
+                    }
+                }
+            });
+        }
+
+        function GetVolumeBefore(id,handleData) {
+            $.ajax({
+                url: "GetVolumeBefore",
+                method: "GET",
+                data: {
+                    id: id
+                },
+                dataType: "text",
+                success: function (result) {
+                    handleData(result);
+                }
+            });
+        }
+
+        function DeleteActivity(id) {
+            $.ajax({
+                url: "DeleteActivity",
+                method: "GET",
+                data: {
+                    id: id
+                },
+                dataType: "json",
+                success: function (result) {
+                    if (result.Status == true) {
+                        $('#' + result.Container).html(result.Content);
+                    }
+                }
+            });
+        }
+    </script>
+}

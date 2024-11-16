@@ -1,0 +1,157 @@
+@model IEnumerable<Aman>
+
+@{
+    Layout = "~/Views/Shared/Panel.cshtml";
+}
+
+@section PageLevelPlugin {
+    <link rel="stylesheet" href="~/admin/vendor/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css" />
+    <link rel="stylesheet" href="~/admin/vendor/datatables/Buttons-1.5.1/css/buttons.dataTables.min.css" />
+}
+
+    @section TitleBar {
+    <strong>Action Management (AMAN)</strong>
+}
+
+    <!-- main area -->
+    <div class="main-content">
+        <div class="panel">
+            <div class="panel-heading border">
+                <ol class="breadcrumb mb0 no-padding">
+                    <li>
+                        <a href="javascript:;">Content</a>
+                    </li>
+                    <li>
+                        <a href="javascript:;">AMAN</a>
+                    </li>
+                    <li class="active"><strong>List</strong></li>
+                </ol>
+            </div>
+            <div class="panel-body">
+                @if (TempData["message"] != null)
+            {
+                <div class="alert alert-success"><i class="fa fa-lg fa-check-circle"></i> @TempData["message"]</div>
+            }
+            @if (User.IsInRole("Admin") || User.IsInRole("AtasanAdmin") || User.IsInRole("AdminQM") || User.IsInRole("AdminNOC"))
+            {
+                <div class="pb25">
+                    <a asp-controller="Aman" asp-action="Add" class="btn btn-round btn-sm btn-primary"><i class="fa fa-plus"></i> Add New</a>
+                </div>
+            }
+            <table id="table1" class="table table-bordered bordered table-striped table-condensed datatable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Priority</th>
+                        <th>Classification</th>
+                        <th>Verifier</th>
+                        <th>Auditor(s)</th>
+                        <th>Progress</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.AmanID</td>
+                            <td>@item.StartDate.ToString("dd/MM/yyyy")</td>
+                            <td>@item.EndDate.ToString("dd/MM/yyyy")</td>
+                            @{
+                                String tdPriority = "";
+                            }
+                            @foreach (var priority in ViewBag.Priorities)
+                            {
+                                if (priority.PriorityID == item.Priority)
+                                {
+                                    tdPriority = priority.Deskripsi;
+                                }
+                            }
+                            <td>@tdPriority</td>
+                            @{
+                                String tdClassification = "";
+                            }
+                            @foreach (var classification in ViewBag.Classifications)
+                            {
+                                if (classification.ClassificationID == item.Classification)
+                                {
+                                    tdClassification = classification.Deskripsi;
+                                }
+                            }
+                            <td>@tdClassification</td>
+                            @{
+                                String tdUser = "";
+                            }
+                            @foreach (var user in ViewBag.Users)
+                            {
+                                if (user.UserName == item.Verifier)
+                                {
+                                    tdUser = user.Name;
+                                }
+                            }
+                            <td>@tdUser</td>
+                            <td>@item.Auditors</td>
+                            <td>@item.Progress %</td>
+                            @{
+                                String tdStatus = "";
+                            }
+                            @foreach (var status in ViewBag.Statuses)
+                            {
+                                if (status.AmanStatusID == item.Status)
+                                {
+                                    tdStatus = status.Deskripsi;
+                                }
+                            }
+                            <td>@tdStatus</td>
+                            <td>
+                                @if (User.IsInRole("Admin") || User.IsInRole("AtasanAdmin") || User.IsInRole("AdminQM") || User.IsInRole("AdminNOC"))
+                                {
+                                <form method="post" asp-action="Delete">
+                                    <input type="hidden" name="AmanID" value="@item.AmanID" />
+                                    <a asp-controller="Aman" asp-action="ViewAction" asp-route-id="@item.AmanID" class="btn btn-success btn-round btn-xs"><i class="fa fa-eye"></i></a>
+                                    @if (item.Status <= 2)
+                                    {
+                                        <a asp-controller="Aman" asp-action="Edit" asp-route-id="@item.AmanID" class="btn btn-warning btn-round btn-xs"><i class="fa fa-pencil"></i></a>
+                                    }
+                                    <button type="submit" onclick="return confirm('Are you sure you want to delete Aman @item.AmanID ?');" class="btn btn-round btn-danger btn-xs"><i class="fa fa-times"></i></button>
+                                    @*<button type="button" onclick="window.open('/Aman/ExportToPdf/@item.AmanID','blank')" class="btn bg-purple btn-round btn-xs"><i class="fa fa-file-pdf-o"></i></button>*@
+                                    <a asp-controller="Aman" asp-action="ExportToPdf" asp-route-id="@item.AmanID" class="btn bg-purple btn-round btn-xs"><i class="fa fa-file-pdf-o"></i></a>
+                                </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+<!-- /main area -->
+@section PageLevelScripts {
+    <script src="~/admin/vendor/datatables/datatables.min.js"></script>
+    <script src="~/admin/vendor/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/dataTables.buttons.min.js"></script>
+    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/buttons.flash.min.js"></script>
+    <script src="~/admin/vendor/datatables/JSZip-2.5.0/jszip.min.js"></script>
+    <script src="~/admin/vendor/datatables/pdfmake-0.1.32/pdfmake.min.js"></script>
+    <script src="~/admin/vendor/datatables/pdfmake-0.1.32/vfs_fonts.js"></script>
+    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/buttons.html5.min.js"></script>
+    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/buttons.print.min.js"></script>
+}
+
+    @section InitPageScripts {
+    <script>
+        $('#table1').DataTable({
+            "order": [[0, "desc"]],
+            "dom": 'Bfrtip',
+            "buttons": [
+                'excel', 'pdf'
+            ]
+        });
+    </script>
+}

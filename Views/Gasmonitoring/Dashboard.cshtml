@@ -1,0 +1,466 @@
+﻿
+@{
+    Layout = "~/Views/Shared/Panel.cshtml";
+
+    var rkap = (Int32 ) ViewData["rkap"];
+    var realisasi = (Decimal )ViewData["realisasi"];
+}
+
+@section PageLevelPlugin {
+    <link rel="stylesheet" href="https://www.amcharts.com/lib/3/plugins/export/export.css" type="text/css" media="all" />
+
+    <style>
+        #chartdiv{
+            width: 100%;
+            height: 300px;
+        }
+
+        #chartdiv2 {
+            width: 100%;
+            height: 500px;
+        }
+    </style>
+}
+
+@section TitleBar {
+    <strong>Gas Monitoring</strong>
+}
+
+<!-- main area -->
+<div class="main-content">
+    <div class="panel">
+        <div class="panel-heading border">
+            <ol class="breadcrumb mb0 no-padding">
+                <li>
+                    <a href="javascript:;">Content</a>
+                </li>
+                <li>
+                    <a href="javascript:;">Gas Monitoring</a>
+                </li>
+                <li class="active"><strong>Dashboard</strong></li>
+            </ol>
+        </div>
+        <div class="panel-body">
+            @if (TempData["message"] != null)
+            {
+                <div class="alert alert-success"><i class="fa fa-lg fa-check-circle"></i> @TempData["message"]</div>
+            }
+            <div class="row">
+                <div class="col-md-6">
+                    <section class="widget bg-success text-center bold">
+                        <div class="widget-details col-xs-6">
+                            <h2 class="no-margin" id="rkap"><b>@rkap Bbtud</b></h2>
+                            <small class="text-uppercase" style="font-size:15px;"><b>RKAP</b></small>
+                        </div>
+                        <div class="widget-details col-xs-6">
+                            <h2 class="no-margin" id="realisasi"><b>@realisasi Bbtud</b></h2>
+                            <small class="text-uppercase" style="font-size:15px;"><b>REALISASI</b></small>
+                        </div>
+                    </section>
+                </div>
+                <div class="col-md-6">
+                    <section class="widget bg-warning text-center">
+                        <div class="widget-details col-xs-12">
+                            <h2 class="no-margin"><b>6.500</b></h2>
+                            <small class="text-uppercase" style="font-size:15px;"><b>TOTAL GAS SENT</b></small>
+                        </div>
+                    </section>
+                </div>
+            <div class="row">
+                <div class="col-md-6" style="text-align:center">
+                   
+                    <div id="chartdiv"></div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="widget-chart bg-white">
+                        <div class="canvas-holder mt5 mb5">
+                            <div class="flot-pie chart-sm" style="height:250px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="widget bg-danger">
+                        <div class="widget-icon bg-white pull-left fa fa-tachometer">
+                        </div>
+                        <div class="overflow-hidden">
+                            <span class="widget-title" style="font-weight:bold; color: white">10.000 MSCFD</span>
+                            <span class="widget-subtitle" style="font-weight:bold; color: white">LINE 350 MK</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="widget bg-blue">
+                        <div class="widget-icon bg-white pull-left fa fa-tachometer">
+                        </div>
+                        <div class="overflow-hidden">
+                            <span class="widget-title" style="font-weight:bold; color: white">20.000 MSCFD</span>
+                            <span class="widget-subtitle" style="font-weight:bold; color: white">LINE 620 MK</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="widget bg-warning">
+                        <div class="widget-icon bg-white pull-left fa fa-tachometer">
+                        </div>
+                        <div class="overflow-hidden">
+                            <span class="widget-title" style="font-weight:bold; color: white">30.000 MSCFD</span>
+                            <span class="widget-subtitle" style="font-weight:bold; color: white">LINE 350 MK</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="widget bg-success">
+                        <div class="widget-icon bg-white pull-left fa fa-tachometer">
+                        </div>
+                        <div class="overflow-hidden">
+                            <span class="widget-title" style="font-weight:bold; color: white">15.000 MSCFD</span>
+                            <span class="widget-subtitle" style="font-weight:bold;color: white">PERTAGAS</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="chartdiv2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+</div>
+    <!-- /main area -->
+
+    @section PageLevelScripts {
+    <!-- Resources -->
+    <script src="~/admin/vendor/amcharts_3.21.12/amcharts/amcharts.js"></script>
+    <script src="~/admin/vendor/amcharts_3.21.12/amcharts/gauge.js"></script>
+    <script src="https://www.amcharts.com/lib/3/plugins/export/export.min.js"></script>
+    <script src="https://www.amcharts.com/lib/3/themes/light.js"></script>
+    <script src="https://www.amcharts.com/lib/3/serial.js"></script>
+    <script src="https://www.amcharts.com/lib/3/amstock.js"></script>
+    <script src="~/admin/vendor/d3/d3.min.js"></script>
+    <script src="~/admin/vendor/rickshaw/rickshaw.min.js"></script>
+    <script src="~/admin/vendor/flot/jquery.flot.js"></script>
+    <script src="~/admin/vendor/flot/jquery.flot.categories.js"></script>
+    <script src="~/admin/vendor/flot/jquery.flot.resize.js"></script>
+    <script src="~/admin/vendor/flot/jquery.flot.pie.js"></script>
+ 
+    }
+
+    @section InitPageScripts {
+    <script>
+        /*
+        setInterval(updateDashboard, 2000);
+        function updateDashboard() {
+            $.ajax({
+                url: "getDashboardData",
+                method: "GET",
+                data: {
+                    id: id
+                },
+                dataType: "text",
+                success: function (result) {
+                    handleData(result);
+                }
+            });
+        }
+        */
+    </script>
+
+    <!-- Chart code -->
+    <script>
+        var chartData1 = [];
+        var chartData2 = [];
+        var chartData3 = [];
+        var chartData4 = [];
+
+        generateChartData();
+
+        function generateChartData() {
+            var firstDate = new Date();
+            firstDate.setDate(firstDate.getDate() - 500);
+            firstDate.setHours(0, 0, 0, 0);
+
+            var a1 = 1500;
+            var b1 = 1500;
+            var a2 = 1700;
+            var b2 = 1700;
+            var a3 = 1600;
+            var b3 = 1600;
+            var a4 = 1400;
+            var b4 = 1400;
+
+            for (var i = 0; i < 500; i++) {
+                var newDate = new Date(firstDate);
+                newDate.setDate(newDate.getDate() + i);
+
+                a1 += Math.round((Math.random() < 0.5 ? 1 : -1) * Math.random() * 10);
+                b1 += Math.round((Math.random() < 0.5 ? 1 : -1) * Math.random() * 10);
+
+                a2 += Math.round((Math.random() < 0.5 ? 1 : -1) * Math.random() * 10);
+                b2 += Math.round((Math.random() < 0.5 ? 1 : -1) * Math.random() * 10);
+
+                a3 += Math.round((Math.random() < 0.5 ? 1 : -1) * Math.random() * 10);
+                b3 += Math.round((Math.random() < 0.5 ? 1 : -1) * Math.random() * 10);
+
+                a4 += Math.round((Math.random() < 0.5 ? 1 : -1) * Math.random() * 10);
+                b4 += Math.round((Math.random() < 0.5 ? 1 : -1) * Math.random() * 10);
+
+                chartData1.push({
+                    "date": newDate,
+                    "value": a1,
+                    "volume": b1 + 1500
+                });
+                chartData2.push({
+                    "date": newDate,
+                    "value": a2,
+                    "volume": b2 + 1500
+                });
+                chartData3.push({
+                    "date": newDate,
+                    "value": a3,
+                    "volume": b3 + 1500
+                });
+                chartData4.push({
+                    "date": newDate,
+                    "value": a4,
+                    "volume": b4 + 1500
+                });
+            }
+        }
+
+        var chart = AmCharts.makeChart("chartdiv2", {
+            "type": "stock",
+            "theme": "light",
+            "dataSets": [{
+                "title": "LINE 350 MK",
+                "fieldMappings": [{
+                    "fromField": "value",
+                    "toField": "value"
+                }, {
+                    "fromField": "volume",
+                    "toField": "volume"
+                }],
+                "dataProvider": chartData1,
+                "categoryField": "date"
+            }, {
+                "title": "LINE 620 MK",
+                "fieldMappings": [{
+                    "fromField": "value",
+                    "toField": "value"
+                }, {
+                    "fromField": "volume",
+                    "toField": "volume"
+                }],
+                "dataProvider": chartData2,
+                "categoryField": "date"
+            }, {
+                "title": "LINE 350 TP",
+                "fieldMappings": [{
+                    "fromField": "value",
+                    "toField": "value"
+                }, {
+                    "fromField": "volume",
+                    "toField": "volume"
+                }],
+                "dataProvider": chartData3,
+                "categoryField": "date"
+            }, {
+                "title": "PERTAGAS",
+                "fieldMappings": [{
+                    "fromField": "value",
+                    "toField": "value"
+                }, {
+                    "fromField": "volume",
+                    "toField": "volume"
+                }],
+                "dataProvider": chartData4,
+                "categoryField": "date"
+            }
+            ],
+
+            "panels": [{
+                "showCategoryAxis": false,
+                "title": "Value",
+                "percentHeight": 70,
+                "stockGraphs": [{
+                    "id": "g1",
+                    "valueField": "value",
+                    "comparable": true,
+                    "compareField": "value",
+                    "balloonText": "[[title]]:<b>[[value]]</b>",
+                    "compareGraphBalloonText": "[[title]]:<b>[[value]]</b>"
+                }],
+                "stockLegend": {
+                    "periodValueTextComparing": "[[percents.value.close]]%",
+                    "periodValueTextRegular": "[[value.close]]"
+                }
+            }, {
+                "title": "Volume",
+                "percentHeight": 30,
+                "stockGraphs": [{
+                    "valueField": "volume",
+                    "type": "column",
+                    "showBalloon": false,
+                    "fillAlphas": 1
+                }],
+                "stockLegend": {
+                    "periodValueTextRegular": "[[value.close]]"
+                }
+            }],
+
+            "chartScrollbarSettings": {
+                "graph": "g1"
+            },
+
+            "chartCursorSettings": {
+                "valueBalloonsEnabled": true,
+                "fullWidth": true,
+                "cursorAlpha": 0.1,
+                "valueLineBalloonEnabled": true,
+                "valueLineEnabled": true,
+                "valueLineAlpha": 0.5
+            },
+
+            "periodSelector": {
+                "position": "left",
+                "periods": [{
+                    "period": "HH",
+                    "selected": true,
+                    "count": 1,
+                    "label": "1 hour"
+                },{
+                    "period": "DD",
+                    "selected": true,
+                    "count": 1,
+                    "label": "1 day"
+                },{
+                    "period": "MM",
+                    "selected": true,
+                    "count": 1,
+                    "label": "1 month"
+                }, {
+                    "period": "YYYY",
+                    "count": 1,
+                    "label": "1 year"
+                }, {
+                    "period": "YTD",
+                    "label": "YTD"
+                }, {
+                    "period": "MAX",
+                    "label": "MAX"
+                }]
+            },
+
+            "dataSetSelector": {
+                "position": "left"
+            },
+
+            "export": {
+                "enabled": true
+            }
+        });
+    </script>
+    <script>
+        var chart = AmCharts.makeChart("chartdiv", {
+            "fontSize": "7",
+            "theme": "light",
+            "type": "gauge",
+            "axes": [{
+                "topTextFontSize": 20,
+                "topTextYOffset": 70,
+                "axisColor": "#31d6ea",
+                "axisThickness": 1,
+                "endValue": 100,
+                "gridInside": true,
+                "inside": true,
+                "radius": "50%",
+                "valueInterval": 10,
+                "tickColor": "#67b7dc",
+                "startAngle": -90,
+                "endAngle": 90,
+                "unit": "%",
+                "bandOutlineAlpha": 0,
+                "bands": [{
+                    "color": "#0080ff",
+                    "endValue": 100,
+                    "innerRadius": "105%",
+                    "radius": "170%",
+                    "gradientRatio": [0.5, 0, -0.5],
+                    "startValue": 0
+                }, {
+                    "color": "#3cd3a3",
+                    "endValue": 0,
+                    "innerRadius": "105%",
+                    "radius": "170%",
+                    "gradientRatio": [0.5, 0, -0.5],
+                    "startValue": 0
+                }]
+            }],
+            "arrows": [{
+                "alpha": 1,
+                "innerRadius": "35%",
+                "nailRadius": 0,
+                "radius": "170%"
+            }]
+        });
+
+        setInterval(randomValue, 2000);
+
+        // set random value
+        function randomValue() {
+            var value = Math.round(Math.random() * 100);
+            chart.arrows[0].setValue(value);
+            chart.axes[0].setTopText(value + " %");
+            // adjust darker band to new value
+            chart.axes[0].bands[1].setEndValue(value);
+        }
+    </script>
+        <script>
+            var browserData = [
+                {
+                    label: 'LINE 350 MK',
+                    data: 10000,
+                    color: $.urbanApp.danger
+                },
+                {
+                    label: 'LINE 620 MK',
+                    data: 20000,
+                    color: $.urbanApp.info
+                },
+                {
+                    label: 'LINE 350 TP',
+                    data: 30000,
+                    color: $.urbanApp.warning
+                },
+                {
+                    label: 'PERTAGAS',
+                    data: 15000,
+                    color: $.urbanApp.success
+                }
+             ];
+
+
+            // Pie chart
+            $.plot($('.flot-pie'), browserData, {
+                series: {
+                    pie: {
+                        show: true,
+                        innerRadius: 0.5,
+                        stroke: {
+                            width: 2
+                        },
+                        label: {
+                            show: true,
+                        }
+                    }
+                },
+                legend: {
+                    show: true
+                },
+            });
+        </script>
+    }

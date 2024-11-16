@@ -1,0 +1,59 @@
+@model AmanSource
+
+@{
+    Layout = "~/Views/Shared/Panel.cshtml";
+}
+
+@section TitleBar {
+    <strong>Aman Source</strong>
+}
+
+@section PageLevelPlugin {
+}
+
+<!-- main area -->
+<div class="main-content">
+    <div class="panel mb25">
+        <div class="panel-heading border">
+            <ol class="breadcrumb mb0 no-padding">
+                <li>
+                    <a href="javascript:;">Setting</a>
+                </li>
+                <li>
+                    <a href="javascript:;">Aman Source</a>
+                </li>
+                <li class="active"><strong>Edit</strong></li>
+            </ol>
+        </div>
+        <div class="panel-body">
+           
+            <div class="row no-margin">
+                <div class="col-lg-12">
+                    <form class="form-horizontal bordered-group" role="form" method="post" asp-action="Edit">
+                        <input asp-for="AmanSourceID" type="hidden" />
+                        <div class="form-group">
+                            <label asp-for="Deskripsi" class="col-sm-2 control-label">Deskripsi</label>
+                            <div class="col-sm-10">
+                                <input asp-for="Deskripsi" type="text" class="form-control">
+                                <span asp-validation-for="Deskripsi" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-sm btn-round btn-success"><i class="fa fa-save"></i> Submit</button>
+                            <a asp-controller="AmanSource" asp-action="Index" class="btn btn-sm btn-round btn-danger"><i class="fa fa-arrow-left"></i> Back</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /main area -->
+
+@section PageLevelScripts {
+
+}
+
+@section InitPageScripts {
+
+}

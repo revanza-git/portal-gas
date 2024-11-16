@@ -1,0 +1,120 @@
+@model IEnumerable<Overtime>
+
+<table id="table1" class="table table-bordered bordered table-striped table-condensed datatable">
+    @inject UserManager<ApplicationUser> UserManager
+    <thead>
+        <tr>
+            <th>Pilih</th>
+            <th>OvertimeID</th>
+            <th>Nama</th>
+            <th>Posisi</th>
+            <th>Departemen</th>
+            <th>Tanggal</th>
+            <th>Jam Mulai Kerja</th>
+            <th>Jam Selesai Kerja</th>
+            <th>Keterangan Kerja</th>
+            <th>Jam Awal Lembur</th>
+            <th>Jam Akhir Lembur</th>
+            <th>Total Jam Lembur</th>
+            <th>Keterangan Lembur</th>
+            <th>Pemberi Tugas</th>
+            <th>Tanggal Submit</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody id="listBody">
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td></td>
+                @{
+                    String tdId = "OVER" + @item.OvertimeID.ToString();
+                }
+                <td>@tdId</td>
+                @{
+                    ApplicationUser UserTemp = UserManager.FindByNameAsync(item.Name).Result;
+                    var NamaUser = UserTemp == null ? "" : UserTemp.Name;
+                }
+                <td>@NamaUser</td>
+                @{
+                    String tdJabatan = "";
+                }
+                @foreach (var dir in ViewBag.Jabatan)
+                {
+                    if (dir.JabatanID == item.Posisi)
+                    {
+                        tdJabatan = dir.Deskripsi;
+                    }
+                }
+                <td>@tdJabatan</td>
+                @{
+                    String tdDepartment = "";
+                }
+                @foreach (var dir in ViewBag.Department)
+                {
+                    if (int.Parse(dir.DepartmentID) == item.Department)
+                    {
+                        tdDepartment = dir.Deskripsi;
+                    }
+                }
+                <td>@tdDepartment</td>
+                <td>@item.Tanggal.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture)</td>
+                <td>@item.JamMulaiKerja.ToString(@"hh\:mm")</td>
+                <td>@item.JamSelesaiKerja.ToString(@"hh\:mm")</td>
+                <td>@item.WorkDescription</td>
+                <td>@item.JamAwalLembur.ToString(@"hh\:mm")</td>
+                <td>@item.JamAkhirLembur.ToString(@"hh\:mm")</td>
+                @{
+                    String tdRound = Math.Round(@item.TotalHours, 2).ToString();
+                }
+                <td>@tdRound</td>
+                <td>@item.Description</td>
+                @{
+                    String tdAssigner = "";
+                }
+                @foreach (var user in ViewBag.Users)
+                {
+                    if (user.UserName == item.Assigner)
+                    {
+                        tdAssigner = user.Name;
+                    }
+                }
+                <td>@tdAssigner</td>
+                <td>@item.CreationDateTime.Value.ToString("dd/MM/yyyy HH:mm", System.Globalization.CultureInfo.InvariantCulture)</td>
+                <td>
+                    @if (item.Status == 1)
+                    {
+                        <span class="badge progress-bar-warning">Pending</span>
+                    }
+                    else if (item.Status == 2)
+                    {
+                        <span class="badge progress-bar-success">Approved</span>
+                    }
+                    else
+                    {
+                        <span class="badge progress-bar-danger">Reject</span>
+                    }
+                </td>
+                <td>
+                    <form method="post" asp-action="Delete">
+                        <input type="hidden" name="OvertimeID" value="@item.OvertimeID" />
+                        @if (User.IsInRole("AdminSDM") || User.IsInRole("SecretarySDM"))
+                        {
+                            <a asp-controller="Overtime" asp-action="Edit" asp-route-id="@item.OvertimeID" class="btn btn-info btn-warning btn-xs"><i class="fa fa-pencil"></i></a>
+                            <button type="submit" onclick="return confirm('Are you sure you want to delete OVER'+@item.OvertimeID+'?');" class="btn btn-round btn-xs btn-danger"><i class="fa fa-times"></i></button>
+                        }
+                        else if (User.IsInRole("AtasanAdmin"))
+                        {
+                            <a asp-controller="Overtime" asp-action="EditSuperior" asp-route-id="@item.OvertimeID" class="btn btn-info btn-info btn-xs"><i class="fa fa-pencil"></i></a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Overtime" asp-action="View" asp-route-id="@item.OvertimeID" class="btn btn-info btn-Success btn-xs"><i class="fa fa-eye"></i></a>
+                        }
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

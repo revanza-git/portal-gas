@@ -1,0 +1,95 @@
+@model IEnumerable<AccountViewModel>
+
+@{
+    Layout = "~/Views/Shared/Panel.cshtml";
+}
+
+@section PageLevelPlugin {
+    <link rel="stylesheet" href="~/admin/vendor/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css" />
+}
+
+@section TitleBar {
+    <strong>User Account</strong>
+}
+
+<!-- main area -->
+<div class="main-content">
+    <div class="panel">
+        <div class="panel-heading border">
+            <ol class="breadcrumb mb0 no-padding">
+                <li>
+                    <a href="javascript:;">User Management</a>
+                </li>
+                <li class="active"><strong>List</strong></li>
+            </ol>
+        </div>
+        <div class="panel-body">
+            @if (TempData["message"] != null)
+            {
+                <div class="alert alert-success"><i class="fa fa-lg fa-check-circle"></i> @TempData["message"]</div>
+            }
+            @if (TempData["error"] != null)
+            {
+                <div class="alert alert-danger"><i class="fa fa-lg fa-check-circle"></i> @TempData["error"]</div>
+            }
+            @if (User.IsInRole("SuperAdmin"))
+            {
+                <div class="pb25">
+                    <a asp-controller="Account" asp-action="Add" class="btn btn-round btn-sm btn-primary"><i class="fa fa-plus"></i> Add New</a>
+                </div>
+            }
+            <table id="table1" class="table table-bordered bordered table-striped table-condensed datatable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>UserName</th>
+                        <th>Email</th>
+                        <th>Name</th>
+                        <th>Role</th>
+                        <th>Department</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int no = 1;
+                    }
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@no</td>
+                            <td>@item.UserName</td>
+                            <td>@item.Email</td>
+                            <td>@item.Name</td>
+                            <td>@item.Role</td>
+                            <td>@item.Department</td>
+                            <td>
+                                <form role="form" method="post" asp-action="AccountAction">
+                                    <input name="id" type="hidden" value="@item.Id" />
+                                    <a asp-controller="Account" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-primary btn-round btn-xs"><i class="fa fa-pencil"></i></a>
+                                    <button type="submit" name="Action" value="Delete" onclick="return confirm('Are you sure you want to delete UserName @item.UserName?');" class="btn btn-danger btn-round btn-xs"><i class="fa fa-times"></i></button>
+                                    <button type="submit" name="Action" value="ResetPassword" onclick="return confirm('Are you sure you want to reset password for UserName @item.UserName?');" class="btn btn-success btn-round btn-xs"><i class="fa fa-key"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                        no++;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- /main area -->
+@section PageLevelScripts {
+    <script src="~/admin/vendor/datatables/datatables.min.js"></script>
+    <script src="~/admin/vendor/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
+}
+
+@section InitPageScripts {
+    <script>
+        $('#table1').DataTable({
+            "order": [[0, "desc"]],
+            "scrollX": true
+        });
+    </script>
+}

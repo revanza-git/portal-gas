@@ -1,0 +1,245 @@
+﻿@model Admin.Models.Aman
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    Layout = "~/Views/Shared/Panel.cshtml";
+}
+@section TitleBar {
+    <strong>Action Management (AMAN)</strong>
+}
+@section PageLevelPlugin {
+    <link rel="stylesheet" href="~/admin/vendor/bootstrap-datepicker/dist/css/bootstrap-datepicker3.css">
+    <link rel="stylesheet" href="~/admin/vendor/select2/dist/css/select2.css" />
+}
+<!-- main area -->
+<div class="main-content">
+    <div class="panel mb25">
+        <div class="panel-heading border">
+            <ol class="breadcrumb mb0 no-padding">
+                <li>
+                    <a href="javascript:;">Content</a>
+                </li>
+                <li>
+                    <a href="javascript:;">AMAN</a>
+                </li>
+                <li class="active"><strong>@ViewBag.Title</strong></li>
+            </ol>
+        </div>
+        <div class="panel-body">
+            <div class="row no-margin">
+                <div class="col-lg-12">
+                    <form class="form-horizontal bordered-group" role="form" method="post" asp-action="Edit">
+                        <div class="form-group">
+                            <label asp-for="AmanID" class="col-sm-2 control-label">AmanID</label>
+                            <div class="col-sm-10">
+                                <input asp-for="AmanID" readonly type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="StartDate" class="col-sm-2 control-label">Start Date</label>
+                            <div class="col-sm-10">
+                                <input name="StartDate" value='@Model.StartDate.ToString("dd/MM/yyyy")' asp-for="StartDate" type="text" class="form-control datepicker">
+                                <span asp-validation-for="StartDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                        @if (Model.AmanID == null)
+                        {
+                            <div class="form-group">
+                                <label asp-for="EndDate" class="col-sm-2 control-label">End Date</label>
+                                <div class="col-sm-10">
+                                    <input name="EndDate" value='@Model.EndDate.ToString("dd/MM/yyyy")' asp-for="EndDate" type="text" class="form-control datepicker">
+                                    <span asp-validation-for="EndDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                        }
+                        <div class="form-group">
+                            <label asp-for="Source" class="col-sm-2 control-label">Source</label>
+                            <div class="col-sm-10">
+                                <select name="Source" asp-for="Source" class="form-control">
+                                    <option value="A"></option>
+                                    @foreach (var item in ViewBag.AmanSources)
+                                    {
+                                        <option value="@item.AmanSourceID">@item.Deskripsi</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="Source" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Location" class="col-sm-2 control-label">Location</label>
+                            <div class="col-sm-10">
+                                <select name="Location" asp-for="Location" class="form-control">
+                                    <option></option>
+                                    @foreach (var item in ViewBag.Locations)
+                                    {
+                                        <option value="@item.LocationID">@item.Deskripsi</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="Location" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Findings" class="col-sm-2 control-label">Findings / Oportunities</label>
+                            <div class="col-sm-10">
+                                <textarea name="Findings" asp-for="Findings" class="form-control" rows="3"></textarea>
+                                <span asp-validation-for="Findings" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Recommendation" class="col-sm-2 control-label">Recomendation</label>
+                            <div class="col-sm-10">
+                                <textarea name="Recommendation" asp-for="Recommendation" class="form-control" rows="3"></textarea>
+                                <span asp-validation-for="Recommendation" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Responsible" class="col-sm-2 control-label">Responsible</label>
+                            <div class="col-sm-10">
+                                <select name="Responsible" asp-for="Responsible" class="form-control">
+                                    <option></option>
+                                    @foreach (var user in ViewBag.Users)
+                                    {
+                                        <option value="@user.UserName">@user.Name</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="Responsible" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Verifier" class="col-sm-2 control-label">Verifier</label>
+                            <div class="col-sm-10">
+                                <select name="Verifier" asp-for="Verifier" class="form-control">
+                                    <option value="0"></option>
+                                    @foreach (var user in ViewBag.Users)
+                                    {
+                                        <option value="@user.UserName">@user.Name</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="Verifier" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Auditor(s)</label>
+                            <div class="col-sm-10">
+                                <select id="Auditors-edit" class="form-control" multiple="multiple">
+                                    @if (ViewBag.Auditors != null)
+                                    {
+                                        var auditors = ViewBag.Auditors.Split(", ");
+                                        @foreach (var item in auditors)
+                                        {
+                                            @foreach (var user in ViewBag.Users)
+                                            {
+
+                                                if (user.Name == item)
+                                                {
+                                                    <option value="@user.Name" selected>@user.Name</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@user.Name">@user.Name</option>
+                                                }
+
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        @foreach (var user in ViewBag.Users)
+                                        {
+                                           <option value="@user.Name">@user.Name</option>
+                                        }
+                                    }
+                                </select>
+                                <input asp-for="Auditors" type="hidden" class="form-control">
+
+                                <span id="Auditors-text" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Priority" class="col-sm-2 control-label">Priority</label>
+                            <div class="col-sm-10">
+                                <select name="Priority" asp-for="Priority" class="form-control">
+                                    <option></option>
+                                    @foreach (var item in ViewBag.Priorities)
+                                    {
+                                        <option value="@item.PriorityID">@item.Deskripsi</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="Priority" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Classification" class="col-sm-2 control-label">Classification</label>
+                            <div class="col-sm-10">
+                                <div class="radio">
+                                    <label><input name="Classification" checked asp-for="Classification" type="radio" value="1"> Rahasia</label>
+                                    <label><input name="Classification" asp-for="Classification" type="radio" value="2"> Tidak Rahasia</label>
+                                </div>
+                                <span asp-validation-for="Classification" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" id="submit-edit" class="btn btn-sm btn-round btn-success"><i class="fa fa-save"></i> Submit</button>
+                            <a asp-controller="Aman" asp-action="Index" class="btn btn-sm btn-round btn-danger"><i class="fa fa-arrow-left"></i> Back</a>
+                        </div>
+                        <!---->
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /main area -->
+@section PageLevelScripts {
+    @*<script src="~/admin/scripts/amanEdit.js"></script>*@
+    <script src="~/env.js"></script>
+    <script src="~/admin/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="~/admin/vendor/select2/dist/js/select2.js"></script>
+    <script src="~/admin/vendor/moment/moment.js"></script>
+}
+@section InitPageScripts {
+    <script>
+        let auditors;
+
+        $(".datepicker").datepicker({
+            format: 'dd/mm/yyyy',
+            autoclose: true
+        });
+
+        $("#Source").select2({
+            placeholder: "Pilih Source",
+            allowClear: true
+        });
+
+        $("#Location").select2({
+            placeholder: "Pilih Location",
+            allowClear: true
+        });
+        $("#Priority").select2({
+            placeholder: "Pilih Priority",
+            allowClear: true
+        });
+        $("#Responsible").select2({
+            placeholder: "Pilih Responsible",
+            allowClear: true
+        });
+        $("#Verifier").select2({
+            placeholder: "Pilih Verifier",
+            allowClear: true
+        });
+        $("#Auditors-edit").select2({
+            placeholder: "Pilih Auditor",
+            allowClear: true
+        });
+
+        $("#Auditors-edit").on("change", function () {
+            auditors = $(this).val();
+
+            if (auditors != null) {
+                $("#Auditors").val(auditors.join(", "));
+            } else {
+                $("#Auditors").val("");
+            } 
+        });
+    </script>
+}

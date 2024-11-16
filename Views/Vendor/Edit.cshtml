@@ -1,0 +1,211 @@
+@model Vendor
+
+@{
+    Layout = "~/Views/Shared/Panel.cshtml";
+}
+
+@section TitleBar {
+    <strong>Vendor Management</strong>
+}
+
+@section PageLevelPlugin {
+    <link rel="stylesheet" href="~/admin/vendor/datatables/DataTables-1.10.16/css/dataTables.bootstrap.min.css">
+}
+
+<!-- main area -->
+<div class="main-content">
+    <div class="panel mb25">
+        <div class="panel-heading border">
+            <ol class="breadcrumb mb0 no-padding">
+                <li>
+                    <a href="javascript:;">Vendor Management</a>
+                </li>
+                <li class="active"><strong>Edit</strong></li>
+            </ol>
+        </div>
+        <div class="panel-body">
+            @if (TempData["message"] != null)
+            {
+                <div class="alert alert-success"><i class="fa fa-lg fa-check-circle"></i> @TempData["message"]</div>
+            }
+            <div class="row no-margin">
+                <div class="col-lg-12">
+                    <form class="form-horizontal bordered-group" role="form" method="post" asp-action="Edit">
+                        <div class="form-group">
+                            <label asp-for="VendorName" class="col-sm-2 control-label">Vendor Name</label>
+                            <div class="col-sm-10">
+                                <input readonly asp-for="VendorName" type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Email" class="col-sm-2 control-label">Email</label>
+                            <div class="col-sm-10">
+                                <input readonly asp-for="Email" type="text" class="form-control">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="pb25">
+                <a data-toggle="modal" data-target="#ModalAddProject" class="btn btn-primary btn-round btn-sm"><i class="fa fa-plus"></i> Tambah Proyek</a>
+            </div>
+            <div>
+                <table id="table1" class="table table-bordered bordered table-striped table-condensed datatable">
+                    <thead>
+                        <tr>
+                            <td colspan="7" style="background-color:darkblue;color:white;text-align:center;">Daftar Projek </td>
+                        </tr>
+                        <tr>
+                            <td>ID</td>
+                            <td>Nama Projek</td>
+                            <td>Sponsor Pekerjaan</td>
+                            <td>HSSE</td>
+                            <td>Pemilik Wilayah</td>
+                            <td>Action</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @inject UserManager<ApplicationUser> UserManager
+                        @{ int no = 1; }
+                        @foreach (var item in ViewBag.Projects)
+                        {
+                            ApplicationUser UserHSSE = UserManager.FindByNameAsync(item.HSSE).Result;
+                            var NamaHSSE = UserHSSE == null ? "" : UserHSSE.Name;
+
+                            ApplicationUser UserSponsor = UserManager.FindByNameAsync(item.SponsorPekerjaan).Result;
+                            var NamaSponsor = UserSponsor == null ? "" : UserSponsor.Name;
+
+                            ApplicationUser UserPemilik = UserManager.FindByNameAsync(item.PemilikWilayah).Result;
+                            var NamaPemilik = UserPemilik == null ? "" : UserPemilik.Name;
+
+                            <tr>
+                                <td>@no</td>
+                                <td>@item.ProjectName</td>
+                                <td>@NamaSponsor</td>
+                                <td>@NamaHSSE</td>
+                                <td>@NamaPemilik</td>
+                                <td>
+                                        <a data-toggle="modal" data-id="@item.ProjectID" class="EditProject btn btn-warning btn-round btn-xs"><i class="fa fa-pencil"></i> Edit</a>
+                                </td>
+                            </tr>
+                            no++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /main area -->
+<!--Modal Area-->
+
+<div id="ModalAddProject" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="overflow-y:auto;height:90%;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title"><i class="fa fa-user fa-lg"></i>  Tambah/Edit Project</h5>
+            </div>
+            <form class="form-horizontal bordered-group" role="form" method="post" asp-action="EditProject">
+                <input type="hidden" name="ProjectID" id="ProjectID" value="" />
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label asp-for="VendorID" class="col-sm-4 control-label">VendorID</label>
+                        <div class="col-sm-6">
+                            <input readonly asp-for="VendorID" type="text" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Nama Project</label>
+                        <div class="col-sm-6">
+                            <input name="ProjectName" id="ProjectName" type="text" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Sponsor Pekerjaan</label>
+                        <div class="col-sm-6">
+                            <select name="SponsorPekerjaan" id="SponsorPekerjaan" class="form-control">
+                                @foreach(var user in ViewBag.users)
+                                {
+                                    <option value="@user.UserName">@user.Name</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">HSSE</label>
+                        <div class="col-sm-6">
+                            <select name="HSSE" id="HSSE" class="form-control">
+                                @foreach (var user in ViewBag.HSSE)
+                                {
+                                    <option value="@user.UserName">@user.Name</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Pemilik Wilayah</label>
+                        <div class="col-sm-6">
+                            <select name="PemilikWilayah" id="PemilikWilayah"class="form-control">
+                                @foreach (var user in ViewBag.PemilikWilayah)
+                                {
+                                    <option value="@user.UserName">@user.Name</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-round btn-success btn-sm"><i class="fa fa-save"></i> Save</button>
+                    <button type="button" class="btn btn-round btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- End of Modal Area-->
+@section PageLevelScripts {
+    <script src="~/admin/vendor/datatables/datatables.min.js"></script>
+    <script src="~/admin/vendor/datatables/DataTables-1.10.16/js/dataTables.bootstrap.min.js"></script>
+    <link rel="stylesheet" href="~/admin/vendor/select2/dist/css/select2.css" />
+
+    <script src="~/admin/vendor/select2/dist/js/select2.js"></script>
+}
+
+@section InitPageScripts {
+    <script>
+        $('#table1').DataTable({
+            "order": [[0, "desc"]]
+        });
+    </script>
+    <script>      
+        $(document).on("click", ".EditProject", function () {
+            var ProjectId = $(this).data('id');
+            $.getJSON('/Vendor/GetProjectById/' + ProjectId, function (data) {
+                $("#ProjectID").val(ProjectId);
+                $("#ProjectName").val(data.ProjectName);
+                $("#HSSE").val(data.HSSE);
+                $("#SponsorPekerjaan").val(data.SponsorPekerjaan);
+                $("#PemilikWilayah").val(data.PemilikWilayah);
+            });
+            $('#ModalAddProject').modal('show');
+        });      
+        /*
+        $("#PemilikWilayah").select2({
+            placeholder: "Pilih Pemilik Wilayah",
+            allowClear: true
+        });
+        $("#HSSE").select2({
+            placeholder: "Pilih HSSE",
+            allowClear: true
+        });
+        $("#SponsorPekerjaan").select2({
+            placeholder: "Pilih Sponsor Pekerjaan",
+            allowClear: true
+        });
+        */
+    </script>
+}

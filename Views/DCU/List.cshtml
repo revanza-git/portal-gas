@@ -1,0 +1,69 @@
+@{
+    Layout = "";
+    @model IEnumerable<DCU>
+}
+
+<table id="table1" class="table table-bordered bordered table-striped table-condensed datatable">
+    <thead>
+        <tr>
+            <th>DCUID</th>
+            <th>Waktu</th>
+            <th>Nama</th>
+            <th>Pekerjaan</th>
+            <th>Aktivitas Pekerjaan</th>
+            <th>Nama Perusahaan</th>
+            <th>Sistole</th>
+            <th>Diastole</th>
+            <th>Nadi</th>
+            <th>Suhu</th>
+            <th>Keluhan</th>
+            <th width="100px">Foto</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody id="listBody">
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.DCUID</td>
+                <td>@item.Date.ToString("dd/MM/yyyy hh:mm tt")</td>
+                <td>@item.Nama</td>
+                @{
+                    String tdJenisPekerjaan = "";
+                }
+                @foreach (var jenisPekerjaan in ViewBag.JenisPekerjaan)
+                {
+                    if (jenisPekerjaan.jenis_pekerjaanID == item.JenisPekerjaan)
+                    {
+                        tdJenisPekerjaan = jenisPekerjaan.Deskripsi;
+                    }
+                }
+                <td>@tdJenisPekerjaan</td>
+                <td>@item.DeskripsiPekerjaan</td>
+                <td>@item.NamaPerusahaan</td>
+
+                <td>@item.Sistole</td>
+                <td>@item.Diastole</td>
+                <td>@item.Nadi</td>
+                <td>@item.Suhu</td>
+                <td>@item.Keluhan</td>
+                <td>
+                    @if (item.Foto != null)
+                    {
+                        <a class="btn btn-info btn-round btn-xs" name="download" href="@Url.Action("DownloadFile", "DCU", new { ID = item.DCUID })"><i class="fa fa-download"></i> Download</a>
+                    }
+                </td>
+
+                <td>
+
+                    <form method="post" asp-action="Delete">
+                        <input type="hidden" name="DCUID" value="@item.DCUID" />
+                        @*<button type="button" onclick="window.open('/DCU/Edit/@item.DCUID','_self')" class="btn btn-warning btn-round btn-xs"><i class="fa fa-pencil"></i> Edit</button>*@
+                        <a asp-controller="DCU" asp-action="Edit" asp-route-id="@item.DCUID" class="btn btn-warning btn-round btn-xs"><i class="fa fa-pencil"></i> Edit</a>
+                        <button type="submit" onclick="return confirm('Are you sure you want to delete @item.DCUID ?');" class="btn btn-round btn-xs btn-danger"><i class="fa fa-times"></i> Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

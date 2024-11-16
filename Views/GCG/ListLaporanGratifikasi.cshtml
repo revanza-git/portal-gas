@@ -1,0 +1,281 @@
+﻿@model IEnumerable<LaporanGratifikasi>
+
+@{
+    Layout = "~/Views/Shared/Panel.cshtml";
+}
+
+@section PageLevelPlugin {
+    <link rel="stylesheet" href="~/admin/vendor/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css" />
+    <link rel="stylesheet" href="~/admin/vendor/datatables/Buttons-1.5.1/css/buttons.dataTables.min.css"/>
+}
+
+@section TitleBar {
+    <strong>@ViewData["Title"]</strong>
+}
+
+<!-- main area -->
+<div class="main-content">
+    <div class="panel">
+        <div class="panel-heading border">
+            <ol class="breadcrumb mb0 no-padding">
+                <li>
+                    <a href="javascript:;">Content</a>
+                </li>
+                <li>
+                    <a href="javascript:;">GCG</a>
+                </li>
+                <li class="active"><strong>@ViewData["Title"]</strong></li>
+            </ol>
+        </div>
+        <div class="panel-body">
+            <div class=col-md-4>
+                <label class="bold text-center">Code of Conduct</label>
+                <section class="widget bg-primary text-center">
+                    <div class="widget-details">
+                        <h2 class=no-margin>@ViewBag.CocSigned</h2>
+                        <small class=text-uppercase>Sudah Lapor</small>
+                    </div>
+                    <div class="widget-details">
+                        <h2 class=no-margin>@ViewBag.CocUnSigned</h2>
+                        <small class=text-uppercase>Belum Lapor</small>
+                    </div>
+                </section>
+            </div>
+            <div class=col-md-4>
+                <label class="bold text-center">Conflict of Interest</label>
+                <section class="widget bg-lime text-center">
+                    <div class="widget-details">
+                        <h2 class=no-margin>@ViewBag.CoISigned</h2>
+                        <small class=text-uppercase>Sudah Lapor</small>
+                    </div>
+                    <div class="widget-details">
+                        <h2 class=no-margin>@ViewBag.CoIUnsigned</h2>
+                        <small class=text-uppercase>Belum Lapor</small>
+                    </div>
+                </section>
+            </div>
+            <div class=col-md-4>
+                <label class="bold text-center">Gratifikasi</label>
+                <section class="widget bg-green text-center">    
+                <div class="widget-details"> 
+                    <h2 class=no-margin>@ViewBag.GratifikasiReported</h2> 
+                    <small class=text-uppercase>Sudah Lapor</small> 
+                </div> 
+                <div class="widget-details"> 
+                    <h2 class=no-margin>@ViewBag.GratifikasiNotReported</h2> 
+                    <small class=text-uppercase>Belum Lapor</small> 
+                </div> 
+                </section>
+            </div>
+            <div class=col-md-4>
+                <label class="bold text-center">Penerimaan Gratifikasi</label>
+                <section class="widget bg-red text-center">
+                    <div class="widget-details">
+                        <h2 class=no-margin>@ViewBag.AdaPenerimaanGratifikasi</h2>
+                        <small class=text-uppercase>Ada</small>
+                    </div>
+                    <div class="widget-details">
+                        <h2 class=no-margin>@ViewBag.TidakAdaPenerimaanGratifikasi</h2>
+                        <small class=text-uppercase>Tidak Ada</small>
+                    </div>
+                </section>
+            </div>
+            <div class=col-md-4>
+                <label class="bold text-center">Pemberian Gratifikasi</label>
+                <section class="widget bg-deeppurple text-center">
+                    <div class="widget-details">
+                        <h2 class=no-margin>@ViewBag.AdaPemberianGratifikasi</h2>
+                        <small class=text-uppercase>Ada</small>
+                    </div>
+                    <div class="widget-details">
+                        <h2 class=no-margin>@ViewBag.TidakAdaPemberianGratifikasi</h2>
+                        <small class=text-uppercase>Tidak Ada</small>
+                    </div>
+                </section>
+            </div>
+            <div class=col-md-4>
+                <label class="bold text-center">Permintaan Gratifikasi</label>
+                <section class="widget bg-amber text-center">
+                    <div class="widget-details">
+                        <h2 class=no-margin>@ViewBag.AdaPermintaanGratifikasi</h2>
+                        <small class=text-uppercase>Ada</small>
+                    </div>
+                    <div class="widget-details">
+                        <h2 class=no-margin>@ViewBag.TidakAdaPermintaanGratifikasi</h2>
+                        <small class=text-uppercase>Tidak Ada</small>
+                    </div>
+                </section>
+            </div>
+            <div class="col-md-12 center" style="padding-bottom:25px;padding-top:25px;">
+                <form method="get">
+                    Jenis Laporan:        
+                        <select name="ReportType">
+                            @{var c = 0;}
+                            @foreach (var rt in ViewBag.ReportTypes)
+                                {
+                                    if (ViewBag.ReportType == c)
+                                    {
+                                    <option selected value="@c">@rt</option>
+                                }
+                                else
+                                {
+                                    <option value="@c">@rt</option>
+                                }
+                                c++;
+                            }
+                        </select>
+                        &nbsp;
+                        Bulan: &nbsp;
+                        <select name="Month">
+                            @for (var i = 1; i <= 12; i++)
+                            {
+                                if (i == ViewBag.Month)
+                                {
+                                    <option selected value="@i">@i</option>
+                                }
+                                else
+                                {
+                                    <option value="@i">@i</option>
+                                }
+                            }
+                        </select>
+                        &nbsp;Tahun: &nbsp;
+                        <select name="Year">
+                            @for (var i = 2018; i <= 2019; i++)
+                            {
+                                if (i == ViewBag.Year)
+                                {
+                                    <option selected value="@i">@i</option>
+                                }
+                                else
+                                {
+                                    <option value="@i">@i</option>
+                                }
+                            }
+                        </select>
+                        &nbsp;
+                        <button type="submit" class="btn btn-primary btn-round btn-xs"><i class="fa fa-eye"></i> View Report</button>
+                    </form>
+            </div>
+            @if (ViewBag.ReportType >= 0 && ViewBag.ReportType <= 3)
+            {
+            <div class="col-md-12" style="padding-bottom:15px;">
+                <label class="bold">Laporan GCG</label>
+            </div>
+            <table id="table1" class="table table-bordered bordered table-striped table-condensed datatable">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Nama</th>
+                        @if (ViewBag.ReportType == 0 || ViewBag.ReportType == 1)
+                        {
+                        <th>CoC</th>
+                        }
+                        @if (ViewBag.ReportType == 0 || ViewBag.ReportType == 2)
+                        {
+                        <th>CoI</th>
+                        }
+                        @if (ViewBag.ReportType == 0 || ViewBag.ReportType == 3)
+                        {
+                        <th>Penerimaan Gratifikasi</th>
+                        <th>Pemberian Gratifikasi</th>
+                        <th>Permintaan Gratifikasi</th>
+                        }
+                        <th>Tanggal Laporan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{ var no = 1;}
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@no</td>
+                            <td>@item.Nama</td>
+                            @if (ViewBag.ReportType == 0 || ViewBag.ReportType == 1)
+                            {
+                            <td>@item.CoC</td>
+                            }
+                            @if (ViewBag.ReportType == 0 || ViewBag.ReportType == 2)
+                            {
+                            <td>@item.CoI</td>
+                            }
+                            @if (ViewBag.ReportType == 0 || ViewBag.ReportType == 3)
+                            {
+                            <td>@item.PenerimaanGratifikasi</td>
+                            <td>@item.PemberianGratifikasi</td>
+                            <td>@item.PermintaanGratifikasi</td>
+                            }
+                            <td>
+                                @item.WaktuPelaporan
+                            </td>
+                        </tr>
+                        no++;
+                    }
+                </tbody>
+            </table>
+            }
+            @if (ViewBag.ReportType > 3)
+            {
+            <div class="col-md-12" style="padding-bottom:15px;">
+                <label class="bold">@ViewBag.JudulLaporanGratifikasi</label>
+            </div>
+            <table id="table2" class="table table-bordered bordered table-striped table-condensed datatable">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Nama</th>
+                        <th>Deskripsi</th>
+                        <th>Tanggal Laporan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{ var i = 1;}
+                    @foreach (var lgd in ViewBag.LaporanGratifikasiDetail)
+                    {
+                    <tr>
+                        <td>@i</td>
+                        <td>@lgd.Nama</td>
+                        <td>@lgd.Deskripsi</td>
+                        <td>@lgd.WaktuPelaporan</td>
+                    </tr>
+                        i++;
+                    }
+                </tbody>
+            </table>
+            }
+        </div>
+    </div>
+</div>
+<!-- /main area -->
+
+@section PageLevelScripts {
+    <script src="~/admin/vendor/datatables/datatables.min.js"></script>
+    <script src="~/admin/vendor/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/dataTables.buttons.min.js"></script>    
+    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/buttons.flash.min.js"></script>
+    <script src="~/admin/vendor/datatables/JSZip-2.5.0/jszip.min.js"></script>
+    <script src="~/admin/vendor/datatables/pdfmake-0.1.32/pdfmake.min.js"></script>
+    <script src="~/admin/vendor/datatables/pdfmake-0.1.32/vfs_fonts.js"></script>
+    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/buttons.html5.min.js"></script>
+    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/buttons.print.min.js"></script>
+  
+}
+
+@section InitPageScripts {
+    <script>
+        $('#table1').DataTable({
+            "order": [[0, "asc"]],
+            "dom": 'Bfrtip',
+            "buttons": [
+                'excel', 'pdf'
+            ]
+        });
+        $('#table2').DataTable({
+            "order": [[0, "asc"]],
+            "dom": 'Bfrtip',
+            "buttons": [
+                'excel', 'pdf'
+            ]
+        });
+    </script>
+}

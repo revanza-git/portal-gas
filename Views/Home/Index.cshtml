@@ -1,0 +1,294 @@
+﻿@{
+    Layout = "~/Views/Shared/PanelPortal.cshtml";
+    ViewData["Title"] = "Portal Nusantara Regas";
+}
+
+@section PageLevelPlugin {
+    <link rel="stylesheet" href="~/admin/styles/climacons-font.css">
+    <link rel="stylesheet" href="~/admin/vendor/rickshaw/rickshaw.min.css">
+    <link rel="stylesheet" href="~/admin/vendor/bxslider/jquery.bxslider.css" />
+    <link rel="stylesheet" href="~/admin/vendor/bootstrap-daterangepicker/daterangepicker-bs3.css"/>
+    <!-- Styles -->
+    <style>
+        #chartdiv {
+            width: 100%;
+            height: 180px;
+            font-size: 10px;
+        }
+        #chartdiv2 {
+            width: 100%;
+            height: 180px;
+            font-size: 10px;
+        }
+    </style>
+}
+
+<!-- main area -->
+<div class="main-content">
+   <div class="row">
+        <div class="col-md-8">
+            <div>
+                <div class="widget bg-white">
+                    <h3>Photo Gallery</h3>
+                    <hr>
+                    @if (ViewBag.photos != null)
+                    {
+                        <ul class="bxslider" style="align-items:center">                       
+                            @foreach (var item in ViewBag.photos)
+                            {
+                                <li style="text-align:center">
+                                    <img style="height:250px;display:block;margin:0 auto;" src="@Url.Action("GetFileContent", "Gallery", new { ID = item.PhotoID })" />
+                                    <label>@item.Keterangan</label>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p>Tidak ada photo</p>
+                    }
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-body">
+                    <div class="search-results">
+                        <ul class="search-results-list">
+                            @if (ViewBag.news != null)
+                            {
+                                @foreach (var item in ViewBag.news)
+                                {
+                                <li class="search-result">
+                                    <h5>
+                                        <a href="javascript:;" class="text-info">@item.Subject</a>
+                                    </h5>
+                                    <label style="color:chartreuse;font-size:8pt">Author: @item.Author</label>
+                                    <label style="color:chartreuse;font-size:8pt">, Date: @item.PublishingDate</label>
+                                    <p style="font-size: 11px">
+                                        @Html.Raw(StringHelper.GetFirstParagraph(item.Content))
+                                        <a asp-controller="News" asp-action="ViewContent" asp-route-id="@item.NewsID" class="btn btn-primary btn-round btn-xs">Read More</a>
+                                    </p>
+                                </li>
+                                }
+                            }
+                        </ul>
+                        <!--
+                        <div class="text-center">
+                            <ul class="pagination">
+                                <li>
+                                    <a href="javascript:;">←</a>
+                                </li>
+                                <li class="active">
+                                    <a href="javascript:;">1</a>
+                                </li>
+                                <li>
+                                    <a href="javascript:;">2</a>
+                                </li>
+                                <li>
+                                    <a href="javascript:;">3</a>
+                                </li>
+                                <li>
+                                    <a href="javascript:;">4</a>
+                                </li>
+                                <li>
+                                    <a href="javascript:;">5</a>
+                                </li>
+                                <li>
+                                    <a href="javascript:;">→</a>
+                                </li>
+                            </ul>
+                        </div>
+                        -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            
+                <div class="widget bg-white" style="text-align:center">
+                    <h3>New Video</h3>
+                    <hr>
+                    @if (ViewBag.video != null)
+                    {
+                        <video style="width:100%;padding:0;margin:0" controls>
+                            <source type="@GalleryHelper.GetContentType(ViewBag.video.FileName)" src="@Url.Action("GetVideoContent", "Gallery", new { ID = ViewBag.video.VideoID })" alt="@ViewBag.video.Keterangan">
+                        </video><br />
+                        <label>@ViewBag.video.Keterangan</label>
+                    }
+                    else
+                    {
+                        <p>Tidak ada video</p>
+
+                    }
+                </div>
+                <div class="widget bg-white" style="text-align:center">
+                    <form method="post">
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <div class="input-prepend input-group">
+                                    <span class="add-on input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input type="text" name="daterange" class="form-control drp" value="@ViewBag.startdate - @ViewBag.enddate" onchange="this.form.submit()" />
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="widget bg-white" style="text-align:center">
+                    <div id="chartdiv"></div>
+                    <label>Accident Triangle</label>
+                </div>
+                <div class="widget bg-white" style="text-align:center">
+                    <div id="chartdiv2"></div>
+                <label>NOC Terbanyak Bulan Ini</label>
+            </div>
+            
+        </div>
+        <div class="col-md-8">
+     </div>
+    </div>
+</div>
+<!-- main area -->
+
+@section PageLevelScripts {
+    <script src="~/admin/vendor/d3/d3.min.js"></script>
+    <script src="~/admin/vendor/rickshaw/rickshaw.min.js"></script>
+    <script src="~/admin/vendor/flot/jquery.flot.js"></script>
+    <script src="~/admin/vendor/flot/jquery.flot.resize.js"></script>
+    <script src="~/admin/vendor/flot/jquery.flot.categories.js"></script>
+    <script src="~/admin/vendor/flot/jquery.flot.pie.js"></script>
+    <script src="~/admin/vendor/bxslider/jquery.bxslider.min.js"></script>
+    <script src="~/admin/vendor/moment/moment.js"></script>
+    <script src="~/admin/vendor/bootstrap-daterangepicker/daterangepicker.js"></script>
+}
+
+@section InitPageScripts {
+    <!-- Resources -->
+    <script src="~/admin/vendor/amcharts_3.21.12/amcharts/amcharts.js"></script>
+    <script src="~/admin/vendor/amcharts_3.21.12/amcharts/serial.js"></script>
+    <script src="~/admin/vendor/amcharts_3.21.12/amcharts/funnel.js"></script>
+    <script src="~/admin/vendor/amcharts_3.21.12/amcharts/plugins/export/export.min.js"></script>    
+    <link rel="stylesheet" href="~/admin/vendor/amcharts_3.21.12/amcharts/plugins/export/export.css" type="text/css" media="all" />
+    <script src="~/admin/vendor/amcharts_3.21.12/amcharts/themes/light.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.bxslider').bxSlider({
+                auto: true,
+                autoControls: true,
+                mode: 'fade',
+                startSlide: 2,
+                captions: true
+            });
+        });
+    </script>
+    <!-- Chart code -->
+<script>
+    var chart = AmCharts.makeChart("chartdiv", {
+        "type": "funnel",
+        "balloonText": "[[title]]:<b>[[nilai]]</b>",
+        "labelPosition": "right",
+        "labelText": "[[title]]: [[nilai]]",
+        "rotate": true,
+        "colors": [
+            "#67b7dc",
+            "#fdd400",
+            "#84b761",
+            "#cc4748",
+            "#cd82ad",
+            "#2f4074",
+            "#448e4d",
+            "#b7b83f",
+            "#b9783f",
+            "#b93e3d",
+            "#913167"
+        ],
+        "marginLeft": 15,
+        "marginRight": 160,
+        "titleField": "title",
+        "valueField": "value",
+        "theme": "light",
+        "allLabels": [],
+        "balloon": {},
+        "titles": [],
+        "dataProvider": [
+            {
+                "title": "Unsafe & Act Condition",
+                "value": "10",
+                "nilai": @ViewBag.at.UnsafeAndActCondition
+            },
+            {
+                "title": "Near Miss",
+                "value": "10",
+                "nilai": @ViewBag.at.NearMiss
+            },
+            {
+                "title": "First Aid",
+                "value": "10",
+                "nilai": @ViewBag.at.FirstAid
+            },
+            {
+                "title": "Medical Treatment Case",
+                "value": "10",
+                "nilai": @ViewBag.at.MedicalTreatmentCase
+            },
+            {
+                "title": "Restricted Work Case",
+                "value": "10",
+                "nilai": @ViewBag.at.RestrictedWorkCase
+            },
+            {
+                "title": "Lost Time Injury",
+                "value": "10",
+                "nilai": @ViewBag.at.LostTimeInjury
+            },
+            {
+                "title": "Fatality",
+                "value": "10",
+                "nilai": @ViewBag.at.Fatality
+            }
+        ]
+    });
+    </script>
+
+    <script>
+    var chart = AmCharts.makeChart("chartdiv2", {
+        "theme": "light",
+        "type": "serial",
+        "startDuration": 2,
+        "dataProvider": @Html.Raw(ViewBag.jsonTop),
+        "valueAxes": [{
+            "position": "left",
+            "title": "Karyawan"
+        }],
+        "graphs": [{
+            "balloonText": "[[category]]: <b>[[value]]</b>",
+//            "fillColorsField": "color",
+            "fillAlphas": 1,
+            "lineAlpha": 0.1,
+            "type": "column",
+            "valueField": "Count"
+        }],
+        "chartCursor": {
+            "categoryBalloonEnabled": false,
+            "cursorAlpha": 0,
+            "zoomable": false
+        },
+        "categoryField": "Nama",
+        "categoryAxis": {
+            "gridPosition": "start",
+            "labelRotation": 90
+        },
+        "export": {
+            "enabled": true
+        }
+    });
+    </script>
+    <script>
+        // Daterange picker
+        $('.drp').daterangepicker({
+            format: 'DD/MM/YYYY',
+            startDate: '@ViewBag.startdate',
+            endDate: '@ViewBag.enddate'
+        });
+    </script>
+}
+
+

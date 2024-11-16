@@ -1,0 +1,136 @@
+﻿@model News
+
+@{
+    Layout = "~/Views/Shared/Panel.cshtml";
+}
+@section TitleBar {
+    <strong>News</strong>
+}
+@section PageLevelPlugin {
+    <link rel="stylesheet" href="~/admin/vendor/chosen_v1.4.0/chosen.min.css">
+    <link rel="stylesheet" href="~/admin/vendor/jquery.tagsinput/jquery.tagsinput.css">
+    <link rel="stylesheet" href="~/admin/vendor/checkbo/src/0.1.4/css/checkBo.min.css">
+    <link rel="stylesheet" href="~/admin/vendor/intl-tel-input/build/css/intlTelInput.css">
+    <link rel="stylesheet" href="~/admin/vendor/dropzone/dist/min/basic.min.css">
+    <link rel="stylesheet" href="~/admin/vendor/dropzone/dist/min/dropzone.min.css">
+    <link rel="stylesheet" href="~/admin/vendor/bootstrap-daterangepicker/daterangepicker-bs3.css">
+    <link rel="stylesheet" href="~/admin/vendor/bootstrap-datepicker/dist/css/bootstrap-datepicker3.css">
+    <link rel="stylesheet" href="~/admin/vendor/bootstrap-timepicker/css/bootstrap-timepicker.min.css">
+    <link rel="stylesheet" href="~/admin/vendor/clockpicker/dist/bootstrap-clockpicker.min.css">
+    <link rel="stylesheet" href="~/admin/vendor/mjolnic-bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css">
+    <link rel="stylesheet" href="~/admin/vendor/bootstrap-touchspin/dist/jquery.bootstrap-touchspin.min.css">
+    <link rel="stylesheet" href="~/admin/vendor/summernote/dist/summernote.css">
+    <link rel="stylesheet" href="~/admin/vendor/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" />
+}
+<!-- main area -->
+<div class="main-content">
+    <div class="panel mb25">
+        <div class="panel-heading border">
+            <ol class="breadcrumb mb0 no-padding">
+                <li>
+                    <a href="javascript:;">Content</a>
+                </li>
+                <li>
+                    <a href="javascript:;">News</a>
+                </li>
+                <li class="active"><strong>@ViewBag.Title</strong></li>
+            </ol>
+        </div>
+        <div class="panel-body">
+            <div class="row no-margin">
+                <div class="col-lg-12">
+                    <form class="form-horizontal bordered-group" role="form" method="post" asp-action="Edit">
+                        <input type="hidden" asp-for="NewsID" />
+                        <div class="form-group">
+                            <label asp-for="Subject" class="col-sm-2 control-label">Subject</label>
+                            <div class="col-sm-10">
+                                <input asp-for="Subject" type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Content" class="col-sm-2 control-label">Content</label>
+                            <div class="col-sm-10">
+                                <textarea class="summernote form-control" asp-for="Content" rows="10"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="PublishingDate" class="col-sm-2 control-label">Publishing Date</label>
+                            <div class="col-sm-10">
+                                <input asp-for="PublishingDate" type="text" class="form-control">
+                            </div>
+                        </div>
+                        <!--
+                        <div class="form-group">
+                            <label asp-for="PublishingTime" class="col-sm-2 control-label">Publishing Time</label>
+                            <div class="input-group clockpicker w200" ui-jq="clockpicker" ui-options="clockOpt">
+                                <input asp-for="PublishingTime" type="text" class="form-control">
+                                <span class="input-group-addon"> <span class="fa fa-clock-o"></span> </span>
+                            </div>
+                        </div>
+                            -->
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Status</label>
+                            <label class="col-sm-10 control-label-left">
+                                @if (Model.Status == 0)
+                                {
+                                    <strong>Draft</strong>
+                                }
+                                else if (Model.Status == 1)
+                                {
+                                    <strong>Pending</strong>
+                                }
+                                else if (Model.Status == 2)
+                                {
+                                    <strong>Published</strong>
+                                }
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            @if (Model.Status == 0)
+                            {
+                                <button name="Action" value="save" type="submit" class="btn btn-sm btn-round btn-success"><i class="fa fa-save"></i> Save</button>
+                            }
+                            @if (Model.Status == 0 && User.IsInRole("Admin"))
+                            {
+                                <button name="Action" value="submit" type="submit" class="btn btn-sm btn-round btn-primary"><i class="fa fa-check"></i> Submit</button>
+                            }
+                            @if (User.IsInRole("AtasanAdmin"))
+                            {
+                            <button name="Action" value="publish" type="submit" class="btn btn-sm btn-round btn-primary"><i class="fa fa-check"></i> Publish</button>
+                            }
+                            <a asp-controller="News" asp-action="Index" class="btn btn-sm btn-round btn-danger"><i class="fa fa-arrow-left"></i> Back</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /main area -->
+@section PageLevelScripts {
+    <script src="~/admin/vendor/chosen_v1.4.0/chosen.jquery.min.js"></script>
+    <script src="~/admin/vendor/jquery.tagsinput/jquery.tagsinput.min.js"></script>
+    <script src="~/admin/vendor/checkbo/src/0.1.4/js/checkBo.min.js"></script>
+    <script src="~/admin/vendor/intl-tel-input//build/js/intlTelInput.min.js"></script>
+    <script src="~/admin/vendor/dropzone/dist/min/dropzone.min.js"></script>
+    <script src="~/admin/vendor/moment/min/moment.min.js"></script>
+    <script src="~/admin/vendor/bootstrap-daterangepicker/daterangepicker.js"></script>
+    <script src="~/admin/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="~/admin/vendor/bootstrap-timepicker/js/bootstrap-timepicker.min.js"></script>
+    <script src="~/admin/vendor/clockpicker/dist/jquery-clockpicker.min.js"></script>
+    <script src="~/admin/vendor/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="~/admin/vendor/mjolnic-bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js"></script>
+    <script src="~/admin/vendor/bootstrap-touchspin/dist/jquery.bootstrap-touchspin.min.js"></script>
+    <script src="~/admin/vendor/summernote/dist/summernote.min.js"></script>
+}
+@section InitPageScripts {
+    <script src="~/admin/scripts/pages/form-custom.js"></script>
+    <script>
+        $('.summernote').summernote();
+        $(function () {
+            $('#PublishingDate').datetimepicker({
+                showClose: true
+            });
+        });
+    </script>
+}

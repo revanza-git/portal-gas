@@ -1,0 +1,75 @@
+@Model Vendor
+
+@{
+    Layout = "~/Views/Shared/Panel.cshtml";
+}
+
+@section PageLevelPlugin {
+    <link rel="stylesheet" href="~/admin/vendor/datatables/DataTables-1.10.16/css/dataTables.bootstrap.min.css">
+}
+
+@section TitleBar {
+    <strong>Vendor Management</strong>
+}
+
+<!-- main area -->
+<div class="main-content">
+    <div class="panel">
+        <div class="panel-heading border">
+            <ol class="breadcrumb mb0 no-padding">
+                <li>
+                    <a href="javascript:;">Vendor Management</a>
+                </li>
+                <li class="active"><strong>List</strong></li>
+            </ol>
+        </div>
+        <div class="panel-body">
+            <div class="pb25">
+                <a asp-controller="Vendor" asp-action="Add" class="btn btn-primary btn-round btn-sm"><i class="fa fa-plus"></i> Add New</a>
+            </div>
+            <table id="table1" class="table table-bordered bordered table-striped table-condensed datatable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Company Name</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                    <tr>
+                        <td>@item.VendorID</td>
+                        <td>@item.VendorName</td>
+                        <td>@item.Email</td>
+                        <td>Active</td>
+                        <td>
+                            <a asp-controller="Vendor" asp-action="Edit" asp-route-ID="@item.VendorID" class="btn btn-round btn-warning btn-xs"><i class="fa fa-edit"></i> Edit</a>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+<!-- /main area -->
+
+
+@section PageLevelScripts {
+    <script src="~/admin/vendor/datatables/datatables.min.js"></script>
+    <script src="~/admin/vendor/datatables/DataTables-1.10.16/js/dataTables.bootstrap.min.js"></script>
+}
+
+@section InitPageScripts {
+    <script>
+        'use strict';
+
+        $('#table1').DataTable({
+            "order": [[0, "desc"]]
+        });
+    </script>
+}

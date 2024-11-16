@@ -1,0 +1,45 @@
+﻿@{
+    Layout = "~/Views/Shared/Panel.cshtml";
+    ViewData["Title"] = "Portal Administration System";
+}
+
+@section PageLevelPlugin {
+    <link rel="stylesheet" href="~/admin/styles/climacons-font.css">
+    <link rel="stylesheet" href="~/admin/vendor/rickshaw/rickshaw.min.css">
+}
+
+@section TitleBar {
+    <strong>Home</strong>
+}
+
+<!-- main area -->
+<div class="main-content">
+    <div class="row">
+        @inject UserManager<ApplicationUser> UserManager
+        <div class="col-md-12 bg-white">
+            <p style="padding:10px;">
+                Selamat datang <strong>@ViewBag.name</strong> di aplikasi Portal Internal PT Nusantara Regas. Anda memiliki Role sebagai
+           
+                <strong>@TempData["role"]</strong>
+               
+                 pada <strong>@ViewBag.department</strong>.
+            </p>
+            @if (ViewBag.notifications.Length > 0)
+            {
+                <p style="padding:10px;color:red;">
+                   <strong>Notifications:</strong><br/> 
+                   @Html.Raw(ViewBag.notifications)
+                </p>
+            }
+        </div>
+    </div>
+</div>
+<!-- main area -->
+
+@section PageLevelScripts {
+    <script src="~/admin/vendor/d3/d3.min.js"></script>
+    <script src="~/admin/vendor/flot/jquery.flot.js"></script>
+    <script src="~/admin/vendor/flot/jquery.flot.resize.js"></script>
+    <script src="~/admin/vendor/flot/jquery.flot.categories.js"></script>
+    <script src="~/admin/vendor/flot/jquery.flot.pie.js"></script>
+}

@@ -1,0 +1,113 @@
+@Model News
+
+@{
+    Layout = "~/Views/Shared/Panel.cshtml";
+}
+
+
+@section PageLevelPlugin {
+    <link rel="stylesheet" href="~/admin/vendor/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css" />
+}
+
+
+@section TitleBar {
+    <strong>News</strong>
+}
+
+<!-- main area -->
+<div class="main-content">
+    <div class="panel">
+        <div class="panel-heading border">
+            <ol class="breadcrumb mb0 no-padding">
+                <li>
+                    <a href="javascript:;">Content</a>
+                </li>
+                <li>
+                    <a href="javascript:;">News</a>
+                </li>
+                <li class="active"><strong>List</strong></li>
+            </ol>
+        </div>
+        <div class="panel-body">
+            @if (TempData["message"] != null)
+            {
+                <div class="alert alert-success"><i class="fa fa-lg fa-check-circle"></i> @TempData["message"]</div>
+            }
+            @if (TempData["error"] != null)
+            {
+                <div class="alert alert-danger"><i class="fa fa-lg fa-times"></i> @TempData["error"]</div>
+            }
+            @if (User.IsInRole("Admin") || User.IsInRole("AtasanAdmin"))
+            {
+                <div class="pb25">
+                    <a asp-controller="News" asp-action="Add" class="btn btn-primary btn-round btn-sm"><i class="fa fa-plus"></i> Add New</a>
+                </div>
+            }
+            <table id="table1" class="table table-bordered bordered table-striped table-condensed datatable">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Judul</th>
+                        <th>Publishing Date</th>
+                        <th>Author</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{ int no = 1; }
+                    @foreach (var item in Model)
+                    {
+                    <tr>
+                        <td>@no</td>
+                        <td>@item.Subject</td>
+                        <td>@item.PublishingDate</td>
+                        <td>@item.Author</td>                        
+                        @if(item.Status == 0)
+                        {
+                            <td>Draft</td>
+                        }
+                        else if (item.Status == 1)
+                        {
+                            <td>Pending</td>
+                        }
+                        else if (item.Status == 2)
+                        {
+                            <td>Published</td>
+                        }
+                        else
+                        {
+                            <td></td>
+                        }
+                        <td>
+                            <form method="post" asp-action="Delete">
+                                <input type="hidden" name="NewsID" value="@item.NewsID"/>
+                                <input type="hidden" name="Subject" value="@item.Subject"/>
+                                <button type="button" onclick="window.open('/News/Edit/@item.NewsID','_self')" class="btn btn-round btn-primary btn-sm"><i class="fa fa-edit"></i></button>&nbsp;
+                                <button type="submit" onclick="return confirm('Are you sure you want to delete news @item.Subject?');" class="btn btn-round btn-sm btn-danger"><i class="fa fa-times"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                        no++;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+<!-- /main area -->
+
+
+@section PageLevelScripts {
+    <script src="~/admin/vendor/datatables/datatables.min.js"></script>
+    <script src="~/admin/vendor/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
+}
+
+@section InitPageScripts {
+    <script>
+        $('#table1').DataTable({
+            "order": [[0, "desc"]]
+        });
+    </script>
+}

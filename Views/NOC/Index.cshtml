@@ -1,0 +1,234 @@
+@model IEnumerable<NOC>
+
+@{
+    Layout = "~/Views/Shared/Panel.cshtml";
+}
+
+@section PageLevelPlugin {
+    <link rel="stylesheet" href="~/admin/vendor/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css" />
+    <link rel="stylesheet" href="~/admin/vendor/datatables/Buttons-1.5.1/css/buttons.dataTables.min.css" />
+    <link rel="stylesheet" href="~/admin/vendor/bootstrap-daterangepicker/daterangepicker-bs3.css">
+    <link rel="stylesheet" href="~/admin/vendor/bootstrap-datepicker/dist/css/bootstrap-datepicker3.css">
+    <link rel="stylesheet" href="~/admin/vendor/bootstrap-timepicker/css/bootstrap-timepicker.min.css">
+    <link rel="stylesheet" href="~/admin/vendor/clockpicker/dist/bootstrap-clockpicker.min.css">
+    <link rel="stylesheet" href="~/admin/vendor/mjolnic-bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css">
+    <link rel="stylesheet" href="~/admin/vendor/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" />
+    <link rel="stylesheet" href="~/admin/vendor/bootstrap-touchspin/dist/jquery.bootstrap-touchspin.min.css">
+}
+
+    @section TitleBar {
+    <strong>Nusantara Regas Observation Card (NOC)</strong>
+}
+
+    <!-- main area -->
+    <div class="main-content">
+        <div class="panel">
+            <div class="panel-heading border">
+                <ol class="breadcrumb mb0 no-padding">
+                    <li>
+                        <a href="javascript:;">Content</a>
+                    </li>
+                    <li>
+                        <a href="javascript:;">NOC</a>
+                        @if (User.IsInRole("AdminNOC")) { <a href="javascript:;">Admin</a> }
+                        </li>
+                    <li class="active"><strong>List</strong></li>
+                </ol>
+            </div>
+            <div class="panel-body">
+                
+                @if (TempData["message"] != null)
+                {
+                    <div class="alert alert-success"><i class="fa fa-lg fa-check-circle"></i> @TempData["message"]</div>
+                }
+                <div class="row container-fluid no-footer">
+                    @if (User.IsInRole("AdminNOC"))
+                    {
+                        <div class="row container-fluid no-footer">
+                            <label class="col-sm-1 control-label">Periode:</label>
+                            <div class="col-sm-3">
+                                <div class="input-prepend input-group input-group-sm">
+                                    <span class="add-on input-group-addon"><i class="fa fa-calendar"></i></span>
+                                <input type="text" name="daterange" class="form-control drp" onchange="load_params()" />
+                                </div>
+                            </div>
+                        </div>
+
+                    }
+                    @if (User.IsInRole("Admin") || User.IsInRole("AtasanAdmin") || User.IsInRole("AdminQM") || User.IsInRole("AdminNOC"))
+                    {
+                        <div class="pb25">
+                            <a asp-controller="NOC" asp-action="Add" class="btn btn-primary btn-round btn-sm"><i class="fa fa-plus"></i> Add New</a>
+                        </div>
+                    }
+                </div>
+                <div id="list">
+                    <table id="table1" class="table table-bordered bordered table-striped table-condensed datatable">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Waktu</th>
+                                <th>Lokasi</th>
+                                <th>Prioritas</th>
+                                <th>Nama Observer</th>
+                                <th>Daftar Pengamatan</th>
+                                <th>Deskripsi</th>
+                                <th>Tindakan</th>
+                                <th>Rekomendasi</th>
+                                <th>Fungsi</th>
+                                <th>Photo</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listBody">
+                           @inject UserManager<ApplicationUser> UserManager
+                           @foreach (var item in Model)
+                                {
+                                <tr>
+                                    <td>@item.NOCID</td>
+                                    <td>@item.EntryDate.ToString("dd/MM/yyyy hh:mm")</td>
+
+                                    @{
+                                        String tdLokasi = "";
+                                    }
+                                    @foreach (var lokasi in ViewBag.Locations)
+                                    {
+                                        if (lokasi.LocationID == item.Lokasi)
+                                        {
+                                            tdLokasi = lokasi.Deskripsi;
+                                        }
+                                    }
+                                    <td>@tdLokasi</td>
+
+
+                                    @{
+                                        String tdPrioritas = "";
+                                    }
+                                    @foreach (var priority in ViewBag.Priorities)
+                                    {
+                                        if (priority.PriorityID == item.Prioritas)
+                                        {
+                                            tdPrioritas = priority.Deskripsi;
+                                        }
+                                    }
+                                    <td>@tdPrioritas</td>
+
+
+                                    @{
+                                        ApplicationUser Observer = UserManager.FindByNameAsync(item.NamaObserver).Result;
+                                        var NamaObserver = Observer == null ? "" : Observer.Name;
+                                    }
+                                    <td>@NamaObserver</td>
+                                    @{
+                                        String tdPengamatan = "";
+                                    }
+                                    @foreach (var observation in ViewBag.ObservationLists)
+                                    {
+                                        if (observation.ObservationListID == item.DaftarPengamatan)
+                                        {
+                                            tdPengamatan = observation.Deskripsi;
+                                        }
+                                    }
+                                    <td>@tdPengamatan</td>
+                                    <td>@item.Deskripsi</td>
+                                    <td>@item.Tindakan</td>
+                                    @{
+                                        String tdFungsi = "";
+                                    }
+                                    @foreach (var fungsi in ViewBag.Departments)
+                                    {
+                                        if (fungsi.DepartmentID == item.DivisiObserver)
+                                        {
+                                            tdFungsi = fungsi.Deskripsi;
+                                        }
+                                    }
+                                    <td>@tdFungsi</td>
+                                    <td>@item.Rekomendasi</td>
+                                    <td>
+                                        @if (item.Photo != null)
+                                        {
+                                            <a class="btn btn-info btn-round btn-xs" name="download" href="@Url.Action("DownloadFile", "NOC", new { ID = item.NOCID })"><i class="fa fa-download"></i> Download</a>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (item.Status == 1)
+                                        {
+                                            <p>Open</p>
+                                        }
+                                        else
+                                        {
+                                            <p>Close</p>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        <form method="post" asp-action="Delete">
+                                            <input type="hidden" name="NOCID" value="@item.NOCID" />
+                                            <a asp-controller="NOC" asp-action="Edit" asp-route-id="@item.NOCID" class="btn btn-warning btn-round btn-xs"><i class="fa fa-pencil"></i> Edit</a>
+                                            <button type="submit" onclick="return confirm('Are you sure you want to delete @item.NOCID ?');" class="btn btn-round btn-xs btn-danger"><i class="fa fa-times"></i> Delete</button>
+                                    
+                                            @if (User.IsInRole("Admin") || User.IsInRole("AtasanAdmin") || User.IsInRole("AdminQM") || User.IsInRole("AdminNOC"))
+                                            {
+                                              <button type="button" name="aman" class="btn btn-info btn-round btn-xs" hidden="hidden"><i class="fa fa-arrow-right"></i>AMAN</button>
+                                            }
+                                        </form>                              
+                                    </td>
+                                </tr>
+                                }
+                        </tbody>
+                    </table>
+                </div>
+    </div>
+</div>
+<!-- /main area -->
+@section PageLevelScripts {
+    <script src="~/admin/scripts/nocIndex.js"></script>
+    <script src="~/env.js"></script>
+    <script src="~/admin/vendor/datatables/datatables.min.js"></script>
+    <script src="~/admin/vendor/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script> 
+    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/dataTables.buttons.min.js"></script>
+    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/buttons.flash.min.js"></script>
+    <script src="~/admin/vendor/datatables/JSZip-2.5.0/jszip.min.js"></script>
+    <script src="~/admin/vendor/datatables/pdfmake-0.1.32/pdfmake.min.js"></script>
+    <script src="~/admin/vendor/datatables/pdfmake-0.1.32/vfs_fonts.js"></script>
+    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/buttons.html5.min.js"></script>
+    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/buttons.print.min.js"></script>
+    <script src="~/admin/vendor/moment/moment.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/admin/vendor/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="~/admin/vendor/bootstrap-daterangepicker/daterangepicker.js"></script>
+    <script src="~/admin/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="~/admin/vendor/bootstrap-timepicker/js/bootstrap-timepicker.min.js"></script>
+    <script src="~/admin/vendor/clockpicker/dist/jquery-clockpicker.min.js"></script>
+}
+
+    @section InitPageScripts {
+    <script>
+        function load_params() {
+                $('#table1').html("<span class='fa-stack fa-lg' style='position: static;'>\n\
+                                  <i class='fa fa-spinner fa-spin fa-stack-2x fa-fw'></i>\n\
+                               </span>");
+
+            var dateRange = $('.drp').val().split("-");
+            var startDate = dateRange[0].trim();
+            var endDate = dateRange[1].trim();
+
+            $.ajax({
+                url: "noc/getNOCs?startDate=" + startDate + '&endDate=' + endDate,
+                method: "get",
+                datatype: "html",
+                success: function (result) {
+                    $('#list').html(result);
+                    $('#table1').DataTable({
+                        order: [[0, "desc"]],
+                        dom: "Bfrtip",
+                        buttons: ["excel"],
+                        scrollX: true
+                    });
+                }
+            });
+        }
+    </script>
+}

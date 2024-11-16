@@ -1,0 +1,72 @@
+@Model Tra
+
+@{
+    Layout = "~/Views/Shared/PanelPortal.cshtml";
+}
+
+
+@section PageLevelPlugin {
+    <link rel="stylesheet" href="~/admin/vendor/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css" />
+}
+
+
+<!-- main area -->
+<div class="main-content">
+    <div class="panel">
+        <div class="panel-heading border">
+            <strong>JSA & Risk Assessment</strong>
+        </div>
+
+        <div class="panel-body">
+            <table id="table1" class="table table-bordered bordered table-striped table-condensed datatable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Perusahaan / Kontraktor</th>
+                        <th>Project</th>
+                        <th>Penanggung Jawab</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @{EFTraRepository repository = ViewBag.repository; }
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.TraID</td>
+                        <td>@repository.GetVendorName(item.Company)</td>
+                        <td>@repository.GetProjectName(item.Project)</td>
+                        <td>@item.PenanggungJawab</td>
+                        <td>@item.Date.ToString("dd/mm/yyyy")</td>
+                        @{
+                            var status = repository.GetTraStatuses().FirstOrDefault(x => x.TraStatusID == item.Status).Deskripsi;
+                        }
+                        <td>@status</td>
+                        <td>
+                            <a asp-controller="Tra" asp-action="pView" asp-route-ID="@item.TraID" class="btn btn-success btn-round btn-xs"><i class="fa fa-eye"></i> View</a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+<!-- /main area -->
+
+
+@section PageLevelScripts {
+    <script src="~/admin/vendor/datatables/datatables.min.js"></script>
+    <script src="~/admin/vendor/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
+}
+
+@section InitPageScripts {
+    <script>
+        $('#table1').DataTable({
+            "order": [[0, "desc"]]
+        });
+    </script>
+}

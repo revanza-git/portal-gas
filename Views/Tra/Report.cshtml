@@ -1,0 +1,241 @@
+﻿@model Tra
+<style>
+    td {
+        border: 1px solid black;
+        padding: 4px 4px 4px 4px;
+        font-size: 10px;
+        color: black;
+    }
+</style>
+<div class="bg-white center full-height">
+    <table>
+        <tr>
+            <td style="border: 0px;">
+                <table width="100%">
+                    <tr>
+                        <td rowspan="3" colspan="2" style="padding-right:30px;"><img style="height:100px" src="http://localhost:58705/admin/images/logo-regas2.png" /></td>
+                        <td colspan="6" style="text-align:center;font-size:14px;"><strong>JSA AND RISK ASSESSMENT FORM</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Doc. No: </td>
+                        <td colspan="2">@Model.DocNo</td>
+                        <td colspan="2">Rev.No</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Date: </td>
+                        <td colspan="2">@Model.Date.ToString("dd/mm/yyyy")</td>
+                        <td colspan="3"></td>
+                    </tr>
+                    <tr>
+                        <td>Perusahaan/Kontraktor</td>
+                        <td colspan="2">@ViewBag.VendorName</td>
+                        <td>Daftar Nama Pekerja:</td>
+                        <td style="text-align:center">Disiapkan Oleh:</td>
+                        <td colspan="2" style="text-align:center">Direview Oleh:</td>
+                        <td style="text-align:center">Disetujui Oleh:</td>
+                    </tr>
+                    <tr>
+                        <td>Project</td>
+                        <td colspan="2">@ViewBag.ProjectName</td>
+                        <td rowspan="3" style="vertical-align:top">
+                            @{ string line; var no = 1;}
+                            @foreach (var worker in ViewBag.Workers)
+                            {
+                                line = no + ". " + worker.WorkerName;
+                                @line <br />
+                                no++;
+                            }
+                        </td>
+                        <td style="text-align:center">Team Leader</td>
+                        <td style="text-align:center">Sponsor Pekerjaan</td>
+                        <td style="text-align:center">Dept.HSSE</td>
+                        <td style="text-align:center">Pimpinan Pemilik Wilayah</td>
+                    </tr>
+                    <tr>
+                        <td>Penanggung Jawab</td>
+                        <td colspan="2">@Model.PenanggungJawab</td>
+                        <td style="text-align:center">@Model.TeamLeader</td>
+                        <td style="text-align:center">@Model.SponsorPekerjaan</td>
+                        <td style="text-align:center">@Model.HSSE</td>
+                        <td style="text-align:center">@Model.PimpinanPemilikWilayah</td>
+                    </tr>
+                    <tr>
+                        <td>Posisi</td>
+                        <td colspan="2">@Model.Posisi</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td colspan="8">
+                            Aktifitas Pekerjaan
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td style="border: 0px;">
+                <table width="100%">
+                    <tr>
+                        <td rowspan="2">No</td>
+                        <td rowspan="2">Sequence of Basic Job Steps</td>
+                        <td rowspan="2">Hazard</td>
+                        <td rowspan="2">Consequence</td>
+                        <td colspan="3">Initial Risk</td>
+                        <td rowspan="2">Recommended Action</td>
+                        <td rowspan="2">Role Responsibility</td>
+                        <td colspan="3">Residual Risk</td>
+                        <td rowspan="2">ALARP (Y/N)</td>
+                        <td rowspan="2">AC (Y/N)</td>
+                    </tr>
+                    <tr>
+                        <td>PR</td>
+                        <td>SV</td>
+                        <td>RR</td>
+                        <td>PR</td>
+                        <td>SV</td>
+                        <td>RR</td>
+                    </tr>
+                    @{var i = 1;}
+                    @foreach (var task in ViewBag.ProjectTasks)
+                    {
+                    <tr>
+                        <td>@i</td>
+                        <td>@task.SequenceOfBasicJobSteps</td>
+                        <td>@task.Hazard</td>
+                        <td>@task.Consequence</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>@task.RecommendedAction</td>
+                        <td>@task.RoleResponsibility</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>@task.ALARP</td>
+                        <td>@task.AC</td>
+                    </tr>
+                        i++;
+                    }
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td style="border: 0px;">
+                <table width="100%">
+                    <tr>
+                        <td colspan="2" style="text-align:center">
+                            <strong>Probability (PR)</strong><br />Kemungkinan
+                        </td>
+                        <td rowspan="7">
+                            X
+                        </td>
+                        <td colspan="2" style="text-align:center">
+                            <strong>Severity / Consequence (SV)</strong><br />
+                            Keparahan / Akibat
+                        </td>
+                        <td rowspan="7">
+                            =
+                        </td>
+                        <td colspan="2" style="text-align:center">
+                            <strong>Risk Ranking (RR)</strong>
+                        </td>
+                        <td colspan="2" style="text-align:center">
+                            <strong>Recommended Action</strong>
+                        </td>
+                        <td rowspan="7" style="vertical-align:top">
+                            <table>
+                                <tr>
+                                    <td>
+                                        ALARP: As Low As Reasonably Practicable (Refer to time, cost and effort)<br />
+                                        AC: Action Closed
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Perlengkapan APD Minimum:
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        1. Safety Helmet<br />
+                                        2. Safety Shoes<br />
+                                        3. Safety Glass<br />
+                                        4. Sarung tangan katun, sarung tangan fitter<br />
+                                        5. Pakaian kerja (Cover All)<br />
+                                        6. Masker debu (bila kondisi berdebu)<br />
+                                        7. Ear Plug
+
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Probability</td>
+                        <td>Description</td>
+                        <td>Severity Index</td>
+                        <td>Description</td>
+                        <td>Score</td>
+                        <td>Level</td>
+                        <td>Tingkat Pengendalian</td>
+                        <td>Hierarchy of Control</td>
+                    </tr>
+                    <tr>
+                        <td>5 Frequent</td>
+                        <td>Selalu terjadi</td>
+                        <td>5 Catastrophic</td>
+                        <td>Meninggal dunia, cacat permanen/serius, kerusakan lingkungan yang parah, kebocoran bahan B3, kerugian finansial yang sangat besar, biaya pengobatan untuk penyakit akibat kerja = lebih dari 50 juta.</td>
+                        <td>18-25</td>
+                        <td>Extreme High</td>
+                        <td>E=1+2+3+4+5</td>
+                        <td>1 = Eliminasi</td>
+                    </tr>
+                    <tr>
+                        <td>4 Possible</td>
+                        <td>Sering terjadi</td>
+                        <td>4 Major</td>
+                        <td>Hilang hari kerja (akibat kecelakan), cacat permanen/sebagian, kerusakan lingkungan sedang, kerugian finansial besar. Biaya pengobatan untuk penyakit akibat kerja = kurang dari 50 juta.</td>
+                        <td>13-18</td>
+                        <td>High</td>
+                        <td>H=3+4+5</td>
+                        <td>2 = Substitusi</td>
+                    </tr>
+                    <tr>
+                        <td>3 Occasional</td>
+                        <td>Kadang-kadang dapat terjadi</td>
+                        <td>3 Moderate/Serious</td>
+                        <td>Perlu perawatan medis, terganggu pekerjaan, kerugian finansial cukup besar, perlu bantuan pihak luar. Biaya pengobatan untuk penyakit akibat kerja = kurang dari 10 juta</td>
+                        <td>6-12</td>
+                        <td>Medium</td>
+                        <td>M=4+5</td>
+                        <td>3 = Rekayasa Teknik</td>
+                    </tr>
+                    <tr>
+                        <td>2 Unlikely</td>
+                        <td>Sangat jarang terjadi</td>
+                        <td>2 Minor</td>
+                        <td>Penanganan P3K, tidak terlalu memerlukan bantuan dari luar, kerugian finansial sedang. Biaya pengobatan untuk penyakit akibat kerja = kurang dari 1 juta</td>
+                        <td>1-5</td>
+                        <td>Low</td>
+                        <td>L=5</td>
+                        <td>4 = Pengendalian Adm.</td>
+                    </tr>
+                    <tr>
+                        <td>1 Impossible</td>
+                        <td>Mungkin dapat terjadi</td>
+                        <td>1 Neglible</td>
+                        <td>Tidak mengganggu proses pekerjaan, tidak ada cidera / luka, kerugian finansial kecil. Biaya pengobatan untuk penyakit akibat kerja = kurang dari 100ribu</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>5 = APD</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>                  
+</div>

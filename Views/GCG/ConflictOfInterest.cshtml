@@ -1,0 +1,153 @@
+﻿@model CocCoi
+
+@{
+    Layout = "~/Views/Shared/Panel.cshtml";
+}
+
+@section PageLevelPlugin {
+    <link rel="stylesheet" href="~/admin/vendor/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css" />
+    <style>
+        table {
+            border-spacing: 25px;
+        }
+        /* cellspacing */
+
+        th, td {
+            padding: 25px;
+            vertical-align: text-top;
+        }
+        /* cellpadding */
+    </style>
+}
+
+@section TitleBar {
+    <strong>PEDOMAN CONFLICT OF INTEREST</strong>
+}
+
+<!-- main area -->
+<div class="main-content">
+    <div class="panel">
+        <div class="panel-heading border">
+            <ol class="breadcrumb mb0 no-padding">
+                <li>
+                    <a href="javascript:;">Content</a>
+                </li>
+                <li>
+                    <a href="javascript:;">GCG</a>
+                </li>
+                <li class="active"><strong>Pedoman Conflict of Interest</strong></li>
+            </ol>
+        </div>
+        <div class="panel-body">
+            @if (TempData["message"] != null)
+            {
+                <div class="alert alert-success"><i class="fa fa-lg fa-check-circle"></i> @TempData["message"]</div>
+            }
+            <div style="text-align:center;">
+                <h4>PEDOMAN CONFLICT OF INTEREST</h4>
+                <hr />
+                <h5>SURAT PERNYATAAN INSAN PT NUSANTARA REGAS</h5>
+            </div>
+            <div style="padding-top:10px">
+                <p>
+                    Dengan ini menyatakan bahwa saya secara pribadi:
+                </p>
+                <p>
+                    Tidak mempunyai benturan kepentingan dalam melaksanakan tugas, kewajiban dan kewenangan jabatan tersebut di atas di PT NUSANTARA REGAS.
+                </p>
+                <p align="justify">
+                    Apabila setelah tanggal tandatanganinya surat pernyataan ini kemudian timbul keadaan dimana saya memiliki benturan kepentingan atau potensi benturan kepentingan, saya akan segera melaporkan keadaan tersebut kepada Sekretaris Perusahaan sebagai Chief of Compliance Officer dengan cara mengisi form berikut.
+                </p>
+                <p>
+                    Demikian pernyataan ini dibuat dan ditandatangani untuk memenuhi ketentuan yang berlaku.
+                </p>
+            </div>
+            <div style="text-align:center;padding-top:25px;">
+                <h5>PERNYATAAN TIDAK BERBENTURAN KEPENTINGAN</h5>
+            </div>
+            <div style="padding-top:10px">
+                <p align="justify">
+                    Definisi Konflik kepentingan sebagaimana disebutkan dalam Pedoman Konflik Kepentingan 
+                    (Conflict of Interest) No. 01701/NR/D000/KPTS/2012 tanggal 11 Desember 2012 adalah situasi
+                    dimana seorang Insan PT NUSANTARA REGAS yang mendapatkan kekuasaan dan kewenangan atau patut
+                    diduga memiliki kepentingan pribadi atas setiap penggunaan wewenang yang dimilikinya sehingga
+                    dapat mempengaruhi kualitas dan kinerja yang seharusnya.
+                </p>
+                <p align="justify">
+                    Saya paham bentuk-bentuk Konflik Kepentingan adalah sebagaimana di bawah namun tidak terbatas pada:
+                </p>
+                <table style="text-align:justify">
+                    <tr>
+                        <td>-&nbsp;&nbsp;</td>
+                        <td>
+                            Melaksanakan jasa apapun dan/atau memiliki peran apapun dalam perusahaan lain dan/atau usaha pesaing yang sedang atau akan melakukan kerjasama usaha dengan PT NUSANTARA REGAS;
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>-&nbsp;&nbsp;</td>
+                        <td>
+                            Memiliki kepentingan ekonomi secara langsung maupun tidak langsung terhadap perusahaan atau organisasi manapun yang saat ini sedang melakukan kerjasama dengan PT NUSANTARA REAGS atau ingin melakukan kerjasama dengan PT NUSANTARA REGAS;
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>-&nbsp;&nbsp;</td>
+                        <td>
+                            Memiliki anggota keluarga atau teman yang memiliki kepentingan ekonomi secara langsung maupun tidak langsung terhadap perusahaan atau organisasi yang saat ini melakukan usaha dengan PT NUSANTARA REGAS;
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>-&nbsp;&nbsp;</td>
+                        <td>
+                            Melakukan transaksi dan/atau menggunakan harta/fasilitas PT NUSANTARA REGAS untuk kepentingan diri sendiri, keluarga, dan golongan;
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>-&nbsp;&nbsp;</td>
+                        <td>
+                            Mewakili PT NUSANTARA REGAS dalam transaksi dengan perusahaan lain di mana SAYA atau anggota keluarga SAYA atau teman SAYA memiliki kepentingan;
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>-&nbsp;&nbsp;</td>
+                        <td>
+                            Menerima hadiah, uang, atau hiburan dari pemasok atau mitra usaha, atau dari agen manapun atau bertindak sebagai atau mewakili pemasok atau mitra usaha dalam transaksinya dengan PT NUSANTARA REGAS untuk kepentingan pribadi atau dengan cara merugikan kepentingan PT NUSANTARA REGAS;
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>-&nbsp;&nbsp;</td>
+                        <td>
+                            Menggunakan informasi rahasia dan data bisnis PT NUSANTARA REGAS untuk kepentingan pribadi atau dengan cara yang merugikan kepentingan PT NUSANTARA REGAS;
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>-&nbsp;&nbsp;</td>
+                        <td>
+                            Mengungkapkan kepada individu atau organisasi atau pihak manapun di luar  PT NUSANTARA REGAS setiap informasi, program, data keuangan, formula, proses atau "KNOW HOW" rahasia milik PT NUSANTARA REGAS, atau yang dikembangkan oleh SAYA dalam memenuhi tanggung jawab SAYA terhadap PT NUSANTARA REGAS; 
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>-&nbsp;&nbsp;</td>
+                        <td>
+                            Melakukan setiap tindakan lainnya, yang tidak disebut secara spesifik di atas ini, yang dianggap merugikan kepentingan PT NUSANTARA REGAS; 
+                        </td>
+                    </tr>
+
+                </table>
+                <div style="padding-top:25px">
+                    @if (Model.CoI == false)
+                    {
+                        <form method="post" asp-action="ConflictOfInterest">
+                            <button type="submit" name="submit" class="btn btn-sm btn-success"><i class="fa fa-check"></i> Setuju</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <p>Telah ditandatangani pada @Model.CoISignedTime</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- /main area -->

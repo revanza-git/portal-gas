@@ -1,0 +1,91 @@
+@model IEnumerable<Aman>
+
+@section PageLevelPlugin {
+    <link rel="stylesheet" href="~/admin/vendor/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css" />
+}
+
+@{
+    Layout = "~/Views/Shared/PanelPortal.cshtml";
+}
+
+<!-- main area -->
+<div class="main-content">
+    <div class="panel">
+        <div class="panel-heading border">
+            <strong>Learning From Event</strong>
+        </div>
+        <div class="panel-body">
+            <table id="table1" class="table table-bordered bordered table-striped table-condensed datatable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Priority</th>
+                        <th>Classification</th>
+                        <th>Progess</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.AmanID</td>
+                        <td>@item.StartDate.ToString("dd/mm/yyyy")</td>
+                        <td>@item.EndDate.ToString("dd/mm/yyyy")</td>
+                        @{String tdPriority = "";}
+                        @foreach (var priority in ViewBag.Priorities)
+                        {
+                            if (priority.PriorityID == item.Priority)
+                            {
+                                tdPriority = priority.Deskripsi;
+                            }
+                        }
+                        <td>@tdPriority</td>
+                        @{String tdClassification = "";}
+                        @foreach (var classification in ViewBag.Classifications)
+                        {
+                            if (classification.ClassificationID == item.Classification)
+                            {
+                                tdClassification = classification.Deskripsi;
+                            }
+                        }
+                        <td>@tdClassification</td>
+                        <td>@item.Progress %</td>
+                        @{String tdStatus = "";}
+                        @foreach (var status in ViewBag.Statuses) 
+                        {
+                            if(status.AmanStatusID == item.Status)
+                            {
+                                tdStatus = status.Deskripsi;
+                            }
+                        }
+                        <td>@tdStatus</td>
+                        <td>
+                            <a asp-controller="Aman" asp-action="ViewLFE" asp-route-Id="@item.AmanID" class="btn btn-success btn-round btn-xs"><i class="fa fa-eye"></i> View</a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+<!-- /main area -->
+
+@section PageLevelScripts {
+    <script src="~/admin/vendor/datatables/datatables.min.js"></script>
+    <script src="~/admin/vendor/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
+}
+
+@section InitPageScripts {
+    <script>
+        $('#table1').DataTable({
+            "order": [[0, "desc"]]
+        });
+    </script>
+}

@@ -1,0 +1,160 @@
+@model DCU
+
+@{
+    Layout = "~/Views/Shared/Panel.cshtml";
+}
+
+@section TitleBar {
+        <strong>Nusantara Regas Daily Check Up (DCU)</strong>
+}
+
+@section PageLevelPlugin {
+    <link rel="stylesheet" href="~/admin/vendor/bootstrap-datepicker/dist/css/bootstrap-datepicker3.css">
+    <link rel="stylesheet" href="~/admin/vendor/select2/dist/css/select2.min.css" />
+}
+
+<!-- main area -->
+<div class="main-content">
+    <div class="panel mb25">
+        <div class="panel-heading border">
+            <ol class="breadcrumb mb0 no-padding">
+                <li>
+                    <a href="javascript:;">Content</a>
+                </li>
+                <li>
+                    <a href="javascript:;">DCU</a>
+                </li>
+                @*<li class="active"><strong>@ViewBag.Title</strong></li>*@
+            </ol>
+        </div>
+        <div class="panel-body">
+            <div class="row no-margin">
+                <div class="col-lg-12">
+                    <form class="form-horizontal bordered-group" role="form" method="post" enctype = "multipart/form-data" asp-action="Edit">
+                        <div class="form-group">
+                            <label asp-for="DCUID" class="col-sm-2 control-label">DCUID</label>
+                            <div class="col-sm-10">
+                                <input asp-for="DCUID" readonly type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Nama" class="col-sm-2 control-label">Nama Pekerja</label>
+                            <div class="col-sm-10">
+                                    <input asp-for="Nama" name="nama" type="text" class="form-control" class="required" type="text">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="JenisPekerjaan" class="col-sm-2 control-label">Jenis Pekerjaan</label>
+                            <div class="col-sm-10">
+                                <select asp-for="JenisPekerjaan" class="form-control" name="jenispekerjaan" class="required">
+                                    <option></option>
+                                    @foreach (var item in ViewBag.JenisPekerjaan)
+                                    {
+                                        <option value="@item.jenis_pekerjaanID">@item.Deskripsi</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="JenisPekerjaan" class="text-danger" ></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="DeskripsiPekerjaan" class="col-sm-2 control-label">Aktivitas Pekerjaan</label>
+                            <div class="col-sm-10">
+                                <input asp-for="DeskripsiPekerjaan" class="form-control" rows="3" type="text"></input>
+                                <span asp-validation-for="DeskripsiPekerjaan" name="deskripsipekerjaan" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="NamaPerusahaan" class="col-sm-2 control-label">Nama Perusahaan</label>
+                            <div class="col-sm-10">
+                                <input asp-for="NamaPerusahaan" class="form-control" rows="3" type="text"></input>
+                                <span asp-validation-for="NamaPerusahaan" name="namaperusahaan" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label asp-for="Sistole" class="col-sm-2 control-label ">Sistole</label>
+                            <div class="col-sm-10">
+                                <input asp-for="Sistole" name="sistole" class="form-control" rows="3" class="required" type="number"></input>
+                                <span asp-validation-for="Sistole" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Diastole" class="col-sm-2 control-label">Diastole</label>
+                            <div class="col-sm-10">
+                                <input asp-for="Diastole" name="diastole" class="form-control" rows="3" class="required" type="number"></input>
+                                <span asp-validation-for="Diastole" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Nadi" class="col-sm-2 control-label">Nadi</label>
+                            <div class="col-sm-10">
+                                <input asp-for="Nadi" name="nadi" class="form-control" rows="3" class="required" type="number"></input>
+                                <span asp-validation-for="Nadi" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Suhu" class="col-sm-2 control-label">Suhu</label>
+                            <div class="col-sm-10">
+                                <input asp-for="Suhu" name="suhu" class="form-control" rows="3" class="required" type="number"></input>
+                                <span asp-validation-for="Suhu" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Keluhan" class="col-sm-2 control-label">Keluhan</label>
+                            <div class="col-sm-10">
+                                <textarea asp-for="Keluhan" class="form-control" rows="3"></textarea>
+                                <span asp-validation-for="Keluhan" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Foto</label>
+                            <div class="col-sm-10">
+                                <input type="file" name="files" multiple>
+                                <p class="help-block">Upload Foto</p>
+                                @if (Model.Foto != null)
+                                {
+                                        <img src="@Url.Action("DownloadFile", "DCU", new { ID = Model.DCUID})" />
+                                }
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-sm btn-round btn-success"><i class="fa fa-save"></i> Submit</button>
+                            <a asp-controller="DCU" asp-action="Index" class="btn btn-sm btn-round btn-danger"><i class="fa fa-arrow-left"></i> Back</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /main area -->
+
+@section PageLevelScripts {
+    
+    <script src="~/admin/scripts/dcuEdit.js"></script>
+    <script src="~/env.js"></script>
+    <script src="~/admin/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="~/admin/vendor/select2/dist/js/select2.min.js"></script>
+}    
+
+@section InitPageScripts {
+    <script>
+        $(".datepicker").datepicker({
+            format: 'dd/mm/yyyy',
+            autoclose: true
+        });
+        //$("#SemarLevel").select2({
+        //    placeholder: "Pilih Semar Level",
+        //    allowClear: true
+        //});
+        $("#Type").select2({
+            placeholder: "Pilih Type",
+            allowClear: true
+        });
+    </script>
+}
