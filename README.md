@@ -14,27 +14,29 @@ Portal Gas is a Blazor project designed to provide a modern, responsive web appl
 ### Installation
 
 1. Clone the repository:
-
-```git clone https://github.com/revanza-git/portal-gas.git
-cd portal-gas```
+```bash
+git clone https://github.com/revanza-git/portal-gas.git
+cd portal-gas
+```
 
 2. Open the solution in Visual Studio 2022.
 
 3. Restore the dependencies:
-
-```dotnet restore```
+```bash
+dotnet restore
+```
 
 4. Build the project:
-
-```dotnet build```
-
+```bash
+dotnet build
+```
 
 ### Running the Application
 
 To run the application locally, use the following command:
-
-```dotnet run```
-
+```bash
+dotnet run
+```
 Alternatively, you can run the project directly from Visual Studio by pressing `F5` or clicking the "Run" button.
 
 ### Usage
