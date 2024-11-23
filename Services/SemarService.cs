@@ -1,5 +1,6 @@
 ﻿using Admin.Data;
-using Admin.Models;
+using Admin.Interfaces.Services;
+using Admin.Models.Semar;
 using System;
 using System.Collections.Generic;
 using System.Linq;

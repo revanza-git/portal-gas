@@ -1,5 +1,4 @@
-﻿using Admin.Models;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -11,6 +10,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Admin.Helpers;
 using Newtonsoft.Json;
+using Admin.Models.HSSE;
+using Admin.Interfaces.Repositories;
 
 namespace Admin.Controllers
 {

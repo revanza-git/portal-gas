@@ -47,12 +47,24 @@ function load_params() {
 }
 
 $(document).ready(function () {
-    initializeDataTable();
+    if ($.fn.DataTable) {
+        initializeDataTable();
+    } else {
+        console.error("DataTables library is not loaded.");
+    }
 
     $('#Approve').click(function () {
-        var checked_rows = $('#table1').DataTable().rows('.selected').data();
+        if (!$.fn.DataTable || !$.fn.DataTable.isDataTable('#table1')) {
+            if (confirm("No Data Selected")) {
+                location.reload();
+            }
+            return;
+        }
 
+        var table = $('#table1').DataTable();
+        var checked_rows = table.rows('.selected').data();
         var data = [];
+
         for (var i = 0; i < checked_rows.length; i++) {
             var overId = checked_rows[i][1].replace("OVER", "");
             data.push(overId);
@@ -65,13 +77,17 @@ $(document).ready(function () {
                 contentType: "application/json",
                 data: JSON.stringify(data),
                 success: function (result) {
-                    $(".alert").val("Data has been Approved");
+                    alert("Data has been Approved");
                     location.reload();
+                },
+                error: function () {
+                    alert("An error occurred while approving data. Please try again later.");
                 }
             });
         } else {
-            $(".alert").val("No Data Selected");
-            location.reload();
+            if (confirm("No Data Selected")) {
+                location.reload();
+            }
         }
     });
 

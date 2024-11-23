@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Admin.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
-using Admin.Services;
 using System.Diagnostics;
+using Admin.Models.User;
+using Admin.Models.GCG;
+using Admin.Interfaces.Repositories;
+using Admin.Interfaces.Services;
 
 namespace Admin.Controllers
 {

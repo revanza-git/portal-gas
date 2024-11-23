@@ -5,10 +5,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Admin.Models;
 using Admin.Services;
 using Admin.Data;
-using Admin.Implementations;
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Logging.Debug;
@@ -16,7 +14,11 @@ using Admin.Helpers;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Collections.Generic;
-using Microsoft.OpenApi.Models; // Add this using directive
+using Microsoft.OpenApi.Models;
+using Admin.Repositories;
+using Admin.Models.User;
+using Admin.Interfaces.Repositories;
+using Admin.Interfaces.Services; // Add this using directive
 
 namespace Admin
 {

@@ -5,11 +5,15 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Admin.Models;
 using Admin.Helpers;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Configuration;
 using System.Globalization;
+using Admin.Models.User;
+using Admin.Models.HSSE;
+using Admin.Interfaces.Repositories;
+using Admin.Interfaces.Services;
+using Admin.Models.Tra;
 
 namespace Admin.Controllers
 {

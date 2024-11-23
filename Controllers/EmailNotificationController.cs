@@ -8,6 +8,8 @@ using Admin.Helpers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Identity;
 using System.Text;
+using Admin.Models.User;
+using Admin.Interfaces.Repositories;
 
 namespace Admin.Controllers
 {

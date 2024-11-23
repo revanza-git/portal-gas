@@ -7,7 +7,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Admin.Models;
+using Admin.Interfaces.Repositories;
+using Admin.Models.User;
 
 namespace Admin.Controllers
 {

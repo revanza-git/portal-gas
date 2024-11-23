@@ -25,7 +25,6 @@
   <ItemGroup>
     <Folder Include="Data\Migrations\" />
     <Folder Include="Migration\" />
-    <Folder Include="Repositories\" />
     <Folder Include="wwwroot\admin\vendor\card\src\coffee\payment\" />
     <Folder Include="wwwroot\admin\vendor\card\src\scss\bourbon\" />
     <Folder Include="wwwroot\admin\vendor\intl-tel-input\region-flags\" />

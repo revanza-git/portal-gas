@@ -1,6 +1,9 @@
+@using Admin.Models.NOC
+@using Admin.Models.User
 @{
     Layout = "";
     @model IEnumerable<NOC>
+
 }
 
 <table id="table1" class="table table-bordered bordered table-striped table-condensed datatable">
@@ -14,8 +17,8 @@
             <th>Daftar Pengamatan</th>
             <th>Deskripsi</th>
             <th>Tindakan</th>
-            <th>Rekomendasi</th>
             <th>Fungsi</th>
+            <th>Rekomendasi</th>
             <th>Photo</th>
             <th>Status</th>
             <th>Action</th>
@@ -25,92 +28,41 @@
         @inject UserManager<ApplicationUser> UserManager
         @foreach (var item in Model)
         {
+            var locations = ViewBag.Locations as IEnumerable<Admin.Models.Common.Location>;
+            var priorities = ViewBag.Priorities as IEnumerable<Admin.Models.Common.Priority>;
+            var observationLists = ViewBag.ObservationLists as IEnumerable<Admin.Models.Common.ObservationList>;
+            var departments = ViewBag.Departments as IEnumerable<Admin.Models.Common.Department>;
+
             <tr>
                 <td>@item.NOCID</td>
                 <td>@item.EntryDate.ToString("dd/MM/yyyy hh:mm")</td>
-
-                @{
-                    String tdLokasi = "";
-                }
-                @foreach (var lokasi in ViewBag.Locations)
-                {
-                    if (lokasi.LocationID == item.Lokasi)
-                    {
-                        tdLokasi = lokasi.Deskripsi;
-                    }
-                }
-                <td>@tdLokasi</td>
-
-
-                @{
-                    String tdPrioritas = "";
-                }
-                @foreach (var priority in ViewBag.Priorities)
-                {
-                    if (priority.PriorityID == item.Prioritas)
-                    {
-                        tdPrioritas = priority.Deskripsi;
-                    }
-                }
-                <td>@tdPrioritas</td>
-
-
-                @{
-                    ApplicationUser Observer = UserManager.FindByNameAsync(item.NamaObserver).Result;
-                    var NamaObserver = Observer == null ? "" : Observer.Name;
-                }
-                <td>@NamaObserver</td>
-                @{
-                    String tdPengamatan = "";
-                }
-                @foreach (var observation in ViewBag.ObservationLists)
-                {
-                    if (observation.ObservationListID == item.DaftarPengamatan)
-                    {
-                        tdPengamatan = observation.Deskripsi;
-                    }
-                }
-                <td>@tdPengamatan</td>
+                <td>@locations?.FirstOrDefault(l => l.LocationID == item.Lokasi)?.Deskripsi</td>
+                <td>@priorities?.FirstOrDefault(p => p.PriorityID == item.Prioritas)?.Deskripsi</td>
+                <td>@(UserManager.FindByNameAsync(item.NamaObserver).Result?.Name ?? "")</td>
+                <td>@observationLists?.FirstOrDefault(o => o.ObservationListID == item.DaftarPengamatan)?.Deskripsi</td>
                 <td>@item.Deskripsi</td>
                 <td>@item.Tindakan</td>
-                @{
-                    String tdFungsi = "";
-                }
-                @foreach (var fungsi in ViewBag.Departments)
-                {
-                    if (fungsi.DepartmentID == item.DivisiObserver)
-                    {
-                        tdFungsi = fungsi.Deskripsi;
-                    }
-                }
-                <td>@tdFungsi</td>
+                <td>@departments?.FirstOrDefault(d => d.DepartmentID == item.DivisiObserver)?.Deskripsi</td>
                 <td>@item.Rekomendasi</td>
                 <td>
                     @if (item.Photo != null)
                     {
                         <a class="btn btn-info btn-round btn-xs" name="download" href="@Url.Action("DownloadFile", "NOC", new { ID = item.NOCID })"><i class="fa fa-download"></i> Download</a>
                     }
-                </td>
-                <td>
-                    @if (item.Status == 1)
-                    {
-                        <p>Open</p>
-                    }
                     else
                     {
-                        <p>Close</p>
+                        <span class="btn btn-warning btn-round btn-xs">No File</span>
                     }
                 </td>
-
+                <td>@(item.Status == 1 ? "Open" : "Close")</td>
                 <td>
                     <form method="post" asp-action="Delete">
                         <input type="hidden" name="NOCID" value="@item.NOCID" />
                         <a asp-controller="NOC" asp-action="Edit" asp-route-id="@item.NOCID" class="btn btn-warning btn-round btn-xs"><i class="fa fa-pencil"></i> Edit</a>
                         <button type="submit" onclick="return confirm('Are you sure you want to delete @item.NOCID ?');" class="btn btn-round btn-xs btn-danger"><i class="fa fa-times"></i> Delete</button>
-
                         @if (User.IsInRole("Admin") || User.IsInRole("AtasanAdmin") || User.IsInRole("AdminQM") || User.IsInRole("AdminNOC"))
                         {
-                          <button type="button" name="aman" class="btn btn-info btn-round btn-xs" hidden="hidden"><i class="fa fa-arrow-right"></i>AMAN</button>
+                            <button type="button" name="aman" class="btn btn-info btn-round btn-xs" hidden="hidden"><i class="fa fa-arrow-right"></i>AMAN</button>
                         }
                     </form>
                 </td>

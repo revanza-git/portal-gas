@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
 using Admin.Models;
 using Admin.Models.AccountViewModels;
-using Admin.Services;
 using Admin.Helpers;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -19,6 +18,9 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using System.Net.Http;
 using System.Data;
+using Admin.Models.User;
+using Admin.Interfaces.Repositories;
+using Admin.Interfaces.Services;
 
 namespace Admin.Controllers
 {

@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Admin.Models;
 using Admin.Models.ManageViewModels;
-using Admin.Services;
+using Admin.Models.User;
+using Admin.Interfaces.Services;
 
 namespace Admin.Controllers
 {

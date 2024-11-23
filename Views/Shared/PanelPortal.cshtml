@@ -7,409 +7,13 @@
 }
 
 <!-- sidebar panel -->
-<div class="sidebar-panel offscreen-left">
-    <div class="brand" style="background-color:white;">
-        <!-- logo -->
-        <div class="brand-logo">
-            <img src="~/admin/images/logo-regas.png" height="25" alt="">
-        </div>
-        <!-- /logo -->
-        <!-- toggle small sidebar menu -->
-        <a href="javascript:;" data-toggle="layout-small-menu">
-            <i class="toggle-sidebar hidden-xs v3 fa fa-th fa-lg" style="color:Highlight"></i>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-        </a>
-        <!-- /toggle small sidebar menu -->
-    </div>
-    <!-- main navigation -->
-    <nav role="navigation">
-        <p>&nbsp;</p>
-        <ul class="nav">
-            <li>
-                <a asp-controller="Home" asp-action="Index2">
-                    <i class="fa fa-sign-in fa-lg"></i>
-                    <span>&nbsp;Login</span>
-                </a>
-            </li>
-            <li>
-                <a asp-controller="Home" asp-action="Index">
-                    <i class="fa fa-home fa-lg"></i>
-                    <span>&nbsp;Home</span>
-                </a>
-            </li>
-            <li>
-                <a href="https://eproc.nusantararegas.com/eproc_nusantararegas" target="_blank">
-                    <i class="fa fa-desktop"></i>
-                    <span>&nbsp;E-Procurement</span>
-                </a>
-            </li>
-            <li>
-                <a href="http://10.10.10.14/login" target="_blank">
-                    <i class="fa fa-navicon fa-lg"></i>
-                    <span>&nbsp;SYMMIN</span>
-                </a>
-            </li>
-            <li>
-                <a href="http://10.10.10.15/" target="_blank">
-                    <i class="fa fa-archive fa-lg"></i>
-                    <span>&nbsp;Activo</span>
-                </a>
-            </li>
-            <li>
-                <a href="https://appnr.pertamina.com/meetingroom.nr" target="_blank">
-                    <i class="fa fa-share-alt fa-lg"></i>
-                    <span>&nbsp;Meeting Room</span>
-                </a>
-            </li>
-            <li>
-                <a href="https://nusantararegas.com" target="_blank">
-                    <i class="fa fa-share-alt fa-lg"></i>
-                    <span>&nbsp;Website NR</span>
-                </a>
-            </li>
-            @*<li>
-            <a asp-controller="Gallery" asp-action="pIndex">
-                <i class="fa fa-picture-o fa-lg"></i>
-                <span>&nbsp;Gallery</span>
-            </a>
-        </li>
-        <li>
-            <a asp-controller="Aman" asp-action="pIndex">
-                <i class="fa fa-key fa-lg"></i>
-                <span>&nbsp;AMAN</span>
-            </a>
-        </li>*@
-            @*<li>
-            <a asp-controller="Semar" asp-action="pIndex">
-                <i class="fa fa-book fa-lg"></i>
-                <span>&nbsp;SEMAR</span>
-            </a>
-        </li>*@
-            @*<li>
-            <a href="javascript:;" data-toggle="dropdown">
-                <i class="fa fa-file fa-lg"></i>
-                <span>&nbsp;HSSE Report</span>
-            </a>
-            <ul class="sub-menu">
-                <li>
-                    <a asp-controller="NOC" asp-action="pIndex">
-                        <div class="overflow-hidden">
-                            <span>NOC</span>
-                        </div>
-                    </a>
-                </li>
-                <li>
-                    <a asp-controller="DCU" asp-action="pIndex">
-                        <div class="overflow-hidden">
-                            <span>DCU</span>
-                        </div>
-                    </a>
-                </li>
-                <li>
-                    <a asp-controller="HSSEReport" asp-action="pIndex">
-                        <div class="overflow-hidden">
-                            <span>HSSE Performance Report</span>
-                        </div>
-                    </a>
-                </li>
-                <li>
-                    <a asp-controller="TRA" asp-action="pIndex">
-                        <div class="overflow-hidden">
-                            <span>JSA & Risk Assessment</span>
-                        </div>
-                    </a>
-                </li>
-                <li>
-                    <a asp-controller="Aman" asp-action="LFE">
-                        <div class="overflow-hidden">
-                            <span>Learning From Event</span>
-                        </div>
-                    </a>
-                </li>
-            </ul>
-        </li>*@
-            @*<li>
-            <a asp-controller="Event" asp-action="pIndex">
-                <i class="fa fa-calendar fa-lg"></i>
-                <span>&nbsp;Events</span>
-            </a>
-        </li>*@
-            <li>
-                <a href="javascript:;" data-toggle="dropdown">
-                    <i class="fa fa-file fa-lg"></i>
-                    <span>&nbsp;Pertamina</span>
-                </a>
-                <ul class="sub-menu">
-                    <li>
-                        <a href="https://myssc.pertamina.com/" target="_blank">
-                            <div class="overflow-hidden">
-                                <span>MYSSC</span>
-                            </div>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="http://intra.pertamina.com" target="_blank">
-                            <div class="overflow-hidden">
-                                <span>Intra Pertamina</span>
-                            </div>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://outlook.com" target="_blank">
-                            <div class="overflow-hidden">
-                                <span>Mail</span>
-                            </div>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="http://intra-iam.pertamina.com" target="_blank">
-                            <div class="overflow-hidden">
-                                <span>I-am</span>
-                            </div>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://ptmkpwa16prd01.pertamina.com/ERMS" target="_blank">
-                            <div class="overflow-hidden">
-                                <span>Risk Managament</span>
-                            </div>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="http://ptmkpwab81.pertamina.com/horsekorporat/Default.aspx" target="_blank">
-                            <div class="overflow-hidden">
-                                <span>Horse</span>
-                            </div>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="http://ptmkpweb12app01.pertamina.com/Peraturan/" target="_blank">
-                            <div class="overflow-hidden">
-                                <span>STK & SK</span>
-                            </div>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://apps.pertamina.com/changepassword" target="_blank">
-                            <div class="overflow-hidden">
-                                <span>Update Password</span>
-                            </div>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://app.poffice.pertamina.com" target="_blank">
-                            <div class="overflow-hidden">
-                                <span>P-Office</span>
-                            </div>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://apps.pertamina.com/SMART" target="_blank">
-                            <div class="overflow-hidden">
-                                <span>SMART</span>
-                            </div>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://personal.idaman.pertamina.com" target="_blank">
-                            <div class="overflow-hidden">
-                                <span>idAMan</span>
-                            </div>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://dsclient.poffice.pertamina.com" target="_blank">
-                            <div class="overflow-hidden">
-                                <span>Pertamina-Sign</span>
-                            </div>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://pertaminasign.peruri.co.id/login" target="_blank">
-                            <div class="overflow-hidden">
-                                <span>Digital Document</span>
-                            </div>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-        </ul>
-        @*<div style="padding-left:15px;padding-top:15px;color:white">NEWS</div>*@
-        <!--<ul class="nav">-->
-            <!-- Direktorat Utama -->
-            <!--<li>
-                <a href="javascript:;">
-                    <i class="fa fa-certificate fa-lg"></i>
-                    <span>&nbsp;Direktorat Utama</span>
-                </a>
+@await Html.PartialAsync("_Sidebar")
 
-                <ul class="sub-menu">
-                    <li>
-                        <a asp-controller="News" asp-action="ViewByDepartment" asp-route-id="101">
-                            <span>Satuan Pengawasan Internal</span>
-                        </a>
-                    </li>
-
-                    <li>
-                        <a asp-controller="News" asp-action="ViewByDepartment" asp-route-id="102">
-                            <span>Departemen Manajemen Resiko</span>
-                        </a>
-                    </li>
-
-                    <li>
-                        <a asp-controller="News" asp-action="ViewByDepartment" asp-route-id="103">
-                            <span>Sekretaris Perusahaan</span>
-                        </a>
-                    </li>
-
-                    <li>
-                        <a asp-controller="News" asp-action="ViewByDepartment" asp-route-id="104">
-                            <span>Departemen Hukum</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a asp-controller="News" asp-action="ViewByDepartment" asp-route-id="105">
-                            <span>Departemen HSSE</span>
-                        </a>
-                    </li>
-                </ul>
-            </li>-->
-            <!-- /Direktorat Utama -->
-            <!-- Direktorat Operasi dan Komersial -->
-            <!--<li>
-                <a href="javascript:;">
-                    <i class="fa fa-cog fa-lg"></i>
-                    <span>&nbsp;Dir. Operasi & Komersial</span>
-                </a>
-
-                <ul class="sub-menu">
-                    <li>
-                        <a href="javascript:;">
-                            <span>Divisi Komersial dan<br />Pengembangan Bisnis</span>
-                        </a>
-                        <ul class="sub-menu">
-                            <li>
-                                <a asp-controller="News" asp-action="ViewByDepartment" asp-route-id="211">
-                                    <span>Departemen Komersial LNG & Gas</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a asp-controller="News" asp-action="ViewByDepartment" asp-route-id="212">
-                                    <span>Departemen Perancanaan & Pengembangan Bisnis</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-
-                    <li>
-                        <a href="javascript:;">
-                            <span>Divisi Operasi</span>
-                        </a>
-                        <ul class="sub-menu">
-                            <li>
-                                <a asp-controller="News" asp-action="ViewByDepartment" asp-route-id="221">
-                                    <span>Departemen Transportasi LNG dan Operasional FSRU</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a asp-controller="News" asp-action="ViewByDepartment" asp-route-id="222">
-                                    <span>Departemen Distribusi Gas dan Pengelolaan ORF</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-
-                    <li>
-                        <a href="javascript:;">
-                            <span>Divisi Reliability dan<br />Quality</span>
-                        </a>
-                        <ul class="sub-menu">
-                            <li>
-                                <a asp-controller="News" asp-action="ViewByDepartment" asp-route-id="231">
-                                    <span>Departemen Reliability</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a asp-controller="News" asp-action="ViewByDepartment" asp-route-id="232">
-                                    <span>Departemen Quality Manajemen dan Quality Assurance</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
-            </li>-->
-            <!-- /Direktorat Operasi dan Komersial -->
-            <!-- Direktorat Keuangan dan Umum -->
-            <!--<li>
-                <a href="javascript:;">
-                    <i class="fa fa-th-large fa-lg"></i>
-                    <span>&nbsp;Dir. Keuangan & Umum</span>
-                </a>
-
-                <ul class="sub-menu">
-                    <li>
-                        <a href="javascript:;">
-                            <span>Div. Keuangan & SI</span>
-                        </a>
-                        <ul class="sub-menu">
-                            <li>
-                                <a asp-controller="News" asp-action="ViewByDepartment" asp-route-id="311">
-                                    <span>Departemen Controller</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a asp-controller="News" asp-action="ViewByDepartment" asp-route-id="312">
-                                    <span>Departemen Perbendaharaan</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a asp-controller="News" asp-action="ViewByDepartment" asp-route-id="313">
-                                    <span>Departemen Information System</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-
-                    <li>
-                        <a href="javascript:;">
-                            <span>Divisi SDM dan Umum</span>
-                        </a>
-                        <ul class="sub-menu">
-                            <li>
-                                <a asp-controller="News" asp-action="ViewByDepartment" asp-route-id="321">
-                                    <span>Departemen SDM</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a asp-controller="News" asp-action="ViewByDepartment" asp-route-id="322">
-                                    <span>Departemen Procurement</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a asp-controller="News" asp-action="ViewByDepartment" asp-route-id="323">
-                                    <span>Departemen Layanan Umum</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-
-                </ul>
-            </li>-->
-            <!-- /Direktorat Keuangan dan Umum -->
-        <!--</ul>-->
-    </nav>
-    <!-- /main navigation -->
-</div>
-<!-- /sidebar panel -->
 <!-- content panel -->
 <div class="main-panel">
     <!-- top header -->
     <header class="header navbar">
         <div class="brand visible-xs">
-            <!-- toggle offscreen menu -->
             <div class="toggle-offscreen">
                 <a href="#" class="fa fa-times visible-xs" data-toggle="offscreen" data-move="ltr">
                     <span></span>
@@ -417,13 +21,9 @@
                     <span></span>
                 </a>
             </div>
-            <!-- /toggle offscreen menu -->
-            <!-- logo -->
             <div class="brand-logo">
                 <img src="~/admin/images/logo-regas.png" height="15" alt="">
             </div>
-            <!-- /logo -->
-            <!-- toggle chat sidebar small screen-->
             <div class="toggle-chat">
                 <a href="javascript:;" class="hamburger-icon v2 visible-xs" data-toggle="layout-chat-open">
                     <span></span>
@@ -431,7 +31,6 @@
                     <span></span>
                 </a>
             </div>
-            <!-- /toggle chat sidebar small screen-->
         </div>
         <ul class="nav navbar-nav hidden-xs">
             <li>
@@ -444,39 +43,12 @@
         </ul>
     </header>
     <!-- /top header -->
-
     @RenderBody()
 
 </div>
 <!-- /content panel -->
 <!-- bottom footer -->
-<footer class="content-footer">
-    <nav class="footer-right">
-        <ul class="nav">
-            <li>
-                <a href="javascript:;">Feedback</a>
-            </li>
-            <li>
-                <a href="javascript:;" class="scroll-up">
-                    <i class="fa fa-angle-up"></i>
-                </a>
-            </li>
-        </ul>
-    </nav>
-    <nav class="footer-left">
-        <ul class="nav">
-            <li>
-                <a href="javascript:;">Copyright <i class="fa fa-copyright"></i> <span>Regas</span> 2017. All rights reserved</a>
-            </li>
-            <li>
-                <a href="javascript:;">
-                    Privacy Policy
-                </a>
-            </li>
-        </ul>
-    </nav>
-</footer>
-<!-- /bottom footer -->
+@await Html.PartialAsync("_Footer")
 
 @section PageLevelScripts {
     @RenderSection("PageLevelScripts", required: false)
@@ -485,4 +57,3 @@
 @section InitPageScripts {
     @RenderSection("InitPageScripts", required: false)
 }
-

@@ -1,6 +1,9 @@
 ﻿using Admin.Helpers;
+using Admin.Interfaces.Repositories;
+using Admin.Interfaces.Services;
 using Admin.Models;
-using Admin.Services;
+using Admin.Models.NOC;
+using Admin.Models.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;

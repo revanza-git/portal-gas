@@ -1,5 +1,6 @@
-﻿using Admin.Models;
-using Admin.Services;
+﻿using Admin.Interfaces.Services;
+using Admin.Models.User;
+using Admin.Models.Vendors;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

@@ -1,5 +1,9 @@
 ﻿using Admin.Helpers;
-using Admin.Models;
+using Admin.Interfaces.Repositories;
+using Admin.Interfaces.Services;
+using Admin.Models.Tra;
+using Admin.Models.User;
+using Admin.Models.Vendors;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;

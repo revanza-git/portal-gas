@@ -1,5 +1,7 @@
 ﻿using Admin.Helpers;
-using Admin.Models;
+using Admin.Interfaces.Repositories;
+using Admin.Models.News;
+using Admin.Models.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

@@ -4,7 +4,22 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Admin.Models;
+using Admin.Models.Aman;
+using Admin.Models.DCU;
+using Admin.Models.User;
+using Admin.Models.Common;
+using Admin.Models.HSSE;
+using Admin.Models.Gasmon;
+using Admin.Models.Semar;
+using Admin.Models.Tugboat;
+using Admin.Models.GCG;
+using Admin.Models.NOC;
+using Admin.Models.Gallery;
+using Admin.Models.Overtime;
+using Admin.Models.Vendors;
+using Admin.Models.Tra;
+using Admin.Models.Event;
+using Admin.Models.News;
 
 namespace Admin.Data
 {

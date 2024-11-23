@@ -1,4 +1,5 @@
-﻿@model IEnumerable<News>
+﻿@using Admin.Models.News
+@model IEnumerable<News>
 
 @{
     Layout = "~/Views/Shared/PanelPortal.cshtml";
@@ -11,7 +12,7 @@
 
 <!-- main area -->
 <div class="main-content">
-   <div class="row">
+    <div class="row">
         <div class="col-md-12">
             <div class="panel">
                 <div class="panel-heading border">
@@ -20,70 +21,38 @@
                 <div class="panel-body">
                     <div class="search-results">
                         <ul class="search-results-list">
-                            @if (Model.Count() > 0)
+                            @if (Model.Any())
                             {
-                                foreach (var item in Model)
+                                @foreach (var item in Model)
                                 {
-                                <li class="search-result">
-                                    <h5>
-                                        <a href="javascript:;" class="text-info">@item.Subject</a>
-                                    </h5>
-                                    <label style="color:chartreuse;font-size:8pt">Author: @item.Author</label>
-                                    <label style="color:chartreuse;font-size:8pt">, Date: @item.PublishingDate</label>
-                                    <p>
-                                        @Html.Raw(StringHelper.GetFirstParagraph(item.Content))
-                                        <a asp-controller="News" asp-action="ViewContent" asp-route-id="@item.NewsID" class="btn btn-primary btn-round btn-xs">Read More</a>
-                                    </p>
-                                </li>
+                                    <li class="search-result">
+                                        <h5>
+                                            <a href="javascript:;" class="text-info">@item.Subject</a>
+                                        </h5>
+                                        <label class="text-muted" style="font-size:8pt">Author: @item.Author</label>
+                                        <label class="text-muted" style="font-size:8pt">, Date: @item.PublishingDate.ToShortDateString()</label>
+                                        <p>
+                                            @Html.Raw(StringHelper.GetFirstParagraph(item.Content))
+                                            <a asp-controller="News" asp-action="ViewContent" asp-route-id="@item.NewsID" class="btn btn-primary btn-round btn-xs">Read More</a>
+                                        </p>
+                                    </li>
                                 }
                             }
                             else
                             {
-                                <p>Belum ada berita</p>
+                                <li class="search-result">Belum ada berita</li>
                             }
                         </ul>
-                        <!--
-                        <div class="text-center">
-                            <ul class="pagination">
-                                <li>
-                                    <a href="javascript:;">←</a>
-                                </li>
-                                <li class="active">
-                                    <a href="javascript:;">1</a>
-                                </li>
-                                <li>
-                                    <a href="javascript:;">2</a>
-                                </li>
-                                <li>
-                                    <a href="javascript:;">3</a>
-                                </li>
-                                <li>
-                                    <a href="javascript:;">4</a>
-                                </li>
-                                <li>
-                                    <a href="javascript:;">5</a>
-                                </li>
-                                <li>
-                                    <a href="javascript:;">→</a>
-                                </li>
-                            </ul>
-                        </div>'
-                        -->
+                        <!-- Pagination can be added here if needed -->
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-8">
-     </div>
     </div>
 </div>
 <!-- main area -->
-
 @section PageLevelScripts {
 }
 
 @section InitPageScripts {
-    
 }
-
-

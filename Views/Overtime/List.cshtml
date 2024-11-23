@@ -1,3 +1,5 @@
+@using Admin.Models.Overtime
+@using Admin.Models.User
 @model IEnumerable<Overtime>
 
 <table id="table1" class="table table-bordered bordered table-striped table-condensed datatable">
@@ -26,62 +28,26 @@
     <tbody id="listBody">
         @foreach (var item in Model)
         {
+            var jabatan = ViewBag.Jabatan as IEnumerable<Admin.Models.Common.Jabatan>;
+            var departments = ViewBag.Department as IEnumerable<Admin.Models.Common.Department>;
+            var users = ViewBag.Users as IEnumerable<ApplicationUser>;
+
             <tr>
                 <td></td>
-                @{
-                    String tdId = "OVER" + @item.OvertimeID.ToString();
-                }
-                <td>@tdId</td>
-                @{
-                    ApplicationUser UserTemp = UserManager.FindByNameAsync(item.Name).Result;
-                    var NamaUser = UserTemp == null ? "" : UserTemp.Name;
-                }
-                <td>@NamaUser</td>
-                @{
-                    String tdJabatan = "";
-                }
-                @foreach (var dir in ViewBag.Jabatan)
-                {
-                    if (dir.JabatanID == item.Posisi)
-                    {
-                        tdJabatan = dir.Deskripsi;
-                    }
-                }
-                <td>@tdJabatan</td>
-                @{
-                    String tdDepartment = "";
-                }
-                @foreach (var dir in ViewBag.Department)
-                {
-                    if (int.Parse(dir.DepartmentID) == item.Department)
-                    {
-                        tdDepartment = dir.Deskripsi;
-                    }
-                }
-                <td>@tdDepartment</td>
+                <td>@($"OVER{item.OvertimeID}")</td>
+                <td>@(UserManager.FindByNameAsync(item.Name).Result?.Name ?? "")</td>
+                <td>@jabatan?.FirstOrDefault(j => j.JabatanID == item.Posisi)?.Deskripsi</td>
+                <td>@departments?.FirstOrDefault(d => int.Parse(d.DepartmentID) == item.Department)?.Deskripsi</td>
                 <td>@item.Tanggal.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture)</td>
                 <td>@item.JamMulaiKerja.ToString(@"hh\:mm")</td>
                 <td>@item.JamSelesaiKerja.ToString(@"hh\:mm")</td>
                 <td>@item.WorkDescription</td>
                 <td>@item.JamAwalLembur.ToString(@"hh\:mm")</td>
                 <td>@item.JamAkhirLembur.ToString(@"hh\:mm")</td>
-                @{
-                    String tdRound = Math.Round(@item.TotalHours, 2).ToString();
-                }
-                <td>@tdRound</td>
+                <td>@Math.Round(item.TotalHours, 2)</td>
                 <td>@item.Description</td>
-                @{
-                    String tdAssigner = "";
-                }
-                @foreach (var user in ViewBag.Users)
-                {
-                    if (user.UserName == item.Assigner)
-                    {
-                        tdAssigner = user.Name;
-                    }
-                }
-                <td>@tdAssigner</td>
-                <td>@item.CreationDateTime.Value.ToString("dd/MM/yyyy HH:mm", System.Globalization.CultureInfo.InvariantCulture)</td>
+                <td>@users?.FirstOrDefault(u => u.UserName == item.Assigner)?.Name</td>
+                <td>@item.CreationDateTime?.ToString("dd/MM/yyyy HH:mm", System.Globalization.CultureInfo.InvariantCulture)</td>
                 <td>
                     @if (item.Status == 1)
                     {
@@ -118,3 +84,4 @@
         }
     </tbody>
 </table>
+

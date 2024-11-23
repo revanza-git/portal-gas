@@ -1,0 +1,353 @@
+@using Admin.Models.User
+@inject UserManager<ApplicationUser> UserManager
+
+<div class="sidebar-panel offscreen-left">
+    <div class="brand" style="background-color:white;">
+        <div class="brand-logo">
+            <img src="~/admin/images/logo-regas.png" height="25" alt="">
+        </div>
+        <a href="javascript:;" data-toggle="layout-small-menu">
+            <i class="toggle-sidebar hidden-xs v3 fa fa-th fa-lg" style="color:Highlight"></i>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </a>
+    </div>
+    <nav role="navigation">
+        <ul class="nav">
+            <li>
+                <a asp-controller="Home" asp-action="Index2">
+                    <i class="fa fa-home"></i>
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://eproc.nusantararegas.com/eproc_nusantararegas" target="_blank">
+                    <i class="fa fa-desktop"></i>
+                    <span>E-Procurement</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://10.10.10.14/login" target="_blank">
+                    <i class="fa fa-navicon fa-lg"></i>
+                    <span>&nbsp;SYMMIN</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://10.10.10.15/" target="_blank">
+                    <i class="fa fa-archive fa-lg"></i>
+                    <span>&nbsp;Activo</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://appnr.pertamina.com/meetingroom.nr" target="_blank">
+                    <i class="fa fa-share-alt fa-lg"></i>
+                    <span>&nbsp;Meeting Room</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://nusantararegas.com" target="_blank">
+                    <i class="fa fa-share-alt fa-lg"></i>
+                    <span>&nbsp;Website NR</span>
+                </a>
+            </li>
+            @if (User.IsInRole("SuperAdmin"))
+            {
+                <li>
+                    <a asp-controller="Account" asp-action="Index">
+                        <i class="fa fa-user"></i>
+                        <span>User Management</span>
+                    </a>
+                </li>
+                <li>
+                    <a asp-controller="Vendor" asp-action="Index">
+                        <i class="fa fa-users"></i>
+                        <span>Vendor Management</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:;">
+                        <i class="fa fa-cog"></i>
+                        <span>Setting</span>
+                    </a>
+                    <ul class="sub-menu">
+                        <li>
+                            <a asp-controller="AmanSource" asp-action="Index">
+                                <i class="fa fa-book"></i>
+                                <span>Aman Sources</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-controller="Location" asp-action="Index">
+                                <i class="fa fa-map-marker"></i>
+                                <span>Location</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-controller="Hazard" asp-action="Index">
+                                <i class="fa fa-signal"></i>
+                                <span>Hazard</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            }
+            <li>
+                <a href="javascript:;" data-toggle="dropdown">
+                    <i class="fa fa-users fa-lg"></i>
+                    <span>&nbsp;SDM</span>
+                </a>
+                <ul class="sub-menu">
+                    <li>
+                        <a asp-controller="Overtime" asp-action="Index">
+                            <i class="fa fa-file"></i>
+                            <span>Overtime</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            @if (User.IsInRole("Admin") || User.IsInRole("AtasanAdmin") || User.IsInRole("AdminQM") || User.IsInRole("AdminNOC") || User.IsInRole("AdminSDM"))
+            {
+                <li>
+                    <a>
+                        <i class="fa fa-book"></i>
+                        <span>SEMAR</span>
+                    </a>
+                    <ul class="sub-menu">
+                        <li>
+                            <a href="https://apps.pertamina.com/portalnr/portalsemar" target="_blank">
+                                <i class="fa fa-file-o"></i>
+                                <span>Portal Semar</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-controller="Semar" asp-action="Index">
+                                <i class="fa fa-file-o"></i>
+                                <span>Update Data</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a asp-controller="Aman" asp-action="Index">
+                        <i class="fa fa-key"></i>
+                        <span>AMAN</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:;">
+                        <i class="fa fa-plus-square-o"></i>
+                        <span>HSSE</span>
+                    </a>
+                    <ul class="sub-menu">
+                        <li>
+                            <a href="javascript:;">
+                                <i class="fa fa-file"></i>
+                                <span>HSSE Report</span>
+                            </a>
+                            <ul class="sub-menu">
+                                <li>
+                                    <a asp-controller="HSSEReport" asp-action="Index">
+                                        <i class="fa fa-file"></i>
+                                        <span>Approved Report</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a asp-controller="HSSEReport" asp-action="Pending">
+                                        <i class="fa fa-file-o"></i>
+                                        <span>Pending Report</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="javascript:;">
+                                <i class="fa fa-table"></i>
+                                <span>JSA & Risk</span>
+                            </a>
+                            <ul class="sub-menu">
+                                <li>
+                                    <a asp-controller="TRA" asp-action="Index">
+                                        <i class="fa fa-file"></i>
+                                        <span>Approved Report</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a asp-controller="TRA" asp-action="Pending">
+                                        <i class="fa fa-file-o"></i>
+                                        <span>Pending Report</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a asp-controller="NOC" asp-action="Index">
+                                <i class="fa fa-tablet"></i>
+                                <span>NOC</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-controller="DCU" asp-action="Index">
+                                <i class="fa fa-calendar"></i>
+                                <span>DCU</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="javascript:;">
+                        <i class="fa fa-laptop"></i>
+                        <span>Gas Monitoring</span>
+                    </a>
+                    <ul class="sub-menu">
+                        <li>
+                            <a asp-controller="GasMonitoring" asp-action="SetupParameter">
+                                <i class="fa fa-cog"></i>
+                                <span>Setup Parameter</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-controller="GasMonitoring" asp-action="ImportData">
+                                <i class="fa fa-upload"></i>
+                                <span>Import Data</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-controller="GasMonitoring" asp-action="EntryData">
+                                <i class="fa fa-file"></i>
+                                <span>Entry Data</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-controller="GasMonitoring" asp-action="ManagementDashboard">
+                                <i class="fa fa-pie-chart"></i>
+                                <span>Management</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-controller="GasMonitoring" asp-action="OperationalDashboard">
+                                <i class="fa fa-bar-chart"></i>
+                                <span>Operational</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                @if (UserManager.FindByNameAsync(User.Identity.Name).Result.GCG == true)
+                {
+                    <li>
+                        <a href="https://apps.pertamina.com/compols/" target="_blank">
+                            <i class="fa fa-briefcase"></i>
+                            <span>GCG</span>
+                        </a>
+                    </li>
+                }
+            }
+            <li>
+                <a href="javascript:;" data-toggle="dropdown">
+                    <i class="fa fa-file fa-lg"></i>
+                    <span>&nbsp;Pertamina</span>
+                </a>
+                <ul class="sub-menu">
+                    <li>
+                        <a href="https://myssc.pertamina.com/" target="_blank">
+                            <div class="overflow-hidden">
+                                <span>MYSSC</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="http://intra.pertamina.com" target="_blank">
+                            <div class="overflow-hidden">
+                                <span>Intra Pertamina</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://mail.pertamina.com" target="_blank">
+                            <div class="overflow-hidden">
+                                <span>Mail</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="http://intra-iam.pertamina.com" target="_blank">
+                            <div class="overflow-hidden">
+                                <span>I-am</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://ptmkpwa16prd01.pertamina.com/ERMS" target="_blank">
+                            <div class="overflow-hidden">
+                                <span>Risk Managament</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="http://ptmkpwab81.pertamina.com/horsekorporat/Default.aspx" target="_blank">
+                            <div class="overflow-hidden">
+                                <span>Horse</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="http://ptmkpweb12app01.pertamina.com/Peraturan/" target="_blank">
+                            <div class="overflow-hidden">
+                                <span>STK & SK</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://apps.pertamina.com/changepassword" target="_blank">
+                            <div class="overflow-hidden">
+                                <span>Update Password</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://app.poffice.pertamina.com" target="_blank">
+                            <div class="overflow-hidden">
+                                <span>P-Office</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://apps.pertamina.com/SMART" target="_blank">
+                            <div class="overflow-hidden">
+                                <span>SMART</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://personal.idaman.pertamina.com" target="_blank">
+                            <div class="overflow-hidden">
+                                <span>idAMan</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://dsclient.poffice.pertamina.com" target="_blank">
+                            <div class="overflow-hidden">
+                                <span>Pertamina-Sign</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://pertaminasign.peruri.co.id/login" target="_blank">
+                            <div class="overflow-hidden">
+                                <span>Digital Document</span>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a asp-controller="Home" asp-action="Index">
+                    <i class="fa fa-arrow-left"></i>
+                    <span>Portal</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>
