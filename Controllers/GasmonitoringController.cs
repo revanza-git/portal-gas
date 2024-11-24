@@ -173,8 +173,14 @@ namespace Admin.Controllers
             string idBefore = dt.ToString("yyyyMMdd") + time.ToString().PadLeft(2, '0') + "00" + id.Substring(12, 2);
             try
             {
-                result = orfDataService.ORFData.FirstOrDefault(x => x.ORFDataID == idBefore).Volume;
-            } catch (Exception) { }
+                var orfData = orfDataService.ORFData.FirstOrDefault(x => x.ORFDataID == idBefore);
+                if (orfData != null)
+                {
+                    result = orfData.Volume;
+                }
+
+            }
+            catch (Exception) { }
 
             return result;
         }

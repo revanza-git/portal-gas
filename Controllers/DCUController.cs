@@ -84,9 +84,19 @@ namespace Admin.Controllers
         {
             ViewBag.Title = "Add";
             ViewBag.JenisPekerjaan = crepository.GetJenisPekerjaan();
-            DCU dcu = new DCU();
+            DCU dcu = new DCU
+            {
+                DCUID = string.Empty,
+                Nama = string.Empty,
+                Sistole = string.Empty,
+                Diastole = string.Empty,
+                Nadi = string.Empty,
+                Suhu = string.Empty,
+                Keluhan = string.Empty
+            };
             return View("Edit", dcu);
         }
+
 
         public IActionResult Edit(string Id)
         {
@@ -146,10 +156,23 @@ namespace Admin.Controllers
         public FileResult DownloadFile(string ID)
         {
             DCU dcu = repository.DCUs.FirstOrDefault(x => x.DCUID == ID);
+            if (dcu == null || string.IsNullOrEmpty(dcu.Foto))
+            {
+                // Return a not found result if the DCU or Foto is not found
+                return File(new byte[0], "application/octet-stream", "FileNotFound.txt");
+            }
+
             var filepath = Path.Combine(Configuration["UploadPath:dcu"], dcu.Foto);
+            if (!System.IO.File.Exists(filepath))
+            {
+                // Return a not found result if the file does not exist
+                return File(new byte[0], "application/octet-stream", "FileNotFound.txt");
+            }
+
             byte[] fileBytes = System.IO.File.ReadAllBytes(filepath);
             return File(fileBytes, dcu.ContentType, dcu.Foto);
         }
+
 
         [HttpPost]
         public IActionResult Delete(DCU dcu)

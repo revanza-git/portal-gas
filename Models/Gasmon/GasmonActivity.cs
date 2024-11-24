@@ -11,10 +11,10 @@ namespace Admin.Models.Gasmon
     public class GasmonActivity
     {
         [Key]
-        public int ActivityID { get; set; }
+        public long ActivityID { get; set; }
         public DateTime Date { get; set; }
-        public int Source { get; set; }
         public string Time { get; set; }
+        public int Source { get; set; }
         public string Remark { get; set; }
         public DateTime CreatedOn { get; set; }
         public DateTime LastUpdated { get; set; }

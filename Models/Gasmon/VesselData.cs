@@ -28,6 +28,6 @@ namespace Admin.Models.Gasmon
         public DateTime CreatedOn { get; set; }
         public DateTime LastUpdated { get; set; }
         public string CreatedBy { get; set; }
-        public string LastUpdatedBt { get; set; }
+        public string LastUpdatedBy { get; set; }
     }
 }

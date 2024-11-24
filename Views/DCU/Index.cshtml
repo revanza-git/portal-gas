@@ -1,5 +1,6 @@
 @using Admin.Models.DCU
 @using Admin.Models.User
+@using Admin.Models.Common
 @model IEnumerable<DCU>
 
 @{
@@ -18,27 +19,23 @@
     <link rel="stylesheet" href="~/admin/vendor/bootstrap-touchspin/dist/jquery.bootstrap-touchspin.min.css">
 }
 
-    @section TitleBar {
+@section TitleBar {
     <strong>Nusantara Regas Daily Check Up (DCU)</strong>
 }
 
-    <!-- main area -->
-    <div class="main-content">
-        <div class="panel"> 
-            @inject UserManager<ApplicationUser> UserManager
-            <div class="panel-heading border">
-                <ol class="breadcrumb mb0 no-padding">
-                    <li>
-                        <a href="javascript:;">Content</a>
-                    </li>
-                    <li>
-                        <a href="javascript:;">DCU</a>
-                    </li>
-                    <li class="active"><strong>List</strong></li>
-                </ol>
-            </div>
+<!-- main area -->
+<div class="main-content">
+    <div class="panel">
+        @inject UserManager<ApplicationUser> UserManager
+        <div class="panel-heading border">
+            <ol class="breadcrumb mb0 no-padding">
+                <li><a href="javascript:;">Content</a></li>
+                <li><a href="javascript:;">DCU</a></li>
+                <li class="active"><strong>List</strong></li>
+            </ol>
+        </div>
 
-            <div class="panel-body">
+        <div class="panel-body">
             @if (TempData["message"] != null)
             {
                 <div class="alert alert-success"><i class="fa fa-lg fa-check-circle"></i> @TempData["message"]</div>
@@ -48,7 +45,7 @@
                 <div class="col-sm-2">
                     <div class="input-prepend input-group input-group-sm">
                         <span class="add-on input-group-addon"><i class="fa fa-calendar"></i></span>
-                        <input type="text" name="daterange" class="form-control drp" onchange="load_params()"/>
+                        <input type="text" name="daterange" class="form-control drp" onchange="load_params()" />
                     </div>
                 </div>
 
@@ -81,41 +78,29 @@
                     <tbody id="listBody">
                         @foreach (var item in Model)
                         {
+                            var jenisPekerjaan = ViewBag.JenisPekerjaan as IEnumerable<Admin.Models.Common.JenisPekerjaan>;
+
                             <tr>
                                 <td>@item.DCUID</td>
                                 <td>@item.Date.ToString("dd/MM/yyyy hh:mm tt")</td>
                                 <td>@item.Nama</td>
-                                @{
-                                    String tdJenisPekerjaan = "";
-                                }
-                                @foreach (var jenisPekerjaan in ViewBag.JenisPekerjaan)
-                                {
-                                    if (jenisPekerjaan.jenis_pekerjaanID == item.JenisPekerjaan)
-                                    {
-                                        tdJenisPekerjaan = jenisPekerjaan.Deskripsi;
-                                    }
-                                }
-                                <td>@tdJenisPekerjaan</td>
+                                <td>@jenisPekerjaan?.FirstOrDefault(j => j.jenis_pekerjaanID == item.JenisPekerjaan)?.Deskripsi</td>
                                 <td>@item.DeskripsiPekerjaan</td>
                                 <td>@item.NamaPerusahaan</td>
                                 <td>@item.Sistole</td>
                                 <td>@item.Diastole</td>
                                 <td>@item.Nadi</td>
                                 <td>@item.Suhu</td>
-                                
                                 <td>@item.Keluhan</td>
                                 <td>
-                                    @if (item.Foto != null)
+                                    @if (!string.IsNullOrEmpty(item.Foto))
                                     {
                                         <a class="btn btn-info btn-round btn-xs" name="download" href="@Url.Action("DownloadFile", "DCU", new { ID = item.DCUID })"><i class="fa fa-download"></i> Download</a>
                                     }
                                 </td>
-                                
                                 <td>
-                                   
                                     <form method="post" asp-action="Delete">
                                         <input type="hidden" name="DCUID" value="@item.DCUID" />
-                                        @*<button type="button" onclick="window.open('/DCU/Edit/@item.DCUID','_self')" class="btn btn-warning btn-round btn-xs"><i class="fa fa-pencil"></i> Edit</button>*@
                                         <a asp-controller="DCU" asp-action="Edit" asp-route-id="@item.DCUID" class="btn btn-warning btn-round btn-xs"><i class="fa fa-pencil"></i> Edit</a>
                                         <button type="submit" onclick="return confirm('Are you sure you want to delete @item.DCUID ?');" class="btn btn-round btn-xs btn-danger"><i class="fa fa-times"></i> Delete</button>
                                     </form>
@@ -127,10 +112,7 @@
             </div>
         </div>
     </div>
-
 </div>
-
-
 
 <!-- /main area -->
 @section PageLevelScripts {
@@ -140,10 +122,10 @@
     <script src="~/admin/vendor/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
     <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/dataTables.buttons.min.js"></script>
     <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/buttons.flash.min.js"></script>
-    <script src="~/admin/vendor/datatables/JSZip-2.5.0/jszip.min.js"></script> 
+    <script src="~/admin/vendor/datatables/JSZip-2.5.0/jszip.min.js"></script>
     <script src="~/admin/vendor/datatables/pdfmake-0.1.32/pdfmake.min.js"></script>
     <script src="~/admin/vendor/datatables/pdfmake-0.1.32/vfs_fonts.js"></script>
-    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/buttons.html5.min.js"></script> 
+    <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/buttons.html5.min.js"></script>
     <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/buttons.print.min.js"></script>
     <script src="~/admin/vendor/moment/moment.js"></script>
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
@@ -155,7 +137,7 @@
     <script src="~/admin/vendor/clockpicker/dist/jquery-clockpicker.min.js"></script>
 }
 
-    @section InitPageScripts {
+@section InitPageScripts {
     <script>
         function load_params() {
             $('#listBody').html("<span class='fa-stack fa-lg' style='position: static;'>\n\
@@ -182,4 +164,4 @@
             });
         }
     </script>
-    }
+}

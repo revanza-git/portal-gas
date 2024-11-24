@@ -1,6 +1,7 @@
 ﻿using Admin.Data;
 using Admin.Interfaces.Services;
 using Admin.Models.Gasmon;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,18 +16,27 @@ namespace Admin.Services
         {
             context = ctx;
         }
-        
-        public IEnumerable<GasmonActivity> GasmonActivity => context.GasmonActivity;
-        
+
+        public IEnumerable<GasmonActivity> GasmonActivity
+        {
+            get
+            {
+                var activities = context.GasmonActivity.ToList();
+                return activities;
+            }
+        }
+
         public void Save(Int32 source, String time, String remark)
         {
-            GasmonActivity act = new GasmonActivity();
-            act.Source = source;
-            act.Date = DateTime.Now.Date;
-            act.Time = time;
-            act.Remark = remark;
-            act.CreatedOn = DateTime.Now;
-            act.LastUpdated = DateTime.Now;
+            GasmonActivity act = new()
+            {
+                Source = source,
+                Date = DateTime.Now.Date,
+                Time = time,
+                Remark = remark,
+                CreatedOn = DateTime.Now,
+                LastUpdated = DateTime.Now
+            };
             context.GasmonActivity.Add(act);
             context.SaveChanges();
         }

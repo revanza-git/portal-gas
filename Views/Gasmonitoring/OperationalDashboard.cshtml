@@ -3,171 +3,100 @@
 @{
     Layout = "~/Views/Shared/Panel.cshtml";
 
-    var target_pasokan = (Int32)ViewData["target_pasokan"];
-    var realisasi_pasokan = (Decimal)ViewData["realisasi_pasokan"];
+    var target_pasokan = ViewData["target_pasokan"] as int? ?? 0;
+    var realisasi_pasokan = ViewData["realisasi_pasokan"] as decimal? ?? 0;
     var prosentase_pasokan = target_pasokan == 0 ? 0 : Math.Round(realisasi_pasokan * 100 / target_pasokan);
-    var target_penjualan = (Int32)ViewData["target_penjualan"];
-    var realisasi_penjualan = (Decimal)ViewData["realisasi_penjualan"];
-    var realisasi_penjualan1 = (Decimal)ViewData["realisasi_penjualan1"];
-    var realisasi_penjualan2 = (Decimal)ViewData["realisasi_penjualan2"];
-    var realisasi_penjualan3 = (Decimal)ViewData["realisasi_penjualan3"];
-    var realisasi_penjualan4 = (Decimal)ViewData["realisasi_penjualan4"];
+    var target_penjualan = ViewData["target_penjualan"] as int? ?? 0;
+    var realisasi_penjualan = ViewData["realisasi_penjualan"] as decimal? ?? 0;
+    var realisasi_penjualan1 = ViewData["realisasi_penjualan1"] as decimal? ?? 0;
+    var realisasi_penjualan2 = ViewData["realisasi_penjualan2"] as decimal? ?? 0;
+    var realisasi_penjualan3 = ViewData["realisasi_penjualan3"] as decimal? ?? 0;
+    var realisasi_penjualan4 = ViewData["realisasi_penjualan4"] as decimal? ?? 0;
     var prosentase_penjualan = target_penjualan == 0 ? 0 : Math.Round(realisasi_penjualan * 100 / target_penjualan);
-    var jsonROB = Html.Raw(ViewData["jsonROB"]);
-    var jsonBOG = Html.Raw(ViewData["jsonBOG"]);
-    var jsonRegasRate = Html.Raw(ViewData["jsonRegasRate"]);
-    var startDate = (DateTime) ViewData["StartDate"];
-    var endDate = (DateTime)ViewData["EndDate"];
+    var jsonROB = Html.Raw(ViewData["jsonROB"] as string ?? string.Empty);
+    var jsonBOG = Html.Raw(ViewData["jsonBOG"] as string ?? string.Empty);
+    var jsonRegasRate = Html.Raw(ViewData["jsonRegasRate"] as string ?? string.Empty);
+    var startDate = ViewData["StartDate"] as DateTime? ?? DateTime.MinValue;
+    var endDate = ViewData["EndDate"] as DateTime? ?? DateTime.MinValue;
 
-    var jsons = (String[]) ViewData["jsonDailyEnergy"];
-    var json1 = Html.Raw(jsons[1]);
-    var json2 = Html.Raw(jsons[2]);
-    var json3 = Html.Raw(jsons[3]);
-    var json4 = Html.Raw(jsons[4]);
+    var jsons = ViewData["jsonDailyEnergy"] as string[] ?? new string[5];
+    var json1 = Html.Raw(jsons.Length > 1 ? jsons[1] : string.Empty);
+    var json2 = Html.Raw(jsons.Length > 2 ? jsons[2] : string.Empty);
+    var json3 = Html.Raw(jsons.Length > 3 ? jsons[3] : string.Empty);
+    var json4 = Html.Raw(jsons.Length > 4 ? jsons[4] : string.Empty);
 
-    var orfData = (List<ORFData>)ViewData["orfData"];
-    var orfDataDaily = (List<ORFDataDaily>)ViewData["orfDataDaily"];
-    Decimal F1 = 0;
-    Decimal C1 = 0;
-    try
-    {
-        F1 = orfData.Where(x => x.LineID == 1).LastOrDefault().Temperature;
-        C1 = (F1 - 32) / (Decimal)1.8;
-    }
-    catch (Exception)
-    {}
+    var orfData = ViewData["orfData"] as List<ORFData> ?? new List<ORFData>();
+    var orfDataDaily = ViewData["orfDataDaily"] as List<ORFDataDaily> ?? new List<ORFDataDaily>();
 
-    Decimal F2 = 0;
-    Decimal C2 = 0;
-    try
-    {
-        F2 = orfData.Where(x => x.LineID == 2).LastOrDefault().Temperature;
-        C2 = (F2 - 32) / (Decimal)1.8;
-    }
-    catch (Exception)
-    { }
+    Decimal F1 = 0, C1 = 0, F2 = 0, C2 = 0, F3 = 0, C3 = 0, F4 = 0, C4 = 0;
+    Decimal DailyEnergy1 = 0, DailyEnergy2 = 0, DailyEnergy3 = 0, DailyEnergy4 = 0;
+    Decimal HeatingValue1 = 0, HeatingValue2 = 0, HeatingValue3 = 0, HeatingValue4 = 0;
+    Decimal Psig1 = 0, Psig2 = 0, Psig3 = 0, Psig4 = 0;
+    Decimal Barg1 = 0, Barg2 = 0, Barg3 = 0, Barg4 = 0;
 
-    Decimal F3 = 0;
-    Decimal C3 = 0;
-    try
+    var orfDataLine1 = orfData.LastOrDefault(x => x.LineID == 1);
+    if (orfDataLine1 != null)
     {
-        F3 = orfData.Where(x => x.LineID == 3).LastOrDefault().Temperature;
-        C3 = (F3 - 32) / (Decimal)1.8;
+        F1 = orfDataLine1.Temperature;
+        C1 = (F1 - 32) / 1.8m;
     }
-    catch (Exception)
-    { }
 
-    Decimal F4 = 0;
-    Decimal C4 = 0;
-    try
+    var orfDataLine2 = orfData.LastOrDefault(x => x.LineID == 2);
+    if (orfDataLine2 != null)
     {
-        F4 = orfData.Where(x => x.LineID == 4).LastOrDefault().Temperature;
-        C4 = (F4 - 32) / (Decimal)1.8;
+        F2 = orfDataLine2.Temperature;
+        C2 = (F2 - 32) / 1.8m;
     }
-    catch (Exception)
-    { }
 
-    Decimal DailyEnergy1 = 0;
-    Decimal DailyEnergy2 = 0;
-    Decimal DailyEnergy3 = 0;
-    Decimal DailyEnergy4 = 0;
-    try
+    var orfDataLine3 = orfData.LastOrDefault(x => x.LineID == 3);
+    if (orfDataLine3 != null)
     {
-        DailyEnergy1 = orfDataDaily.LastOrDefault(x => x.LineID == 1).DailyEnergy;
+        F3 = orfDataLine3.Temperature;
+        C3 = (F3 - 32) / 1.8m;
     }
-    catch (Exception)
-    { }
-    try
-    {
-        DailyEnergy2 = orfDataDaily.LastOrDefault(x => x.LineID == 2).DailyEnergy;
-    }
-    catch (Exception)
-    { }
-    try
-    {
-        DailyEnergy3 = orfDataDaily.LastOrDefault(x => x.LineID == 3).DailyEnergy;
-    }
-    catch (Exception)
-    { }
-    try
-    {
-        DailyEnergy4 = orfDataDaily.LastOrDefault(x => x.LineID == 4).DailyEnergy;
-    }
-    catch (Exception)
-    { }
 
-    Decimal HeatingValue1 = 0;
-    Decimal HeatingValue2 = 0;
-    Decimal HeatingValue3 = 0;
-    Decimal HeatingValue4 = 0;
-    try
+    var orfDataLine4 = orfData.LastOrDefault(x => x.LineID == 4);
+    if (orfDataLine4 != null)
     {
-        HeatingValue1 = orfDataDaily.LastOrDefault(x => x.LineID == 1).HeatingValue;
+        F4 = orfDataLine4.Temperature;
+        C4 = (F4 - 32) / 1.8m;
     }
-    catch (Exception)
-    { }
 
-    try
+    var orfDataDailyLine1 = orfDataDaily.LastOrDefault(x => x.LineID == 1);
+    if (orfDataDailyLine1 != null)
     {
-        HeatingValue2 = orfDataDaily.LastOrDefault(x => x.LineID == 2).HeatingValue;
+        DailyEnergy1 = orfDataDailyLine1.DailyEnergy;
+        HeatingValue1 = orfDataDailyLine1.HeatingValue;
+        Psig1 = orfDataDailyLine1.Pressure;
+        Barg1 = Psig1 / 14.5m;
     }
-    catch (Exception)
-    { }
 
-    try
+    var orfDataDailyLine2 = orfDataDaily.LastOrDefault(x => x.LineID == 2);
+    if (orfDataDailyLine2 != null)
     {
-        HeatingValue3 = orfDataDaily.LastOrDefault(x => x.LineID == 3).HeatingValue;
+        DailyEnergy2 = orfDataDailyLine2.DailyEnergy;
+        HeatingValue2 = orfDataDailyLine2.HeatingValue;
+        Psig2 = orfDataDailyLine2.Pressure;
+        Barg2 = Psig2 / 14.5m;
     }
-    catch (Exception)
-    { }
 
-    try
+    var orfDataDailyLine3 = orfDataDaily.LastOrDefault(x => x.LineID == 3);
+    if (orfDataDailyLine3 != null)
     {
-        HeatingValue4 = orfDataDaily.LastOrDefault(x => x.LineID == 4).HeatingValue;
+        DailyEnergy3 = orfDataDailyLine3.DailyEnergy;
+        HeatingValue3 = orfDataDailyLine3.HeatingValue;
+        Psig3 = orfDataDailyLine3.Pressure;
+        Barg3 = Psig3 / 14.5m;
     }
-    catch (Exception)
-    { }
 
-    Decimal Psig1 = 0;
-    Decimal Psig2 = 0;
-    Decimal Psig3 = 0;
-    Decimal Psig4 = 0;
-    Decimal Barg1 = 0;
-    Decimal Barg2 = 0;
-    Decimal Barg3 = 0;
-    Decimal Barg4 = 0;
-
-    try
+    var orfDataDailyLine4 = orfDataDaily.LastOrDefault(x => x.LineID == 4);
+    if (orfDataDailyLine4 != null)
     {
-        Psig1 = orfDataDaily.LastOrDefault(x => x.LineID == 1).Pressure;
-        Barg1 = Psig1 / (Decimal)14.5;
+        DailyEnergy4 = orfDataDailyLine4.DailyEnergy;
+        HeatingValue4 = orfDataDailyLine4.HeatingValue;
+        Psig4 = orfDataDailyLine4.Pressure;
+        Barg4 = Psig4 / 14.5m;
     }
-    catch (Exception)
-    { }
-
-    try
-    {
-        Psig2 = orfDataDaily.LastOrDefault(x => x.LineID == 2).Pressure;
-        Barg2 = Psig2 / (Decimal)14.5;
-    }
-    catch (Exception)
-    { }
-
-    try
-    {
-        Psig3 = orfDataDaily.LastOrDefault(x => x.LineID == 3).Pressure;
-        Barg3 = Psig3 / (Decimal)14.5;
-    }
-    catch (Exception)
-    { }
-
-    try
-    {
-        Psig4 = orfDataDaily.LastOrDefault(x => x.LineID == 4).Pressure;
-        Barg4 = Psig4 / (Decimal)14.5;
-    }
-    catch (Exception)
-    { }
 }
 
 @section PageLevelPlugin {
@@ -212,7 +141,7 @@
             }
             <div class="row">
                 <div class="col-md-3">
-                    Year: 
+                    Year:
                     <select onchange="updateDashboards(this.value)">
                         @for (Int32 year = DateTime.Now.Year; year >= 2012; year--)
                         {
@@ -245,7 +174,6 @@
                 </div>
                 <div class="row">
                     <div class="col-md-6" style="text-align:center">
-
                         <div id="chartdiv"></div>
                     </div>
 
@@ -332,12 +260,12 @@
                         Period:
                         <div class="input-prepend input-group">
                             <span class="add-on input-group-addon"><i class="fa fa-calendar"></i></span>
-                            <input type="text" name="daterange" class="form-control drp" value="@startDate.ToString("dd/MM/yyyy") - @endDate.ToString("dd/MM/yyyy")" onchange="updateGraphs(this.value)"/>
+                            <input type="text" name="daterange" class="form-control drp" value="@startDate.ToString("dd/MM/yyyy") - @endDate.ToString("dd/MM/yyyy")" onchange="updateGraphs(this.value)" />
                         </div>
-                     </div>                   
+                    </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-12">                        
+                    <div class="col-md-12">
                         <div id="chartdiv3"></div>
                     </div>
                 </div>
@@ -356,7 +284,6 @@
     </div>
 </div>
 <!-- /main area -->
-
 @section PageLevelScripts {
     <!-- Resources -->
     <script src="~/admin/vendor/amcharts_3.21.12/amcharts/amcharts.js"></script>
@@ -371,5 +298,458 @@
     <script src="~/admin/vendor/flot/jquery.flot.pie.js"></script>
     <script src="~/admin/vendor/moment/moment.js"></script>
     <script src="~/admin/vendor/bootstrap-daterangepicker/daterangepicker.js"></script>
-    <script src="~/admin/scripts/OperationalDashboard.js"></script>
+}
+
+@section InitPageScripts {
+    <script>
+            $('.drp').daterangepicker({
+            format: 'DD/MM/YYYY',
+            startDate: '@startDate.ToString("dd/MM/yyyy")',
+            endDate: '@endDate.ToString("dd/MM/yyyy")'
+        });
+
+        var chartData1 = @json1;
+        var chartData2 = @json2;
+        var chartData3 = @json3;
+        var chartData4 = @json4;
+
+        var chart = AmCharts.makeChart("chartdiv2", {
+            "type": "stock",
+            "theme": "light",
+            "dataSets": [{
+                "title": "LINE 350 MK",
+                "fieldMappings": [{
+                    "fromField": "value",
+                    "toField": "value"
+                }],
+                "dataProvider": chartData1,
+                "categoryField": "date"
+            }, {
+                "title": "LINE 620 MK",
+                "fieldMappings": [{
+                    "fromField": "value",
+                    "toField": "value"
+                }],
+                "dataProvider": chartData2,
+                "categoryField": "date"
+            }, {
+                "title": "LINE 350 TP",
+                "fieldMappings": [{
+                    "fromField": "value",
+                    "toField": "value"
+                }],
+                "dataProvider": chartData3,
+                "categoryField": "date"
+            }, {
+                "title": "PERTAGAS",
+                "fieldMappings": [{
+                    "fromField": "value",
+                    "toField": "value"
+                }],
+                "dataProvider": chartData4,
+                "categoryField": "date"
+            }
+            ],
+
+            "panels": [{
+                "showCategoryAxis": false,
+                "title": "Value",
+                "percentHeight": 70,
+                "stockGraphs": [{
+                    "id": "g1",
+                    "valueField": "value",
+                    "comparable": true,
+                    "compareField": "value",
+                    "balloonText": "[[title]]:<b>[[value]]</b>",
+                    "compareGraphBalloonText": "[[title]]:<b>[[value]]</b>"
+                }],
+                "stockLegend": {
+                    "periodValueTextComparing": "[[percents.value.close]]%",
+                    "periodValueTextRegular": "[[value.close]]"
+                }
+            }],
+
+            "chartScrollbarSettings": {
+                "graph": "g1"
+            },
+
+            "chartCursorSettings": {
+                "valueBalloonsEnabled": true,
+                "fullWidth": true,
+                "cursorAlpha": 0.1,
+                "valueLineBalloonEnabled": true,
+                "valueLineEnabled": true,
+                "valueLineAlpha": 0.5
+            },
+
+            "periodSelector": {
+                "position": "left",
+                "periods": [{
+                    "period": "DD",
+                    "selected": true,
+                    "count": 1,
+                    "label": "1 day"
+                }, {
+                    "period": "MM",
+                    "selected": true,
+                    "count": 1,
+                    "label": "1 month"
+                }, {
+                    "period": "YYYY",
+                    "count": 1,
+                    "label": "1 year"
+                }, {
+                    "period": "YTD",
+                    "label": "YTD"
+                }, {
+                    "period": "MAX",
+                    "label": "MAX"
+                }]
+            },
+
+            "dataSetSelector": {
+                "position": "left"
+            },
+
+            "export": {
+                "enabled": true
+            }
+        });
+
+        var chart2 = AmCharts.makeChart("chartdiv", {
+            "fontSize": "7",
+            "theme": "light",
+            "type": "gauge",
+            "axes": [{
+                "topText": @prosentase_pasokan + " %",
+                "topTextFontSize": 20,
+                "topTextYOffset": 70,
+                "axisColor": "#31d6ea",
+                "axisThickness": 1,
+                "endValue": 100,
+                "gridInside": true,
+                "inside": true,
+                "radius": "50%",
+                "valueInterval": 10,
+                "tickColor": "#67b7dc",
+                "startAngle": -90,
+                "endAngle": 90,
+                "unit": "%",
+                "bandOutlineAlpha": 0,
+                "bands": [{
+                    "color": "#0080ff",
+                    "endValue": 100,
+                    "innerRadius": "105%",
+                    "radius": "170%",
+                    "gradientRatio": [0.5, 0, -0.5],
+                    "startValue": 0
+                }, {
+                    "color": "#3cd3a3",
+                    "endValue": @prosentase_pasokan,
+                    "innerRadius": "105%",
+                    "radius": "170%",
+                    "gradientRatio": [0.5, 0, -0.5],
+                    "startValue": 0
+                }]
+            }],
+            "arrows": [{
+                "alpha": 1,
+                "innerRadius": "35%",
+                "nailRadius": 0,
+                "radius": "170%",
+                "value": @prosentase_pasokan
+            }]
+        });
+
+        var plotData = [
+            {
+                label: 'LINE 350 MK',
+                data: @realisasi_penjualan1.ToString("N0").Replace(".", ""),
+                color: $.urbanApp.danger
+            },
+            {
+                label: 'LINE 620 MK',
+                data: @realisasi_penjualan2.ToString("N0").Replace(".", ""),
+                color: $.urbanApp.info
+            },
+            {
+                label: 'LINE 350 TP',
+                data: @realisasi_penjualan3.ToString("N0").Replace(".", ""),
+                color: $.urbanApp.warning
+            },
+            {
+                label: 'PERTAGAS',
+                data: @realisasi_penjualan4.ToString("N0").Replace(".", ""),
+                color: $.urbanApp.success
+            }
+        ];
+        // Pie chart
+        $.plot($('.flot-pie'), plotData, {
+            series: {
+                pie: {
+                    show: true,
+                    innerRadius: 0.5,
+                    stroke: {
+                        width: 2
+                    },
+                    label: {
+                        show: true,
+                    }
+                }
+            },
+            legend: {
+                show: true
+            },
+        });
+
+        var chart3 = AmCharts.makeChart("chartdiv3", {
+            "theme": "light",
+            "type": "serial",
+            "titles": [{
+                "text": "Trend ROB LNG Tank Inventory"
+            }],
+            "startDuration": 2,
+            "dataProvider": @jsonROB,
+            "valueAxes": [{
+                "position": "left",
+                "title": "ROB LNG Tank Inventory(M3)"
+            }],
+            "graphs": [{
+                "balloonText": "[[category]]: <b>[[value]]</b>",
+                "fillColors": "#FF0F00",
+                "fillAlphas": 1,
+                "lineAlpha": 0.1,
+                "type": "column",
+                "valueField": "value"
+            }],
+            "depth3D": 20,
+            "angle": 30,
+            "chartCursor": {
+                "categoryBalloonEnabled": false,
+                "cursorAlpha": 0,
+                "zoomable": false
+            },
+            "categoryField": "date",
+            "categoryAxis": {
+                "gridPosition": "start",
+                "labelRotation": 90
+            },
+            "export": {
+                "enabled": true
+            }
+        });
+
+        var chart4 = AmCharts.makeChart("chartdiv4", {
+            "theme": "light",
+            "titles": [{
+                "text": "Trend Boil of Gas (BOG)"
+            }],
+
+            "type": "serial",
+            "startDuration": 2,
+            "dataProvider": @jsonBOG,
+            "valueAxes": [{
+                "position": "left",
+                "title": "Nilai BOG (M3)"
+            }],
+            "graphs": [{
+                "balloonText": "[[category]]: <b>[[value]]</b>",
+                "fillColors": "#04D215",
+                "fillAlphas": 1,
+                "lineAlpha": 0.1,
+                "type": "column",
+                "valueField": "value"
+            }],
+            "depth3D": 20,
+            "angle": 30,
+            "chartCursor": {
+                "categoryBalloonEnabled": false,
+                "cursorAlpha": 0,
+                "zoomable": false
+            },
+            "categoryField": "date",
+            "categoryAxis": {
+                "gridPosition": "start",
+                "labelRotation": 90
+            },
+            "export": {
+                "enabled": true
+            }
+        });
+
+        var chart5 = AmCharts.makeChart("chartdiv5", {
+            "theme": "light",
+            "type": "serial",
+            "titles": [{
+                "text": "Trend Regas Sent Out Rate"
+            }],
+
+            "startDuration": 2,
+            "dataProvider": @jsonRegasRate,
+            "valueAxes": [{
+                "position": "left",
+                "title": "Regas Sent Out Rate (MMSCFD)"
+            }],
+            "graphs": [{
+                "balloonText": "[[category]]: <b>[[value]]</b>",
+                "fillColors": "#0D52D1",
+                "fillAlphas": 1,
+                "lineAlpha": 0.1,
+                "type": "column",
+                "valueField": "value",
+            }],
+            "depth3D": 20,
+            "angle": 30,
+            "chartCursor": {
+                "categoryBalloonEnabled": false,
+                "cursorAlpha": 0,
+                "zoomable": false
+            },
+            "categoryField": "date",
+            "categoryAxis": {
+                "gridPosition": "start",
+                "labelRotation": 90
+            },
+            "export": {
+                "enabled": true
+            }
+        });
+
+        function updateDashboards(tahun) {
+            getDashboardData(tahun, function (result) {
+                console.log(result);
+                chart2.arrows[0].setValue(result.prosentase_pasokan);
+                chart2.axes[0].setTopText(result.prosentase_pasokan + " %");
+                chart2.axes[0].bands[1].setEndValue(result.prosentase_pasokan);
+
+                $("#target_pasokan").html(result.target_pasokan);
+                $("#realisasi_pasokan").html(result.realisasi_pasokan);
+                $("#realisasi_penjualan").html(result.realisasi_penjualan);
+
+                var plotData = [
+                    {
+                        label: 'LINE 350 MK',
+                        data: result.realisasi_penjualan1,
+                        color: $.urbanApp.danger
+                    },
+                    {
+                        label: 'LINE 620 MK',
+                        data: result.realisasi_penjualan2,
+                        color: $.urbanApp.info
+                    },
+                    {
+                        label: 'LINE 350 TP',
+                        data: result.realisasi_penjualan3,
+                        color: $.urbanApp.warning
+                    },
+                    {
+                        label: 'PERTAGAS',
+                        data: result.realisasi_penjualan4,
+                        color: $.urbanApp.success
+                    }
+                ];
+                // Pie chart
+                $.plot($('.flot-pie'), plotData, {
+                    series: {
+                        pie: {
+                            show: true,
+                            innerRadius: 0.5,
+                            stroke: {
+                                width: 2
+                            },
+                            label: {
+                                show: true,
+                            }
+                        }
+                    },
+                    legend: {
+                        show: true
+                    },
+                });
+            });
+        }
+
+        function updateGraphs(rd) {
+            dates = rd.split("-");
+            start = dates[0].trim();
+            end = dates[1].trim();
+            sd = start.split("/");
+            ed = end.split("/");
+            startDate = sd[2] + "-" + sd[1] + "-" + sd[0];
+            endDate = ed[2] + "-" + ed[1] + "-" + ed[0];
+            getROBByPeriod(startDate, endDate, function (result) {
+                chart3.dataProvider = result;
+                chart3.validateData();
+            });
+
+            getBOGByPeriod(startDate, endDate, function (result) {
+                chart4.dataProvider = result;
+                chart4.validateData();
+            });
+
+            getRegasRateByPeriod(startDate, endDate, function (result) {
+                chart5.dataProvider = result;
+                chart5.validateData();
+            });
+        }
+
+        function getROBByPeriod(startDate, endDate, handleData) {
+            $.ajax({
+                url: "getROBByPeriod",
+                method: "GET",
+                data: {
+                    "startDate": startDate,
+                    "endDate": endDate
+                },
+                dataType: "json",
+                success: function (result) {
+                    handleData(result);
+                }
+            });
+        }
+
+        function getBOGByPeriod(startDate, endDate, handleData) {
+            $.ajax({
+                url: "getBOGByPeriod",
+                method: "GET",
+                data: {
+                    "startDate": startDate,
+                    "endDate": endDate
+                },
+                dataType: "json",
+                success: function (result) {
+                    handleData(result);
+                }
+            });
+        }
+
+        function getRegasRateByPeriod(startDate, endDate, handleData) {
+            $.ajax({
+                url: "getRegasRateByPeriod",
+                method: "GET",
+                data: {
+                    "startDate": startDate,
+                    "endDate": endDate
+                },
+                dataType: "json",
+                success: function (result) {
+                    handleData(result);
+                }
+            });
+        }
+
+        function getDashboardData(tahun, handleData) {
+            $.ajax({
+                url: "getDashboardData",
+                method: "GET",
+                data: {
+                    "tahun": tahun,
+                },
+                dataType: "json",
+                success: function (result) {
+                    handleData(result);
+                }
+            });
+        }
+    </script>
 }
