@@ -13,25 +13,33 @@ namespace Admin.Controllers
     [Authorize]
     public class GasmonitoringController : Controller
     {
-        private IORFDataService orfDataService;
-        private IFSRUDataService fsruDataService;
-        private IFSRUDataDailyService fsruDataDailyService;
-        private IORFDataDailyService orfDataDailyService;
-        private ITUGBoatsDataService tugBoatsDataService;
-        private IVesselDataService vesselDataService;
-        private IGasmonActivityService gasmonActivityService;
-        private IGasmonParameterService gasmonParameterService;
+        private readonly IORFDataService _orfDataService;
+        private readonly IFSRUDataService _fsruDataService;
+        private readonly IFSRUDataDailyService _fsruDataDailyService;
+        private readonly IORFDataDailyService _orfDataDailyService;
+        private readonly ITUGBoatsDataService _tugBoatsDataService;
+        private readonly IVesselDataService _vesselDataService;
+        private readonly IGasmonActivityService _gasmonActivityService;
+        private readonly IGasmonParameterService _gasmonParameterService;
 
-        public GasmonitoringController(IORFDataService _orfDataService, IFSRUDataService _fsruDataService, IFSRUDataDailyService _fsruDataDailyService, IORFDataDailyService _orfDataDailyService, ITUGBoatsDataService _tugBoatsDataService, IVesselDataService _vesselDataService, IGasmonActivityService _gasmonActivityService,IGasmonParameterService _gasmonParameterService)
+        public GasmonitoringController(
+            IORFDataService orfDataService,
+            IFSRUDataService fsruDataService,
+            IFSRUDataDailyService fsruDataDailyService,
+            IORFDataDailyService orfDataDailyService,
+            ITUGBoatsDataService tugBoatsDataService,
+            IVesselDataService vesselDataService,
+            IGasmonActivityService gasmonActivityService,
+            IGasmonParameterService gasmonParameterService)
         {
-            this.orfDataService = _orfDataService;
-            this.fsruDataService = _fsruDataService;
-            this.fsruDataDailyService = _fsruDataDailyService;
-            this.orfDataDailyService = _orfDataDailyService;
-            this.tugBoatsDataService = _tugBoatsDataService;
-            this.vesselDataService = _vesselDataService;
-            this.gasmonActivityService = _gasmonActivityService;
-            this.gasmonParameterService = _gasmonParameterService;
+            _orfDataService = orfDataService;
+            _fsruDataService = fsruDataService;
+            _fsruDataDailyService = fsruDataDailyService;
+            _orfDataDailyService = orfDataDailyService;
+            _tugBoatsDataService = tugBoatsDataService;
+            _vesselDataService = vesselDataService;
+            _gasmonActivityService = gasmonActivityService;
+            _gasmonParameterService = gasmonParameterService;
         }
 
         public ViewResult EntryData()
@@ -43,106 +51,104 @@ namespace Admin.Controllers
         public ViewResult SetupParameter()
         {
             ViewData["Title"] = "Setup Parameter Dashboard";
-            Int32 tahun = DateTime.Now.Year;
-            gasmonParameterService.InitParams(tahun);
-            List<GasmonParameter> paramaters = gasmonParameterService.GasmonParameter.Where(x => x.Tahun == tahun).ToList();
-            ViewData["cargo"] = gasmonParameterService.Cargo.Where(x => x.Tahun == tahun).ToList();
-            return View("SetupParameter",paramaters);
+            int year = DateTime.Now.Year;
+            _gasmonParameterService.InitParams(year);
+            var parameters = _gasmonParameterService.GasmonParameter.Where(x => x.Tahun == year).ToList();
+            ViewData["cargo"] = _gasmonParameterService.Cargo.Where(x => x.Tahun == year).ToList();
+            return View("SetupParameter", parameters);
         }
 
         public ViewResult GetParams()
         {
-            Int32 tahun = DateTime.Now.Year;
-            List<GasmonParameter> paramaters = gasmonParameterService.GasmonParameter.Where(x => x.Tahun == tahun).ToList();
-            ViewData["cargo"] = gasmonParameterService.Cargo.Where(x => x.Tahun == tahun).ToList();
-
-            return View("Params",paramaters);
+            int year = DateTime.Now.Year;
+            var parameters = _gasmonParameterService.GasmonParameter.Where(x => x.Tahun == year).ToList();
+            ViewData["cargo"] = _gasmonParameterService.Cargo.Where(x => x.Tahun == year).ToList();
+            return View("Params", parameters);
         }
 
-        String MonthlyReport()
+        private string MonthlyReport()
         {
             return "Under Construction";
         }
 
         public ViewResult ManagementDashboard()
         {
-            Int32 tahun = DateTime.Now.Year;
+            int year = DateTime.Now.Year;
             DateTime today = DateTime.Now.Date;
-            gasmonParameterService.InitParams(tahun);
+            _gasmonParameterService.InitParams(year);
             ViewData["Title"] = "Management Dashboard";
-            ViewData["target_pasokan"] = gasmonParameterService.Cargo.Where(x => x.Tahun == tahun && x.IsTarget == 1).Count();
-            ViewData["realisasi_pasokan"] = (Decimal) vesselDataService.VesselData.Where(x => x.Date.Year == tahun && x.CargoID > 0).GroupBy(x => x.CargoID).Count();
-            ViewData["target_penjualan"] = gasmonParameterService.GasmonParameter.FirstOrDefault(x => x.ParameterID == "target_penjualan" && x.Tahun == tahun).Value;
-            ViewData["realisasi_penjualan"] = orfDataDailyService.ORFDataDaily.Where(x => x.Date.Year == tahun).Sum(x => x.DailyEnergy);
-            ViewData["target_bog"] = gasmonParameterService.GasmonParameter.FirstOrDefault(x => x.ParameterID == "target_bog" && x.Tahun == tahun).Value;
-            ViewData["realisasi_bog"] = fsruDataDailyService.FSRUDataDaily.Where(x => x.Date.Year == tahun).Sum(x => x.BoFM3) + vesselDataService.VesselData.Where(x => x.Date.Year == tahun).Sum(x => x.BoilOff);
-            DateTime StartDate = new DateTime(tahun, 1, 1);
-            DateTime EndDate = today;
-            ViewData["startDate"] = StartDate;
-            ViewData["endDate"] = EndDate;
-            ViewData["jsonPasokan"] = getPasokanByPeriod(StartDate, EndDate);
-            ViewData["jsonPenjualan"] = getPenjualanByPeriod(StartDate, EndDate);
+            ViewData["target_pasokan"] = _gasmonParameterService.Cargo.Count(x => x.Tahun == year && x.IsTarget == 1);
+            ViewData["realisasi_pasokan"] = _vesselDataService.VesselData.Count(x => x.Date.Year == year && x.CargoID > 0);
+            ViewData["target_penjualan"] = GetParameterValue("target_penjualan", year);
+            ViewData["realisasi_penjualan"] = _orfDataDailyService.ORFDataDaily.Where(x => x.Date.Year == year).Sum(x => x.DailyEnergy);
+            ViewData["target_bog"] = GetParameterValue("target_bog", year);
+            ViewData["realisasi_bog"] = _fsruDataDailyService.FSRUDataDaily.Where(x => x.Date.Year == year).Sum(x => x.BoFM3) + _vesselDataService.VesselData.Where(x => x.Date.Year == year).Sum(x => x.BoilOff);
+            DateTime startDate = new DateTime(year, 1, 1);
+            DateTime endDate = today;
+            ViewData["startDate"] = startDate;
+            ViewData["endDate"] = endDate;
+            ViewData["jsonPasokan"] = GetPasokanByPeriod(startDate, endDate);
+            ViewData["jsonPenjualan"] = GetPenjualanByPeriod(startDate, endDate);
 
             return View("ManagementDashboard");
         }
 
         public ViewResult OperationalDashboard()
         {
-            Int32 tahun = DateTime.Now.Year;
+            int year = DateTime.Now.Year;
             DateTime today = DateTime.Now.Date;
-            gasmonParameterService.InitParams(tahun);
+            _gasmonParameterService.InitParams(year);
             ViewData["Title"] = "Operational Dashboard";
-            ViewData["target_pasokan"] = gasmonParameterService.Cargo.Where(x => x.Tahun == tahun && x.IsTarget == 1).Count();
-            ViewData["realisasi_pasokan"] = (Decimal)vesselDataService.VesselData.Where(x => x.Date.Year == tahun && x.CargoID > 0).GroupBy(x => x.CargoID).Count();
-            ViewData["target_penjualan"] = gasmonParameterService.GasmonParameter.FirstOrDefault(x => x.ParameterID == "target_penjualan" && x.Tahun == tahun).Value;
-            ViewData["realisasi_penjualan"] = orfDataDailyService.ORFDataDaily.Where(x => x.Date.Year == tahun).Sum(x => x.DailyEnergy);
-            ViewData["realisasi_penjualan1"] = orfDataDailyService.ORFDataDaily.Where(x => x.Date.Year == tahun && x.LineID == 1).Sum(x => x.DailyEnergy);
-            ViewData["realisasi_penjualan2"] = orfDataDailyService.ORFDataDaily.Where(x => x.Date.Year == tahun && x.LineID == 2).Sum(x => x.DailyEnergy);
-            ViewData["realisasi_penjualan3"] = orfDataDailyService.ORFDataDaily.Where(x => x.Date.Year == tahun && x.LineID == 3).Sum(x => x.DailyEnergy);
-            ViewData["realisasi_penjualan4"] = orfDataDailyService.ORFDataDaily.Where(x => x.Date.Year == tahun && x.LineID == 4).Sum(x => x.DailyEnergy);
-            ViewData["jsonDailyEnergy"] = getDailyEnergyData();
+            ViewData["target_pasokan"] = _gasmonParameterService.Cargo.Count(x => x.Tahun == year && x.IsTarget == 1);
+            ViewData["realisasi_pasokan"] = _vesselDataService.VesselData.Count(x => x.Date.Year == year && x.CargoID > 0);
+            ViewData["target_penjualan"] = GetParameterValue("target_penjualan", year);
+            ViewData["realisasi_penjualan"] = _orfDataDailyService.ORFDataDaily.Where(x => x.Date.Year == year).Sum(x => x.DailyEnergy);
+            ViewData["realisasi_penjualan1"] = _orfDataDailyService.ORFDataDaily.Where(x => x.Date.Year == year && x.LineID == 1).Sum(x => x.DailyEnergy);
+            ViewData["realisasi_penjualan2"] = _orfDataDailyService.ORFDataDaily.Where(x => x.Date.Year == year && x.LineID == 2).Sum(x => x.DailyEnergy);
+            ViewData["realisasi_penjualan3"] = _orfDataDailyService.ORFDataDaily.Where(x => x.Date.Year == year && x.LineID == 3).Sum(x => x.DailyEnergy);
+            ViewData["realisasi_penjualan4"] = _orfDataDailyService.ORFDataDaily.Where(x => x.Date.Year == year && x.LineID == 4).Sum(x => x.DailyEnergy);
+            ViewData["jsonDailyEnergy"] = GetDailyEnergyData();
 
-            ViewData["orfData"] = (List<ORFData>) orfDataService.ORFData.Where(x => x.Date == today).ToList();
-            ViewData["orfDataDaily"] = (List<ORFDataDaily>) orfDataDailyService.ORFDataDaily.Where(x => x.Date == today).ToList();
+            ViewData["orfData"] = _orfDataService.ORFData.Where(x => x.Date == today).ToList();
+            ViewData["orfDataDaily"] = _orfDataDailyService.ORFDataDaily.Where(x => x.Date == today).ToList();
 
-            DateTime StartDate = new DateTime(tahun, 1, 1);
-            DateTime EndDate = today;
-            ViewData["startDate"] = StartDate;
-            ViewData["endDate"] = EndDate;
-            ViewData["jsonROB"] = getROBByPeriod(StartDate, EndDate);
-            ViewData["jsonBOG"] = getBOGByPeriod(StartDate, EndDate);
-            ViewData["jsonRegasRate"] = getRegasRateByPeriod(StartDate, EndDate);
+            DateTime startDate = new DateTime(year, 1, 1);
+            DateTime endDate = today;
+            ViewData["startDate"] = startDate;
+            ViewData["endDate"] = endDate;
+            ViewData["jsonROB"] = GetROBByPeriod(startDate, endDate);
+            ViewData["jsonBOG"] = GetBOGByPeriod(startDate, endDate);
+            ViewData["jsonRegasRate"] = GetRegasRateByPeriod(startDate, endDate);
             return View("OperationalDashboard");
         }
 
-        public ViewResult GetContent(String date)
+        public ViewResult GetContent(string date)
         {
-            String[] dates = date.Split('/');
-            DateTime dt = new DateTime(Int32.Parse(dates[2]),Int32.Parse(dates[1]),Int32.Parse(dates[0])).Date;
+            DateTime dt = ParseDate(date);
             DateTime yesterday = dt.AddDays(-1);
             DateTime yesterday2 = dt.AddDays(-2);
-            List<ORFData> orfList = orfDataService.InitiateORF(dt).ToList();
-            List<FSRUData> fsruList = fsruDataService.InitiateFSRU(dt).ToList();
-            FSRUDataDaily fsruDaily = fsruDataDailyService.InitiateFSRUDaily(dt);
-            List<ORFDataDaily> orfDaily = orfDataDailyService.InitiateORFDaily(dt);
-            List<ORFData> orfYesterday = orfDataService.ORFData.Where(x => x.Time == "24:00" && x.Date == yesterday).ToList();
-            List<ORFData> orfYesterday2 = orfDataService.ORFData.Where(x => x.Time == "24:00" && x.Date == yesterday2).ToList();
-            List<TUGBoatsData> tugList = tugBoatsDataService.InitiateTUGBoatsData(dt);
-            List<Boat> boatList = tugBoatsDataService.Boats.ToList();
-            List<VesselData> vdList = vesselDataService.InitiateVesselData(dt);
-            List<Vessel> vesselList = vesselDataService.Vessels.ToList();
-            List<GasmonActivity> activityList = gasmonActivityService.GasmonActivity.Where(x => x.Date == dt).ToList();
-            List<Cargo> cargoList = gasmonParameterService.Cargo.Where(x => x.Tahun == dt.Year).ToList();
+            var orfList = _orfDataService.InitiateORF(dt).ToList();
+            var fsruList = _fsruDataService.InitiateFSRU(dt).ToList();
+            var fsruDaily = _fsruDataDailyService.InitiateFSRUDaily(dt);
+            var orfDaily = _orfDataDailyService.InitiateORFDaily(dt);
+            var orfYesterday = _orfDataService.ORFData.Where(x => x.Time == "24:00" && x.Date == yesterday).ToList();
+            var orfYesterday2 = _orfDataService.ORFData.Where(x => x.Time == "24:00" && x.Date == yesterday2).ToList();
+            var tugList = _tugBoatsDataService.InitiateTUGBoatsData(dt);
+            var boatList = _tugBoatsDataService.Boats.ToList();
+            var vdList = _vesselDataService.InitiateVesselData(dt);
+            var vesselList = _vesselDataService.Vessels.ToList();
+            var activityList = _gasmonActivityService.GasmonActivity.Where(x => x.Date == dt).ToList();
+            var cargoList = _gasmonParameterService.Cargo.Where(x => x.Tahun == dt.Year).ToList();
 
-            Decimal InitialRate = 0;
-            Decimal CummulativeRate = InitialRate + fsruDataDailyService.FSRUDataDaily.Where(x => x.Date < dt).Sum(x => x.Rate);
+            decimal initialRate = 0;
+            decimal cumulativeRate = initialRate + _fsruDataDailyService.FSRUDataDaily.Where(x => x.Date < dt).Sum(x => x.Rate);
             ViewData["FSRU"] = fsruList;
             ViewData["ORF"] = orfList;
             ViewData["ORFYesterday"] = orfYesterday;
             ViewData["ORFYesterday2"] = orfYesterday2;
             ViewData["FSRUDaily"] = fsruDaily;
             ViewData["ORFDaily"] = orfDaily;
-            ViewData["FSRUCummulativeRate"] = CummulativeRate;
+            ViewData["FSRUCummulativeRate"] = cumulativeRate;
             ViewData["TUGBoats"] = tugList;
             ViewData["Boats"] = boatList;
             ViewData["VesselD"] = vdList;
@@ -153,13 +159,11 @@ namespace Admin.Controllers
             return View("Content");
         }
 
-        public Decimal GetVolumeBefore(String id)
+        public decimal GetVolumeBefore(string id)
         {
-            Decimal result = 0;
-
-            DateTime dt = DateTime.ParseExact(id.Substring(0, 4) + "-" + id.Substring(4, 2) + "-" + id.Substring(6, 2), "yyyy-MM-dd",
-                                     System.Globalization.CultureInfo.InvariantCulture);
-            Int32 time = Int32.Parse(id.Substring(8, 2));
+            decimal result = 0;
+            DateTime dt = ParseDateFromId(id);
+            int time = int.Parse(id.Substring(8, 2));
             if (time == 1)
             {
                 dt = dt.AddDays(-1);
@@ -167,357 +171,148 @@ namespace Admin.Controllers
             }
             else
             {
-                time = time - 1;
+                time -= 1;
             }
 
             string idBefore = dt.ToString("yyyyMMdd") + time.ToString().PadLeft(2, '0') + "00" + id.Substring(12, 2);
             try
             {
-                var orfData = orfDataService.ORFData.FirstOrDefault(x => x.ORFDataID == idBefore);
+                var orfData = _orfDataService.ORFData.FirstOrDefault(x => x.ORFDataID == idBefore);
                 if (orfData != null)
                 {
                     result = orfData.Volume;
                 }
-
             }
             catch (Exception) { }
 
             return result;
         }
 
-        public void UpdateData(String id,String type,String param,String value)
+        public void UpdateData(string id, string type, string param, string value)
         {
             switch (type)
             {
                 case "FSRU":
-                    fsruDataService.Save(id, param, value);
+                    _fsruDataService.Save(id, param, value);
                     break;
                 case "ORF":
-                    orfDataService.Save(id, param, value);
+                    _orfDataService.Save(id, param, value);
                     break;
                 case "FSRUDaily":
-                    fsruDataDailyService.Save(id, param, value);
+                    _fsruDataDailyService.Save(id, param, value);
                     break;
                 case "ORFDaily":
-                    orfDataDailyService.Save(id, param, value);
+                    _orfDataDailyService.Save(id, param, value);
                     break;
                 case "TUGBoats":
-                    tugBoatsDataService.Save(id, param, value);
+                    _tugBoatsDataService.Save(id, param, value);
                     break;
                 case "Vessel":
-                    vesselDataService.Save(id, param, value);
+                    _vesselDataService.Save(id, param, value);
                     break;
             }
         }
 
-        public String AddActivity(Int32 source, String time, String remark)
+        public string AddActivity(int source, string time, string remark)
         {
             DateTime dt = DateTime.Now.Date;
-            gasmonActivityService.Save(source,time,remark);
-            List<GasmonActivity> acts = gasmonActivityService.GasmonActivity.Where(x => x.Date == dt && x.Source == source).ToList();
-            String html = "";
-            foreach(GasmonActivity act in acts)
-            {
-                html += "<tr>";
-                html += "<td class='activity'>"+act.Time+"</td><td class='activity'>"+ act.Remark+ "</td><td><button onclick=\"DeleteActivity('"+act.ActivityID+"')\"><i class=\"fa fa-minus\"></i></button></td>";
-                html += "</tr>";
-            }
-            return html;
+            _gasmonActivityService.Save(source, time, remark);
+            var activities = _gasmonActivityService.GasmonActivity.Where(x => x.Date == dt && x.Source == source).ToList();
+            return GenerateActivityHtml(activities);
         }
 
-        public String DeleteActivity(Int32 id)
+        public string DeleteActivity(int id)
         {
-            JsonResponse resp = new JsonResponse();
-            String json;
-
-            GasmonActivity act = gasmonActivityService.GasmonActivity.FirstOrDefault(x => x.ActivityID == id);
-            if(act == null)
+            var response = new JsonResponse();
+            var activity = _gasmonActivityService.GasmonActivity.FirstOrDefault(x => x.ActivityID == id);
+            if (activity == null)
             {
-                resp.Status = false;
-                json = JsonConvert.SerializeObject(resp);
-                return json;
+                response.Status = false;
+                return JsonConvert.SerializeObject(response);
             }
 
-            gasmonActivityService.Delete(act);
-
-            resp.Status = true;
-            if(act.Source == 1)
-            {
-                resp.Container = "act_fsru_content";
-            }
-            else if(act.Source == 2)
-            {
-                resp.Container = "act_orf_content";
-            }
-            else if(act.Source >= 61 && act.Source <=79)
-            {
-                resp.Container = "act_carrier"+act.Source+"_content";
-            }
-            else if(act.Source >= 81 && act.Source <= 99)
-            {
-                resp.Container = "act_tug" + act.Source + "_content";
-            }
-            else
-            {
-                resp.Status = false;
-                json = JsonConvert.SerializeObject(resp);
-                return json;
-            }
-
-            String html = "";
-            List<GasmonActivity> acts = gasmonActivityService.GasmonActivity.Where(x => x.Date == act.Date && x.Source == act.Source).ToList();
-            foreach (GasmonActivity a in acts)
-            {
-                html += "<tr>";
-                html += "<td class='activity'>" + a.Time + "</td><td class='activity'>" + a.Remark + "</td><td><button onclick=\"DeleteActivity('" + a.ActivityID + "')\"><i class=\"fa fa-minus\"></i></button></td>";
-                html += "</tr>";
-            }
-            resp.Content = html;
-            json = JsonConvert.SerializeObject(resp);
-            return json;
+            _gasmonActivityService.Delete(activity);
+            response.Status = true;
+            response.Container = GetActivityContainer(activity.Source);
+            response.Content = GenerateActivityHtml(_gasmonActivityService.GasmonActivity.Where(x => x.Date == activity.Date && x.Source == activity.Source).ToList());
+            return JsonConvert.SerializeObject(response);
         }
 
-        public void UpdateParameter(String id,String value)
+        public void UpdateParameter(string id, string value)
         {
-            gasmonParameterService.Save(id,Int32.Parse(value));
+            _gasmonParameterService.Save(id, int.Parse(value));
         }
 
-        public String AddCargo(String code, String date,int isTarget)
+        public string AddCargo(string code, string date, int isTarget)
         {
-            DateTime dt = DateTime.Now.Date;
-            Cargo cargo = new Cargo();
-            String[] tgl = date.Split('/');
-            cargo.Date = new DateTime(Int32.Parse(tgl[2]), Int32.Parse(tgl[1]), Int32.Parse(tgl[0]));
-            cargo.Tahun = cargo.Date.Year;
-            cargo.IsTarget = isTarget;
-            cargo.Code = code;
-            cargo.CreatedOn = DateTime.Now;
-            cargo.LastUpdated = DateTime.Now;
-            gasmonParameterService.AddCargo(cargo);
-
-            List<Cargo> cargos = gasmonParameterService.Cargo.Where(x => x.Tahun == cargo.Tahun).ToList();
-            String html = "";
-            String IsTarget = "";
-            foreach (Cargo c in cargos)
+            var cargo = new Cargo
             {
-                IsTarget = c.IsTarget == 1 ? "checked" : "";
-                html += "<tr>";
-                html += "<td class=''>" + c.Tahun + "</td><td class=''>" + c.Code + "</td><td class=''>" + c.Date.ToString("dd/MM/yyyy") + "</td><td><input "+ IsTarget +" type='checkbox' disabled/></td><td><button onclick=\"deleteCargo('"+ c.CargoID +"')\"><i class=\"fa fa-minus\"></i></button></td>";
-                html += "</tr>";
-            }
-            return html;
+                Date = ParseDate(date),
+                Tahun = DateTime.Now.Year,
+                IsTarget = isTarget,
+                Code = code,
+                CreatedOn = DateTime.Now,
+                LastUpdated = DateTime.Now
+            };
+            _gasmonParameterService.AddCargo(cargo);
+
+            var cargos = _gasmonParameterService.Cargo.Where(x => x.Tahun == cargo.Tahun).ToList();
+            return GenerateCargoHtml(cargos);
         }
 
-        public String DeleteCargo(Int32 id)
+        public string DeleteCargo(int id)
         {
-            int tahun = DateTime.Now.Year;
-            Cargo cargo = gasmonParameterService.Cargo.FirstOrDefault(x => x.CargoID == id);
+            var cargo = _gasmonParameterService.Cargo.FirstOrDefault(x => x.CargoID == id);
             if (cargo != null)
             {
-                gasmonParameterService.DeleteCargo(cargo);
-                tahun = cargo.Tahun;
+                _gasmonParameterService.DeleteCargo(cargo);
             }
 
-            List<Cargo> cargos = gasmonParameterService.Cargo.Where(x => x.Tahun == tahun).ToList();
-            String html = "";
-            String IsTarget = "";
-            foreach (Cargo c in cargos)
-            {
-                IsTarget = c.IsTarget == 1 ? "checked" : "";
-                html += "<tr>";
-                html += "<td class=''>" + c.Tahun + "</td><td class=''>" + c.Code + "</td><td class=''>" + c.Date.ToString("dd/MM/yyyy") + "</td><td><input "+ IsTarget+" type='checkbox' disabled></td><td><button onclick=\"deleteCargo('" + c.CargoID + "')\"><i class=\"fa fa-minus\"></i></button></td>";
-                html += "</tr>";
-            }
-            return html;
+            var cargos = _gasmonParameterService.Cargo.Where(x => x.Tahun == DateTime.Now.Year).ToList();
+            return GenerateCargoHtml(cargos);
         }
 
-        public String[] getDailyEnergyData()
+        public string[] GetDailyEnergyData()
         {
-            String[] jsons = new String[5];
-           
-            Int32 StartYear = DateTime.Now.Year - 1;
-            DateTime startDate = new DateTime(StartYear, 1, 1);
+            var jsons = new string[5];
+            int startYear = DateTime.Now.Year - 1;
+            DateTime startDate = new DateTime(startYear, 1, 1);
             DateTime endDate = DateTime.Now.Date;
 
-            List<ORFDataDaily> orfs = orfDataDailyService.ORFDataDaily.Where(x => x.Date >= startDate && x.Date <= endDate).ToList();
+            var orfs = _orfDataDailyService.ORFDataDaily.Where(x => x.Date >= startDate && x.Date <= endDate).ToList();
 
-            for (Int32 LineID = 1; LineID <= 4; LineID++)
+            for (int lineId = 1; lineId <= 4; lineId++)
             {
-                List<GasmonGraph1> graphs = new List<GasmonGraph1>();
+                var graphs = new List<GasmonGraph1>();
                 for (DateTime dt = startDate; dt <= endDate; dt = dt.AddDays(1))
                 {
-                    GasmonGraph1 graph = new GasmonGraph1();
-                    graph.date = dt.Date.ToString("yyyy-MM-dd").Substring(0, 10);
-                    ORFDataDaily orf = orfs.FirstOrDefault(x => x.Date == dt && x.LineID == LineID);
-                    graph.value = orf == null ? 0 : orf.DailyEnergy;
+                    var graph = new GasmonGraph1
+                    {
+                        date = dt.Date.ToString("yyyy-MM-dd").Substring(0, 10),
+                        value = orfs.FirstOrDefault(x => x.Date == dt && x.LineID == lineId)?.DailyEnergy ?? 0
+                    };
                     graphs.Add(graph);
                 }
-                jsons[LineID] = JsonConvert.SerializeObject(graphs);
+                jsons[lineId] = JsonConvert.SerializeObject(graphs);
             }
             return jsons;
         }
 
-        public String getROBByPeriod(DateTime startDate,DateTime endDate)
+        public string GetROBByPeriod(DateTime startDate, DateTime endDate)
         {
-            String json = "";
-            Int32 diffDays = (endDate - startDate).Days;
-            List<FSRUDataDaily> fsrus = fsruDataDailyService.FSRUDataDaily.Where(x => x.Date >= startDate && x.Date <= endDate).ToList();
+            var graphs = new List<GasmonGraph1>();
+            var fsrus = _fsruDataDailyService.FSRUDataDaily.Where(x => x.Date >= startDate && x.Date <= endDate).ToList();
+            int diffDays = (endDate - startDate).Days;
 
-            List<GasmonGraph1> graphs = new List<GasmonGraph1>();
             if (diffDays <= 31)
             {
                 for (DateTime dt = startDate; dt <= endDate; dt = dt.AddDays(1))
                 {
-                    GasmonGraph1 graph = new GasmonGraph1();
-                    graph.date = dt.Date.ToString("yyyy-MM-dd").Substring(0, 10);
-                    FSRUDataDaily fsru = fsrus.FirstOrDefault(x => x.Date == dt);
-                    graph.value = fsru == null ? 0 : fsru.LNGTankInventory;
-                    graphs.Add(graph);
-                }
-            }
-            else
-            {
-                for (DateTime dt = startDate; dt <= endDate; dt = dt.AddMonths(1))
-                {
-                    GasmonGraph1 graph = new GasmonGraph1();
-                    graph.date = dt.Date.ToString("yyyy-MM").Substring(0, 7);
-                    Decimal value = fsrus.Where(x => x.Date.Month == dt.Month && x.Date.Year == dt.Year).Sum(y => y.LNGTankInventory);
-                    graph.value = value;
-                    graphs.Add(graph);
-                }
-            }
-            json = JsonConvert.SerializeObject(graphs);
-
-            return json;
-        }
-
-        public String getBOGByPeriod(DateTime startDate, DateTime endDate)
-        {
-            String json = "";
-            Int32 diffDays = (endDate - startDate).Days;
-            List<FSRUDataDaily> fsrus = fsruDataDailyService.FSRUDataDaily.Where(x => x.Date >= startDate && x.Date <= endDate).ToList();
-            List<VesselData> vds = vesselDataService.VesselData.Where(x => x.Date >= startDate && x.Date <= endDate).ToList();
-            List<GasmonGraph1> graphs = new List<GasmonGraph1>();
-            if (diffDays <= 31)
-            {
-                for (DateTime dt = startDate; dt <= endDate; dt = dt.AddDays(1))
-                {
-                    GasmonGraph1 graph = new GasmonGraph1();
-                    graph.date = dt.Date.ToString("yyyy-MM-dd").Substring(0, 10);
-                    FSRUDataDaily fsru = fsrus.FirstOrDefault(x => x.Date == dt);
-                    VesselData vd = vds.FirstOrDefault(x => x.Date == dt);
-                    graph.value = (fsru == null ? 0 : fsru.BoFM3) + (vd == null ? 0 : vd.BoilOff);
-                    graphs.Add(graph);
-                }
-            }
-            else
-            {
-                for (DateTime dt = startDate; dt <= endDate; dt = dt.AddMonths(1))
-                {
-                    GasmonGraph1 graph = new GasmonGraph1();
-                    graph.date = dt.Date.ToString("yyyy-MM").Substring(0, 7);
-                    Decimal value = fsrus.Where(x => x.Date.Month == dt.Month && x.Date.Year == dt.Year).Sum(y => y.BoFM3);
-                    graph.value = value;
-                    graphs.Add(graph);
-                }
-            }
-            json = JsonConvert.SerializeObject(graphs);
-
-            return json;
-        }
-
-        public String getRegasRateByPeriod(DateTime startDate, DateTime endDate)
-        {
-            String json = "";
-            Int32 diffDays = (endDate - startDate).Days;
-            List<FSRUDataDaily> fsrus = fsruDataDailyService.FSRUDataDaily.Where(x => x.Date >= startDate && x.Date <= endDate).ToList();
-
-            List<GasmonGraph1> graphs = new List<GasmonGraph1>();
-            if (diffDays <= 31)
-            {
-                for (DateTime dt = startDate; dt <= endDate; dt = dt.AddDays(1))
-                {
-                    GasmonGraph1 graph = new GasmonGraph1();
-                    graph.date = dt.Date.ToString("yyyy-MM-dd").Substring(0, 10);
-                    FSRUDataDaily fsru = fsrus.FirstOrDefault(x => x.Date == dt);
-                    graph.value = fsru == null ? 0 : fsru.Rate;
-                    graphs.Add(graph);
-                }
-            }
-            else
-            {
-                for (DateTime dt = startDate; dt <= endDate; dt = dt.AddMonths(1))
-                {
-                    GasmonGraph1 graph = new GasmonGraph1();
-                    graph.date = dt.Date.ToString("yyyy-MM").Substring(0, 7);
-                    Decimal value = fsrus.Where(x => x.Date.Month == dt.Month && x.Date.Year == dt.Year).Sum(y => y.Rate);
-                    graph.value = value;
-                    graphs.Add(graph);
-                }
-            }
-            json = JsonConvert.SerializeObject(graphs);
-
-            return json;
-        }
-
-        public String getPasokanByPeriod(DateTime startDate, DateTime endDate)
-        {
-            String json = "";
-            Int32 diffDays = (endDate - startDate).Days;
-            List<VesselData> vds = vesselDataService.VesselData.Where(x => x.Date >= startDate && x.Date <= endDate).ToList();
-
-            List<GasmonGraph3> graphs = new List<GasmonGraph3>();
-            if (diffDays <= 31)
-            {
-                for (DateTime dt = startDate; dt <= endDate; dt = dt.AddDays(1))
-                {
-                    GasmonGraph3 graph = new GasmonGraph3();
-                    graph.date = dt.Date.ToString("yyyy-MM-dd").Substring(0, 10);
-                    //VesselData vd = fsrus.FirstOrDefault(x => x.Date == dt);
-                    graph.target = 10;
-                    graph.realisasi = 5;
-                    graphs.Add(graph);
-                }
-            }
-            else
-            {
-                for (DateTime dt = startDate; dt <= endDate; dt = dt.AddMonths(1))
-                {
-                    GasmonGraph3 graph = new GasmonGraph3();
-                    graph.date = dt.Date.ToString("yyyy-MM").Substring(0, 7);
-                    //Decimal value = fsrus.Where(x => x.Date.Month == dt.Month && x.Date.Year == dt.Year).Sum(y => y.Rate);
-                    graph.target = 10;
-                    graph.realisasi = 5;
-                    graphs.Add(graph);
-                }
-            }
-            json = JsonConvert.SerializeObject(graphs);
-
-            return json;
-        }
-
-        public String getPenjualanByPeriod(DateTime startDate, DateTime endDate)
-        {
-            String json = "";
-            Int32 diffDays = (endDate - startDate).Days;
-            List<ORFDataDaily> orfs = orfDataDailyService.ORFDataDaily.Where(x => x.Date >= startDate && x.Date <= endDate).ToList();
-
-            List<GasmonGraph3> graphs = new List<GasmonGraph3>();
-            if (diffDays <= 31)
-            {
-                for (DateTime dt = startDate; dt <= endDate; dt = dt.AddDays(1))
-                {
-                    GasmonGraph3 graph = new GasmonGraph3();
-                    graph.date = dt.Date.ToString("yyyy-MM-dd").Substring(0, 10);
-                    try
+                    var graph = new GasmonGraph1
                     {
-                        graph.realisasi = orfs.FirstOrDefault(x => x.Date == dt).DailyEnergy;
-                    }
-                    catch (Exception)
-                    {
-                        graph.realisasi = 0;
-                    }
-                    graph.target = gasmonParameterService.GasmonParameter.FirstOrDefault(x => x.Tahun == dt.Year && x.ParameterID == "target_penjualan").Value / 365;
+                        date = dt.Date.ToString("yyyy-MM-dd").Substring(0, 10),
+                        value = fsrus.FirstOrDefault(x => x.Date == dt)?.LNGTankInventory ?? 0
+                    };
                     graphs.Add(graph);
                 }
             }
@@ -525,97 +320,227 @@ namespace Admin.Controllers
             {
                 for (DateTime dt = startDate; dt <= endDate; dt = dt.AddMonths(1))
                 {
-                    GasmonGraph3 graph = new GasmonGraph3();
-                    graph.date = dt.Date.ToString("yyyy-MM").Substring(0, 7);
-                    try
+                    var graph = new GasmonGraph1
                     {
-                        graph.realisasi = orfs.Where(x => x.Date.Month == dt.Month && x.Date.Year == dt.Year).Sum(y => y.DailyEnergy);
-                    }
-                    catch(Exception)
-                    {
-                        graph.realisasi = 0;
-                    }
-                    graph.target = gasmonParameterService.GasmonParameter.FirstOrDefault(x => x.Tahun == dt.Year && x.ParameterID == "target_penjualan").Value / 12;
+                        date = dt.Date.ToString("yyyy-MM").Substring(0, 7),
+                        value = fsrus.Where(x => x.Date.Month == dt.Month && x.Date.Year == dt.Year).Sum(y => y.LNGTankInventory)
+                    };
                     graphs.Add(graph);
                 }
             }
-            json = JsonConvert.SerializeObject(graphs);
-
-            return json;
+            return JsonConvert.SerializeObject(graphs);
         }
 
-        public String getDashboardData(int tahun)
+        public string GetBOGByPeriod(DateTime startDate, DateTime endDate)
         {
-            String json;
-            GasmonGraph2 graph = new GasmonGraph2();
+            var graphs = new List<GasmonGraph1>();
+            var fsrus = _fsruDataDailyService.FSRUDataDaily.Where(x => x.Date >= startDate && x.Date <= endDate).ToList();
+            var vds = _vesselDataService.VesselData.Where(x => x.Date >= startDate && x.Date <= endDate).ToList();
+            int diffDays = (endDate - startDate).Days;
 
-            graph.target_pasokan = gasmonParameterService.Cargo.Where(x => x.Tahun == tahun).Count();
-            graph.realisasi_pasokan = vesselDataService.VesselData.Where(x => x.Date.Year == tahun && x.CargoID > 0).GroupBy(x => x.CargoID).Count();
-
-            if (graph.target_pasokan == 0)
-                graph.prosentase_pasokan = 0;
+            if (diffDays <= 31)
+            {
+                for (DateTime dt = startDate; dt <= endDate; dt = dt.AddDays(1))
+                {
+                    var graph = new GasmonGraph1
+                    {
+                        date = dt.Date.ToString("yyyy-MM-dd").Substring(0, 10),
+                        value = (fsrus.FirstOrDefault(x => x.Date == dt)?.BoFM3 ?? 0) + (vds.FirstOrDefault(x => x.Date == dt)?.BoilOff ?? 0)
+                    };
+                    graphs.Add(graph);
+                }
+            }
             else
-                graph.prosentase_pasokan = graph.realisasi_pasokan * 100 / graph.target_pasokan;
-
-            try
             {
-                graph.target_penjualan = gasmonParameterService.GasmonParameter.FirstOrDefault(x => x.ParameterID == "target_penjualan" && x.Tahun == tahun).Value;
+                for (DateTime dt = startDate; dt <= endDate; dt = dt.AddMonths(1))
+                {
+                    var graph = new GasmonGraph1
+                    {
+                        date = dt.Date.ToString("yyyy-MM").Substring(0, 7),
+                        value = fsrus.Where(x => x.Date.Month == dt.Month && x.Date.Year == dt.Year).Sum(y => y.BoFM3)
+                    };
+                    graphs.Add(graph);
+                }
             }
-            catch (Exception)
-            {
-                graph.target_penjualan = 0;
-            }
+            return JsonConvert.SerializeObject(graphs);
+        }
 
-            try
-            {
-                graph.realisasi_penjualan = orfDataDailyService.ORFDataDaily.Where(x => x.Date.Year == tahun).Sum(x => x.DailyEnergy);
-            } 
-            catch(Exception)
-            {
-                graph.realisasi_penjualan = 0;
-            }
+        public string GetRegasRateByPeriod(DateTime startDate, DateTime endDate)
+        {
+            var graphs = new List<GasmonGraph1>();
+            var fsrus = _fsruDataDailyService.FSRUDataDaily.Where(x => x.Date >= startDate && x.Date <= endDate).ToList();
+            int diffDays = (endDate - startDate).Days;
 
-            if (graph.target_penjualan == 0)
-                graph.prosentase_penjualan = 0;
+            if (diffDays <= 31)
+            {
+                for (DateTime dt = startDate; dt <= endDate; dt = dt.AddDays(1))
+                {
+                    var graph = new GasmonGraph1
+                    {
+                        date = dt.Date.ToString("yyyy-MM-dd").Substring(0, 10),
+                        value = fsrus.FirstOrDefault(x => x.Date == dt)?.Rate ?? 0
+                    };
+                    graphs.Add(graph);
+                }
+            }
             else
-                graph.prosentase_penjualan = (int) Math.Round(graph.realisasi_penjualan * 100 / graph.target_penjualan);
+            {
+                for (DateTime dt = startDate; dt <= endDate; dt = dt.AddMonths(1))
+                {
+                    var graph = new GasmonGraph1
+                    {
+                        date = dt.Date.ToString("yyyy-MM").Substring(0, 7),
+                        value = fsrus.Where(x => x.Date.Month == dt.Month && x.Date.Year == dt.Year).Sum(y => y.Rate)
+                    };
+                    graphs.Add(graph);
+                }
+            }
+            return JsonConvert.SerializeObject(graphs);
+        }
 
-            try
-            {
-                graph.realisasi_penjualan1 = orfDataDailyService.ORFDataDaily.Where(x => x.Date.Year == tahun && x.LineID == 1).Sum(x => x.DailyEnergy);
-            }
-            catch (Exception)
-            {
-                graph.realisasi_penjualan1 = 0;
-            }
-            try
-            {
-                graph.realisasi_penjualan2 = orfDataDailyService.ORFDataDaily.Where(x => x.Date.Year == tahun && x.LineID == 2).Sum(x => x.DailyEnergy);
-            }
-            catch (Exception)
-            {
-                graph.realisasi_penjualan2 = 0;
-            }
-            try
-            {
-                graph.realisasi_penjualan3 = orfDataDailyService.ORFDataDaily.Where(x => x.Date.Year == tahun && x.LineID == 3).Sum(x => x.DailyEnergy);
-            }
-            catch (Exception)
-            {
-                graph.realisasi_penjualan3 = 0;
-            }
-            try
-            {
-                graph.realisasi_penjualan4 = orfDataDailyService.ORFDataDaily.Where(x => x.Date.Year == tahun && x.LineID == 4).Sum(x => x.DailyEnergy);
-            }
-            catch(Exception)
-            {
-                graph.realisasi_penjualan4 = 0;
-            }
+        public string GetPasokanByPeriod(DateTime startDate, DateTime endDate)
+        {
+            var graphs = new List<GasmonGraph3>();
+            var vds = _vesselDataService.VesselData.Where(x => x.Date >= startDate && x.Date <= endDate).ToList();
+            int diffDays = (endDate - startDate).Days;
 
-            json = JsonConvert.SerializeObject(graph);
+            if (diffDays <= 31)
+            {
+                for (DateTime dt = startDate; dt <= endDate; dt = dt.AddDays(1))
+                {
+                    var graph = new GasmonGraph3
+                    {
+                        date = dt.Date.ToString("yyyy-MM-dd").Substring(0, 10),
+                        target = 10,
+                        realisasi = 5
+                    };
+                    graphs.Add(graph);
+                }
+            }
+            else
+            {
+                for (DateTime dt = startDate; dt <= endDate; dt = dt.AddMonths(1))
+                {
+                    var graph = new GasmonGraph3
+                    {
+                        date = dt.Date.ToString("yyyy-MM").Substring(0, 7),
+                        target = 10,
+                        realisasi = 5
+                    };
+                    graphs.Add(graph);
+                }
+            }
+            return JsonConvert.SerializeObject(graphs);
+        }
 
-            return json;
+        public string GetPenjualanByPeriod(DateTime startDate, DateTime endDate)
+        {
+            var graphs = new List<GasmonGraph3>();
+            var orfs = _orfDataDailyService.ORFDataDaily.Where(x => x.Date >= startDate && x.Date <= endDate).ToList();
+            int diffDays = (endDate - startDate).Days;
+
+            if (diffDays <= 31)
+            {
+                for (DateTime dt = startDate; dt <= endDate; dt = dt.AddDays(1))
+                {
+                    var graph = new GasmonGraph3
+                    {
+                        date = dt.Date.ToString("yyyy-MM-dd").Substring(0, 10),
+                        realisasi = orfs.FirstOrDefault(x => x.Date == dt)?.DailyEnergy ?? 0,
+                        target = _gasmonParameterService.GasmonParameter.FirstOrDefault(x => x.Tahun == dt.Year && x.ParameterID == "target_penjualan")?.Value / 365 ?? 0
+                    };
+                    graphs.Add(graph);
+                }
+            }
+            else
+            {
+                for (DateTime dt = startDate; dt <= endDate; dt = dt.AddMonths(1))
+                {
+                    var graph = new GasmonGraph3
+                    {
+                        date = dt.Date.ToString("yyyy-MM").Substring(0, 7),
+                        realisasi = orfs.Where(x => x.Date.Month == dt.Month && x.Date.Year == dt.Year).Sum(y => y.DailyEnergy),
+                        target = _gasmonParameterService.GasmonParameter.FirstOrDefault(x => x.Tahun == dt.Year && x.ParameterID == "target_penjualan")?.Value / 12 ?? 0
+                    };
+                    graphs.Add(graph);
+                }
+            }
+            return JsonConvert.SerializeObject(graphs);
+        }
+
+        public string GetDashboardData(int tahun)
+        {
+            var graph = new GasmonGraph2
+            {
+                target_pasokan = _gasmonParameterService.Cargo.Count(x => x.Tahun == tahun),
+                realisasi_pasokan = _vesselDataService.VesselData.Count(x => x.Date.Year == tahun && x.CargoID > 0)
+            };
+
+            graph.prosentase_pasokan = graph.target_pasokan == 0 ? 0 : graph.realisasi_pasokan * 100 / graph.target_pasokan;
+
+            graph.target_penjualan = _gasmonParameterService.GasmonParameter.FirstOrDefault(x => x.ParameterID == "target_penjualan" && x.Tahun == tahun)?.Value ?? 0;
+            graph.realisasi_penjualan = _orfDataDailyService.ORFDataDaily.Where(x => x.Date.Year == tahun).Sum(x => x.DailyEnergy);
+            graph.prosentase_penjualan = graph.target_penjualan == 0 ? 0 : (int)Math.Round(graph.realisasi_penjualan * 100 / graph.target_penjualan);
+
+            graph.realisasi_penjualan1 = _orfDataDailyService.ORFDataDaily.Where(x => x.Date.Year == tahun && x.LineID == 1).Sum(x => x.DailyEnergy);
+            graph.realisasi_penjualan2 = _orfDataDailyService.ORFDataDaily.Where(x => x.Date.Year == tahun && x.LineID == 2).Sum(x => x.DailyEnergy);
+            graph.realisasi_penjualan3 = _orfDataDailyService.ORFDataDaily.Where(x => x.Date.Year == tahun && x.LineID == 3).Sum(x => x.DailyEnergy);
+            graph.realisasi_penjualan4 = _orfDataDailyService.ORFDataDaily.Where(x => x.Date.Year == tahun && x.LineID == 4).Sum(x => x.DailyEnergy);
+
+            return JsonConvert.SerializeObject(graph);
+        }
+
+        private int GetParameterValue(string parameterId, int year)
+        {
+            return _gasmonParameterService.GasmonParameter.FirstOrDefault(x => x.ParameterID == parameterId && x.Tahun == year)?.Value ?? 0;
+        }
+
+        private DateTime ParseDate(string date)
+        {
+            var dates = date.Split('/');
+            return new DateTime(int.Parse(dates[2]), int.Parse(dates[1]), int.Parse(dates[0])).Date;
+        }
+
+        private DateTime ParseDateFromId(string id)
+        {
+            return DateTime.ParseExact(id.Substring(0, 8), "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        private string GenerateActivityHtml(List<GasmonActivity> activities)
+        {
+            var html = "";
+            foreach (var act in activities)
+            {
+                html += "<tr>";
+                html += $"<td class='activity'>{act.Time}</td><td class='activity'>{act.Remark}</td><td><button onclick=\"DeleteActivity('{act.ActivityID}')\"><i class=\"fa fa-minus\"></i></button></td>";
+                html += "</tr>";
+            }
+            return html;
+        }
+
+        private string GetActivityContainer(int source)
+        {
+            return source switch
+            {
+                1 => "act_fsru_content",
+                2 => "act_orf_content",
+                >= 61 and <= 79 => $"act_carrier{source}_content",
+                >= 81 and <= 99 => $"act_tug{source}_content",
+                _ => null
+            };
+        }
+
+        private string GenerateCargoHtml(List<Cargo> cargos)
+        {
+            var html = "";
+            foreach (var c in cargos)
+            {
+                var isTarget = c.IsTarget == 1 ? "checked" : "";
+                html += "<tr>";
+                html += $"<td class=''>{c.Tahun}</td><td class=''>{c.Code}</td><td class=''>{c.Date:dd/MM/yyyy}</td><td><input {isTarget} type='checkbox' disabled/></td><td><button onclick=\"deleteCargo('{c.CargoID}')\"><i class=\"fa fa-minus\"></i></button></td>";
+                html += "</tr>";
+            }
+            return html;
         }
     }
 }
