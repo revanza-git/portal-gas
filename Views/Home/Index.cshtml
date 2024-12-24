@@ -26,7 +26,7 @@
 <!-- main area -->
 <div class="main-content">
    <div class="row">
-        <div class="col-md-8">
+        <div class="col-md-12">
             <div>
                 <div class="widget bg-white">
                     <h3>Photo Gallery</h3>
@@ -37,7 +37,7 @@
                             @foreach (var item in ViewBag.photos)
                             {
                                 <li style="text-align:center">
-                                    <img style="height:250px;display:block;margin:0 auto;" src="@Url.Action("GetFileContent", "Gallery", new { ID = item.PhotoID })" />
+                                    <img style="height:350px;display:block;margin:0 auto;" src="@Url.Action("GetFileContent", "Gallery", new { ID = item.PhotoID })" />
                                     <label>@item.Keterangan</label>
                                 </li>
                             }
@@ -49,101 +49,47 @@
                     }
                 </div>
             </div>
-            <div class="panel">
-                <div class="panel-body">
-                    <div class="search-results">
-                        <ul class="search-results-list">
-                            @if (ViewBag.news != null)
-                            {
-                                @foreach (var item in ViewBag.news)
-                                {
-                                <li class="search-result">
-                                    <h5>
-                                        <a href="javascript:;" class="text-info">@item.Subject</a>
-                                    </h5>
-                                    <label style="color:chartreuse;font-size:8pt">Author: @item.Author</label>
-                                    <label style="color:chartreuse;font-size:8pt">, Date: @item.PublishingDate</label>
-                                    <p style="font-size: 11px">
-                                        @Html.Raw(StringHelper.GetFirstParagraph(item.Content))
-                                        <a asp-controller="News" asp-action="ViewContent" asp-route-id="@item.NewsID" class="btn btn-primary btn-round btn-xs">Read More</a>
-                                    </p>
-                                </li>
-                                }
-                            }
-                        </ul>
-                        <!--
-                        <div class="text-center">
-                            <ul class="pagination">
-                                <li>
-                                    <a href="javascript:;">←</a>
-                                </li>
-                                <li class="active">
-                                    <a href="javascript:;">1</a>
-                                </li>
-                                <li>
-                                    <a href="javascript:;">2</a>
-                                </li>
-                                <li>
-                                    <a href="javascript:;">3</a>
-                                </li>
-                                <li>
-                                    <a href="javascript:;">4</a>
-                                </li>
-                                <li>
-                                    <a href="javascript:;">5</a>
-                                </li>
-                                <li>
-                                    <a href="javascript:;">→</a>
-                                </li>
-                            </ul>
-                        </div>
-                        -->
-                    </div>
-                </div>
-            </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-12">
             
-                <div class="widget bg-white" style="text-align:center">
-                    <h3>New Video</h3>
-                    <hr>
-                    @if (ViewBag.video != null)
-                    {
-                        <video style="width:100%;padding:0;margin:0" controls>
-                            <source type="@GalleryHelper.GetContentType(ViewBag.video.FileName)" src="@Url.Action("GetVideoContent", "Gallery", new { ID = ViewBag.video.VideoID })" alt="@ViewBag.video.Keterangan">
-                        </video><br />
-                        <label>@ViewBag.video.Keterangan</label>
-                    }
-                    else
-                    {
-                        <p>Tidak ada video</p>
+            <div class="widget bg-white" style="text-align:center">
+                <h3>New Video</h3>
+                <hr>
+                @if (ViewBag.video != null)
+                {
+                    <video style="width:100%;padding:0;margin:0" controls>
+                        <source type="@GalleryHelper.GetContentType(ViewBag.video.FileName)" src="@Url.Action("GetVideoContent", "Gallery", new { ID = ViewBag.video.VideoID })" alt="@ViewBag.video.Keterangan">
+                    </video><br />
+                    <label>@ViewBag.video.Keterangan</label>
+                }
+                else
+                {
+                    <p>Tidak ada video</p>
 
-                    }
-                </div>
-                <div class="widget bg-white" style="text-align:center">
-                    <form method="post">
-                        <div class="form-group">
-                            <div class="col-sm-12">
-                                <div class="input-prepend input-group">
-                                    <span class="add-on input-group-addon"><i class="fa fa-calendar"></i></span>
-                                    <input type="text" name="daterange" class="form-control drp" value="@ViewBag.startdate - @ViewBag.enddate" onchange="this.form.submit()" />
-                                </div>
+                }
+            </div>
+            <div class="widget bg-white" style="text-align:center">
+                <form method="post">
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <div class="input-prepend input-group">
+                                <span class="add-on input-group-addon"><i class="fa fa-calendar"></i></span>
+                                <input type="text" name="daterange" class="form-control drp" value="@ViewBag.startdate - @ViewBag.enddate" onchange="this.form.submit()" />
                             </div>
                         </div>
-                    </form>
-                </div>
-                <div class="widget bg-white" style="text-align:center">
-                    <div id="chartdiv"></div>
-                    <label>Accident Triangle</label>
-                </div>
-                <div class="widget bg-white" style="text-align:center">
-                    <div id="chartdiv2"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="widget bg-white" style="text-align:center">
+                <div id="chartdiv"></div>
+                <label>Accident Triangle</label>
+            </div>
+            <div class="widget bg-white" style="text-align:center">
+                <div id="chartdiv2"></div>
                 <label>NOC Terbanyak Bulan Ini</label>
             </div>
-            
         </div>
-        <div class="col-md-8">
-     </div>
+     
     </div>
 </div>
 <!-- main area -->

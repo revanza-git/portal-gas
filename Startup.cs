@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity; // Add this using directive
-using Microsoft.EntityFrameworkCore; // Add this using directive
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -18,7 +18,9 @@ using Microsoft.OpenApi.Models;
 using Admin.Repositories;
 using Admin.Models.User;
 using Admin.Interfaces.Repositories;
-using Admin.Interfaces.Services; // Add this using directive
+using Admin.Interfaces.Services;
+using Admin.Models.AdSettings;
+using Microsoft.Extensions.Options;
 
 namespace Admin
 {
@@ -26,18 +28,29 @@ namespace Admin
     {
         public Startup(IWebHostEnvironment env)
         {
-            var builder = new ConfigurationBuilder()
+            Configuration = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-                .AddEnvironmentVariables();
-            Configuration = builder.Build();
+                .AddEnvironmentVariables()
+                .Build();
         }
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
+        {
+            ConfigureAuthentication(services);
+            ConfigureLocalization(services);
+            ConfigureDatabase(services);
+            ConfigureIdentity(services);
+            ConfigureRepositories(services);
+            ConfigureCustomServices(services);
+            ConfigureFrameworkServices(services);
+            ConfigureLogging(services);
+        }
+
+        private void ConfigureAuthentication(IServiceCollection services)
         {
             services.AddAuthentication(options =>
             {
@@ -50,21 +63,32 @@ namespace Admin
                 options.LoginPath = "/Account/Login";
                 options.LogoutPath = "/Account/Logout";
             });
+        }
 
+        private void ConfigureLocalization(IServiceCollection services)
+        {
             services.Configure<RequestLocalizationOptions>(options =>
             {
                 options.DefaultRequestCulture = new RequestCulture("id-ID");
-                options.SupportedCultures = [new CultureInfo("id-ID")];
+                options.SupportedCultures = new List<CultureInfo> { new CultureInfo("id-ID") };
             });
+        }
 
-            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(
-                Configuration["Data:PortalNR:ConnectionString"]));
+        private void ConfigureDatabase(IServiceCollection services)
+        {
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(Configuration["Data:PortalNR:ConnectionString"]));
+        }
+
+        private void ConfigureIdentity(IServiceCollection services)
+        {
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
+        }
 
-            services.AddHttpClient();
-            services.AddTransient<ApiHelper>();
+        private void ConfigureRepositories(IServiceCollection services)
+        {
             services.AddTransient<IVendorRepository, EFVendorRepository>();
             services.AddTransient<IProjectRepository, EFProjectRepository>();
             services.AddTransient<IAmanRepository, EFAmanRepository>();
@@ -82,12 +106,14 @@ namespace Admin
             services.AddTransient<IEmailRepository, EmailRepository>();
             services.AddTransient<IHazardRepository, EFHazardRepository>();
             services.AddTransient<ISDMRepository, SDMRepository>();
-
-            // Service fo GCG
-            services.AddTransient<IGCGService, GCGService>();
             services.AddTransient<IPelaporanGratifikasiRepository, EFPelaporanGratifikasiRepository>();
+        }
 
-            // Service for Gas Monitoring
+        private void ConfigureCustomServices(IServiceCollection services)
+        {
+            services.AddHttpClient(); // Register HttpClient
+            services.AddTransient<ApiHelper>();
+            services.AddTransient<IGCGService, GCGService>();
             services.AddTransient<IORFDataService, ORFDataService>();
             services.AddTransient<IFSRUDataService, FSRUDataService>();
             services.AddTransient<IORFDataDailyService, ORFDataDailyService>();
@@ -96,44 +122,37 @@ namespace Admin
             services.AddTransient<IVesselDataService, VesselDataService>();
             services.AddTransient<IGasmonActivityService, GasmonActivityService>();
             services.AddTransient<IGasmonParameterService, GasmonParameterService>();
-
-            // Service for Semar
             services.AddTransient<ISemarService, SemarService>();
-
-            // Service for DCU
             services.AddTransient<IDCUService, DCUService>();
-
-            // Service for NOC
             services.AddTransient<INOCService, NOCService>();
-
-            // Service for Overtime
             services.AddTransient<ISDMService, SDMService>();
-
-            // Add framework services.
-            services.AddControllersWithViews();
-
-            // Add Session Service
-            services.AddMemoryCache();
-            services.AddSession();
-
             services.AddTransient<IEmailSender, AuthMessageSender>();
             services.AddTransient<ISmsSender, AuthMessageSender>();
+            services.Configure<AdSettings>(Configuration.GetSection("AD"));
+            services.AddSingleton(sp => sp.GetRequiredService<IOptions<AdSettings>>().Value); // Register AdSettings
+        }
+
+        private void ConfigureFrameworkServices(IServiceCollection services)
+        {
+            services.AddControllersWithViews();
+            services.AddMemoryCache();
+            services.AddSession();
             services.AddSwaggerGen(c =>
             {
                 //c.SwaggerDoc("v1", new OpenApiInfo { Title = "PortalNR", Version = "v1" });
             });
+        }
 
-            // Add logging
+        private void ConfigureLogging(IServiceCollection services)
+        {
             services.AddLogging(loggingBuilder =>
             {
                 loggingBuilder.AddConsole();
             });
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
-            // Replace the obsolete AddDebug method
             loggerFactory.AddProvider(new DebugLoggerProvider());
 
             if (env.IsDevelopment())
@@ -148,15 +167,12 @@ namespace Admin
                 app.UseExceptionHandler("/Home/Error");
             }
 
-            //app.UseDeveloperExceptionPage();
             app.UseStatusCodePages();
             app.UseStaticFiles();
-            app.UseAuthentication(); // Replace app.UseIdentity() with app.UseAuthentication()
+            app.UseAuthentication();
             app.UseSession();
             app.UseRequestLocalization();
             app.UseRouting();
-
-            // Add the authorization middleware
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
@@ -165,7 +181,6 @@ namespace Admin
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
-
         }
     }
 }

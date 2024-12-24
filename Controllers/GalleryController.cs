@@ -1,4 +1,5 @@
 ﻿using Admin.Interfaces.Repositories;
+using Admin.Models;
 using Admin.Models.Gallery;
 using Admin.Models.User;
 using Microsoft.AspNetCore.Authorization;
@@ -21,7 +22,7 @@ namespace Admin.Controllers
         private UserManager<ApplicationUser> userManager;
         private IGalleryRepository repository;
 
-        public GalleryController(UserManager<ApplicationUser> _userManager,IGalleryRepository repo)
+        public GalleryController(UserManager<ApplicationUser> _userManager, IGalleryRepository repo)
         {
             repository = repo;
             userManager = _userManager;
@@ -40,6 +41,50 @@ namespace Admin.Controllers
             IEnumerable<Gallery> galleries = repository.Galleries.Where(x => x.Department == department).OrderByDescending(x => x.GalleryID);
 
             return View(galleries);
+        }
+
+        [AllowAnonymous]
+        public IActionResult GetRandomPhotoFromGallery(int galleryId)
+        {
+            // Fetch the list of photos for the given GalleryID
+            var photos = repository.GetPhotos(galleryId).ToList();
+            if (photos == null || !photos.Any())
+            {
+                // Return a 404 Not Found result if no photos are found
+                return NotFound($"No photos found for GalleryID {galleryId}");
+            }
+
+            // Randomize the PhotoID
+            var random = new Random();
+            var randomPhoto = photos[random.Next(photos.Count)];
+
+            // Use the random PhotoID to fetch the photo
+            var filepath = Path.Combine(Configuration["UploadPath:photo"], randomPhoto.FileName);
+            if (!System.IO.File.Exists(filepath))
+            {
+                // Return a 404 Not Found result if the file is not found
+                return NotFound("Photo file not found.");
+            }
+
+            var fileBytes = System.IO.File.ReadAllBytes(filepath);
+            var fileExtension = Path.GetExtension(randomPhoto.FileName).ToLowerInvariant();
+
+            string contentType;
+            switch (fileExtension)
+            {
+                case ".jpg":
+                case ".jpeg":
+                    contentType = "image/jpeg";
+                    break;
+                case ".png":
+                    contentType = "image/png";
+                    break;
+                default:
+                    contentType = "application/octet-stream"; // Default to binary stream if unknown
+                    break;
+            }
+
+            return File(fileBytes, contentType, randomPhoto.FileName);
         }
 
         public IActionResult ViewPhoto(int ID)
@@ -80,7 +125,7 @@ namespace Admin.Controllers
         {
             ViewBag.Title = "Add";
             Gallery gallery = new Gallery();
-            return View("Edit",gallery);
+            return View("Edit", gallery);
         }
 
         public ViewResult Edit(int Id)
@@ -182,7 +227,7 @@ namespace Admin.Controllers
                 System.IO.File.Delete(FileName);
             }
             TempData["message"] = $"Photo {photo.PhotoID} has been deleted";
-            return RedirectToAction("ViewPhoto",new { ID=photo.GalleryID });
+            return RedirectToAction("ViewPhoto", new { ID = photo.GalleryID });
         }
 
 
@@ -204,7 +249,7 @@ namespace Admin.Controllers
                     }
 
                     photo.CreatedOn = DateTime.Now;
-                    photo.FileName = "IMG" + photo.CreatedOn.ToString("yyyyMMddHHmmss") + "g" + photo.GalleryID  + file.FileName.Substring(file.FileName.IndexOf('.'));
+                    photo.FileName = "IMG" + photo.CreatedOn.ToString("yyyyMMddHHmmss") + "g" + photo.GalleryID + file.FileName.Substring(file.FileName.IndexOf('.'));
                     using (var fileStream = new FileStream(Path.Combine(UploadPath, photo.FileName), FileMode.Create))
                     {
                         await file.CopyToAsync(fileStream);
@@ -236,7 +281,7 @@ namespace Admin.Controllers
                 Photo photo = repository.GetPhoto(ID);
                 if (photo != null)
                 {
-                    var filepath = Path.Combine(Configuration["UploadPath:photo"],photo.FileName);
+                    var filepath = Path.Combine(Configuration["UploadPath:photo"], photo.FileName);
                     byte[] fileBytes = System.IO.File.ReadAllBytes(filepath);
                     String ContentType = "image/" + photo.FileName.Substring(photo.FileName.IndexOf('.') + 1);
                     return File(fileBytes, ContentType, photo.FileName);
@@ -282,8 +327,8 @@ namespace Admin.Controllers
                 System.IO.File.Delete(FileName);
             }
             TempData["message"] = $"Video {video.VideoID} has been deleted";
-            return RedirectToAction("ViewVideo",new { ID=video.GalleryID});
-         }
+            return RedirectToAction("ViewVideo", new { ID = video.GalleryID });
+        }
 
 
         [HttpPost]
@@ -328,21 +373,30 @@ namespace Admin.Controllers
             }
         }
         [AllowAnonymous]
-        public FileResult GetVideoContent(int ID)
+        public IActionResult GetVideoContent(int ID)
         {
-            if (ID > 0)
+            if (ID <= 0)
             {
-                Video video = repository.GetVideo(ID);
-                if (video != null)
-                {
-                    var filepath = Path.Combine(Configuration["UploadPath:video"], video.FileName);
-                    byte[] fileBytes = System.IO.File.ReadAllBytes(filepath);
-                    String ContentType = "video/" + video.FileName.Substring(video.FileName.IndexOf('.') + 1);
-                    return File(fileBytes, ContentType, video.FileName);
-                }
+                return NotFound("Invalid video ID.");
             }
 
-            return null;
+            var video = repository.GetVideo(ID);
+            if (video == null)
+            {
+                return NotFound($"Video with ID {ID} not found.");
+            }
+
+            var videoFilePath = Path.Combine(Configuration["UploadPath:video"], video.FileName);
+            if (!System.IO.File.Exists(videoFilePath))
+            {
+                return NotFound("Video file not found.");
+            }
+
+            var fileBytes = System.IO.File.ReadAllBytes(videoFilePath);
+            var fileExtension = Path.GetExtension(video.FileName).TrimStart('.');
+            var contentType = $"video/{fileExtension}";
+
+            return File(fileBytes, contentType, video.FileName);
         }
 
         // Public Area

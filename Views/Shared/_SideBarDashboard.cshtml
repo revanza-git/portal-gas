@@ -29,6 +29,12 @@
                 </a>
             </li>
             <li>
+                <a href="https://apps.pertamina.com/portalnr/portalsemar" target="_blank">
+                    <i class="fa fa-desktop"></i>
+                    <span>&nbsp;SEMAR</span>
+                </a>
+            </li>
+            <li>
                 <a href="http://10.10.10.14/login" target="_blank">
                     <i class="fa fa-navicon fa-lg"></i>
                     <span>&nbsp;SYMMIN</span>
@@ -109,26 +115,6 @@
             </li>
             @if (User.IsInRole("Admin") || User.IsInRole("AtasanAdmin") || User.IsInRole("AdminQM") || User.IsInRole("AdminNOC") || User.IsInRole("AdminSDM"))
             {
-                <li>
-                    <a>
-                        <i class="fa fa-book"></i>
-                        <span>SEMAR</span>
-                    </a>
-                    <ul class="sub-menu">
-                        <li>
-                            <a href="https://apps.pertamina.com/portalnr/portalsemar" target="_blank">
-                                <i class="fa fa-file-o"></i>
-                                <span>Portal Semar</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a asp-controller="Semar" asp-action="Index">
-                                <i class="fa fa-file-o"></i>
-                                <span>Update Data</span>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
                 <li>
                     <a asp-controller="Aman" asp-action="Index">
                         <i class="fa fa-key"></i>
@@ -242,6 +228,13 @@
                         </a>
                     </li>
                 }
+
+                <li>
+                    <a asp-controller="Gallery" asp-action="Index">
+                        <i class="fa fa-image"></i>
+                        <span>Gallery</span>
+                    </a>
+                </li>
             }
             <li>
                 <a href="javascript:;" data-toggle="dropdown">
