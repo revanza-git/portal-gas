@@ -23,13 +23,13 @@
                 </a>
             </li>
             <li>
-                <a href="https://appnr.pertamina.com/eproc_nusantararegas" target="_blank">
+                <a href="https://apps.pertamina.com/eproc_nusantararegas" target="_blank">
                     <i class="fa fa-desktop"></i>
                     <span>E-Procurement</span>
                 </a>
             </li>
             <li>
-                <a href="https://apps.pertamina.com/portalnr/portalsemar" target="_blank">
+                <a href="http://appnr.pertamina.com/portal/semar" target="_blank">
                     <i class="fa fa-desktop"></i>
                     <span>&nbsp;SEMAR</span>
                 </a>
@@ -61,7 +61,7 @@
             @if (User.IsInRole("SuperAdmin"))
             {
                 <li>
-                    <a asp-controller="Account" asp-action="Index">
+                    <a asp-controller="Account" asp-action="Index" asp-route-area="">
                         <i class="fa fa-user"></i>
                         <span>User Management</span>
                     </a>

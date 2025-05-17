@@ -101,15 +101,14 @@
                                 <td>@departments?.FirstOrDefault(d => d.DepartmentID == item.DivisiObserver)?.Deskripsi</td>
                                 <td>@item.Rekomendasi</td>
                                 <td>
-                                <td>
-                                        @if (item.Photo != null)
-                                        {
-                                            <a class="btn btn-info btn-round btn-xs" name="download" href="@Url.Action("DownloadFile", "NOC", new { ID = item.NOCID })"><i class="fa fa-download"></i> Download</a>
-                                        }
-                                        else
-                                        {
-                                            <span class="btn btn-warning btn-round btn-xs">No File</span>
-                                        }
+                                    @if (item.Photo != null)
+                                    {
+                                        <a class="btn btn-info btn-round btn-xs" name="download" href="@Url.Action("DownloadFile", "NOC", new { ID = item.NOCID })"><i class="fa fa-download"></i> Download</a>
+                                    }
+                                    else
+                                    {
+                                        <span class="btn btn-warning btn-round btn-xs">No File</span>
+                                    }
                                 </td>
                                 <td>@(item.Status == 1 ? "Open" : "Close")</td>
                                 <td>
@@ -183,4 +182,3 @@
         }
     </script>
 }
-

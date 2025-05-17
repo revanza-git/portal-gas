@@ -1,7 +1,9 @@
-﻿using System;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
+﻿using Admin.Helpers;
+using Admin.Interfaces.Repositories;
+using Admin.Interfaces.Services;
+using Admin.Models.AccountViewModels;
+using Admin.Models.AdSettings;
+using Admin.Models.User;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -10,14 +12,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Admin.Helpers;
-using Admin.Interfaces.Repositories;
-using Admin.Interfaces.Services;
-using Admin.Models.AccountViewModels;
-using Admin.Models.User;
-using Admin.Models.AdSettings;
-using System.Net.Http;
+using System;
 using System.DirectoryServices.Protocols;
+using System.Linq;
+using System.Net.Http;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace Admin.Controllers
 {
@@ -36,7 +36,7 @@ namespace Admin.Controllers
         private readonly IConfiguration _configuration;
         private readonly HttpClient _httpClient;
         private readonly AdSettings _adSettings;
-        private LdapConnection? _ldapConnection;
+        private readonly LdapConnection _ldapConnection;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
@@ -447,7 +447,7 @@ namespace Admin.Controllers
 
         public ViewResult Index()
         {
-            var users = _userManager.Users;
+            var users = _userManager.Users.ToList();
             var models = users.Select(user => new AccountViewModel
             {
                 Id = user.Id,
@@ -500,11 +500,25 @@ namespace Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
+                ViewBag.Roles = _roleManager.Roles;
+                ViewBag.Department = _repository.GetDepartments();
+                ViewBag.Jabatan = _repository.GetJabatan();
                 return View(model);
             }
 
+            // Check for duplicate email
+            var existingUser = await _userManager.FindByEmailAsync(model.Email);
+            if (existingUser != null && existingUser.Id != model.Id)
+            {
+                TempData["error"] = $"A user with the email '{model.Email}' is already registered.";
+                ViewBag.Roles = _roleManager.Roles;
+                ViewBag.Department = _repository.GetDepartments();
+                ViewBag.Jabatan = _repository.GetJabatan();
+                return View(model); // Redirect back to the Edit page with the model
+            }
+
             IdentityResult result;
-            if (model.Id == null)
+            if (string.IsNullOrEmpty(model.Id))
             {
                 result = await CreateUser(model);
             }
@@ -515,7 +529,7 @@ namespace Admin.Controllers
 
             if (result.Succeeded)
             {
-                TempData["message"] = $"User {model.UserName} has been saved";
+                TempData["message"] = $"User {model.UserName} has been saved successfully.";
                 return RedirectToAction("Index");
             }
 
@@ -707,7 +721,7 @@ namespace Admin.Controllers
             }
         }
 
-        public void Dispose()
+        public new void Dispose()
         {
             _ldapConnection?.Dispose();
         }
