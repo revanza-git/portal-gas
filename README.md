@@ -19,7 +19,7 @@ Portal Gas is a comprehensive web application designed for gas operations manage
 1. **User Management**
    - Role-based access control
    - User profile management
-   - LDAP integration for enterprise authentication
+   - Enterprise authentication integration
 
 2. **Work Overtime Management**
    - Overtime request submission
@@ -71,7 +71,7 @@ Portal Gas is a comprehensive web application designed for gas operations manage
 
 1. **Clone and Setup**
    ```bash
-   git clone https://github.com/revanza-git/portal-gas.git
+   git clone <your-repository-url>
    cd portal-gas
    ```
 
@@ -113,45 +113,80 @@ Portal Gas is a comprehensive web application designed for gas operations manage
      - Username: admin@portal.com
      - Password: Admin@123
 
-## Important Notes
+## Security and Sensitive Data Handling
 
-### Sensitive Data Handling
-Before using this project in production:
+### 1. Configuration Files
+- Never commit sensitive configuration files to version control
+- Always use `appsettings.Example.json` as a template
+- Add the following to `.gitignore`:
+  ```
+  appsettings.json
+  appsettings.*.json
+  !appsettings.Example.json
+  *.pfx
+  *.key
+  *.pem
+  *.cert
+  ```
 
-1. **Configuration**
-   - Copy `appsettings.Example.json` to `appsettings.json`
-   - Replace all placeholder values with your actual configuration
-   - Never commit `appsettings.json` to version control
-   - Add `appsettings.json` to `.gitignore`
+### 2. Database Security
+- Use strong passwords for database accounts
+- Implement connection string encryption
+- Regularly backup database
+- Use parameterized queries to prevent SQL injection
+- Implement proper database user permissions
+- Consider using Azure Key Vault or similar for secrets management
 
-2. **Company Information**
-   - Remove any company-specific branding
-   - Update all company-specific URLs and endpoints
-   - Replace company email addresses with your own
-   - Update any company-specific terminology
+### 3. Authentication & Authorization
+- Change all default passwords immediately
+- Implement password complexity requirements
+- Enable two-factor authentication
+- Use secure session management
+- Implement proper role-based access control
+- Regular security audits of user permissions
 
-3. **Security**
-   - Change all default passwords
-   - Update API keys and secrets
-   - Configure proper database credentials
-   - Set up appropriate email server settings
-   - Configure proper Active Directory settings
+### 4. API Security
+- Use HTTPS for all API endpoints
+- Implement proper API authentication
+- Use API keys or OAuth2 for external access
+- Rate limiting to prevent abuse
+- Input validation and sanitization
+- CORS policy configuration
 
-4. **Database**
-   - Create a new database with your own schema
-   - Update connection strings
-   - Remove any company-specific data
+### 5. File Security
+- Secure file upload validation
+- Scan uploaded files for malware
+- Implement proper file access permissions
+- Use secure file storage locations
+- Regular cleanup of temporary files
 
-- Remove any NR trademarks before using this project in production
-- Update all connection strings and sensitive information
-- Configure proper security settings before deployment
-- Regular database backups are recommended
+### 6. Logging and Monitoring
+- Implement secure logging practices
+- Don't log sensitive information
+- Use proper log rotation
+- Monitor for suspicious activities
+- Regular security log reviews
+
+### 7. Email Security
+- Use secure SMTP settings
+- Implement email encryption
+- Don't include sensitive data in emails
+- Use proper email templates
+- Implement email verification
+
+### 8. Development Practices
+- Regular security updates
+- Code security reviews
+- Dependency vulnerability scanning
+- Secure coding guidelines
+- Regular penetration testing
 
 ## Support and Contact
 
 For support or inquiries, please contact:
 - Email: revanza.raytama@gmail.com
-- LinkedIn: [linkedin.com/in/revanzaraytama](https://linkedin.com/in/revanzaraytama)
+- LinkedIn: [linkedin.com/in/revanzaraytama](https://linkedin.com/in/
+revanzaraytama)
 
 ## License
 
