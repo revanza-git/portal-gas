@@ -2,103 +2,36 @@
 @model CocCoi
 
 @{
-    Layout = "~/Views/Shared/Panel.cshtml";
+    ViewData["Title"] = "Code of Conduct";
 }
 
-@section PageLevelPlugin {
-    <link rel="stylesheet" href="~/admin/vendor/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css" />
-    <style>
-        table {
-            border-spacing: 25px;
-        }
-        /* cellspacing */
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4>CODE OF CONDUCT</h4>
+                </div>
+                <div class="card-body">
+                    <h5>COMPANY CODE OF CONDUCT STATEMENT</h5>
+                    <p>This Code of Conduct outlines the ethical standards and professional behavior expected from all employees and stakeholders of our organization.</p>
+                    
+                    <div class="mt-4">
+                        <h6>Declaration Statement</h6>
+                        <p>I hereby declare that:</p>
+                        <ol>
+                            <li>I have read and understood the Code of Conduct and agree to comply with all provisions stated therein.</li>
+                            <li>I will accept any sanctions for violations that I may commit (if any).</li>
+                        </ol>
+                    </div>
 
-        th, td {
-            padding: 25px;
-            vertical-align: text-top;
-        }
-        /* cellpadding */
-    </style>
-}
-
-@section TitleBar {
-    <strong>PEDOMAN PERILAKU (CODE OF CONDUCT)</strong>
-}
-
-<!-- main area -->
-<div class="main-content">
-    <div class="panel">
-        <div class="panel-heading border">
-            <ol class="breadcrumb mb0 no-padding">
-                <li>
-                    <a href="javascript:;">Content</a>
-                </li>
-                <li>
-                    <a href="javascript:;">GCG</a>
-                </li>
-                <li class="active"><strong>Pedoman Perilaku </strong></li>
-            </ol>
-        </div>
-        <div class="panel-body">
-            @if (TempData["message"] != null)
-            {
-                <div class="alert alert-success"><i class="fa fa-lg fa-check-circle"></i> @TempData["message"]</div>
-            }
-            <div style="text-align:center;">
-                <h4>PEDOMAN PERILAKU (CODE OF CONDUCT)<br />PT NUSANTARA REGAS</h4>
-                <hr />
-                <h5>SURAT PERNYATAAN INSAN PT NUSANTARA REGAS</h5>
-            </div>
-            <div style="padding-top:10px">
-                <p>
-                    Dengan ini saya menyatakan:
-                </p>
-                <table>
-                    <tr>
-                        <td>1.&nbsp;</td>
-                        <td>Telah membaca dan memahami Pedoman Perilaku (Code of Conduct) PT NUSANTARA REGAS dan bersedia untuk mematuhi semua ketentuan yang tercantum di dalamnya serta menerima sanksi atas pelanggaran yang saya lakukan (jika ada).</td>
-                    </tr>
-                    <tr>
-                        <td>2.</td>
-                        <td>
-                            Sebagai Pekerja yang bertanggung jawab atas penerapan Pedoman Perilaku (Code of Conduct), saya berkomitmen untuk:
-                            <table>
-                                <tr>
-                                    <td>a.&nbsp;</td>
-                                    <td>Melakukan upaya-upaya untuk menjamin kepatuhan terhadap Pedoman Perilaku (Code of Conduct) di unit kerja yang menjadi tanggung jawab saya.</td>
-                                </tr>
-                                <tr>
-                                    <td>b.</td>
-                                    <td>
-                                        Melaporkan semua pelanggaran yang terjadi di unit kerja saya melalui whistleblowing system PT Nusantara Regas (jika ada).
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>c.</td>
-                                    <td>
-                                        Mendukung pelaksanaan penegakan Pedoman Perilaku (Code of Conduct) yang dilakukan di lingkungan unit kerja saya.
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                </table>
-                <div style="padding-top:25px">
-                    @if (Model.CoC == false)
-                    {
-                    <form method="post" asp-action="CodeOfConduct">
-                        <button type="submit" name="submit" class="btn btn-sm btn-success"><i class="fa fa-check"></i> Setuju</button>
-                    </form>
-                    }
-                    else
-                    {
-                        <p>Telah ditandatangani pada @Model.CoCSignedTime</p>
-                    }
+                    <div class="mt-4">
+                        <h6>Reporting Violations</h6>
+                        <p>I will report any violations that occur in my work unit through the company's whistleblowing system (if available).</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
 </div>
-<!-- /main area -->
 

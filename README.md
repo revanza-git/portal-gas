@@ -115,6 +115,33 @@ Portal Gas is a comprehensive web application designed for gas operations manage
 
 ## Important Notes
 
+### Sensitive Data Handling
+Before using this project in production:
+
+1. **Configuration**
+   - Copy `appsettings.Example.json` to `appsettings.json`
+   - Replace all placeholder values with your actual configuration
+   - Never commit `appsettings.json` to version control
+   - Add `appsettings.json` to `.gitignore`
+
+2. **Company Information**
+   - Remove any company-specific branding
+   - Update all company-specific URLs and endpoints
+   - Replace company email addresses with your own
+   - Update any company-specific terminology
+
+3. **Security**
+   - Change all default passwords
+   - Update API keys and secrets
+   - Configure proper database credentials
+   - Set up appropriate email server settings
+   - Configure proper Active Directory settings
+
+4. **Database**
+   - Create a new database with your own schema
+   - Update connection strings
+   - Remove any company-specific data
+
 - Remove any NR trademarks before using this project in production
 - Update all connection strings and sensitive information
 - Configure proper security settings before deployment
