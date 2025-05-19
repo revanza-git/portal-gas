@@ -21,6 +21,8 @@ using Admin.Interfaces.Repositories;
 using Admin.Interfaces.Services;
 using Admin.Models.AdSettings;
 using Microsoft.Extensions.Options;
+using DinkToPdf;
+using DinkToPdf.Contracts;
 
 namespace Admin
 {
@@ -130,6 +132,8 @@ namespace Admin
             services.AddTransient<ISmsSender, AuthMessageSender>();
             services.Configure<AdSettings>(Configuration.GetSection("AD"));
             services.AddSingleton(sp => sp.GetRequiredService<IOptions<AdSettings>>().Value); // Register AdSettings
+            services.AddScoped<ViewRenderService>();
+            services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
         }
 
         private void ConfigureFrameworkServices(IServiceCollection services)

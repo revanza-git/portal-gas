@@ -14,9 +14,10 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using DinkToPdf;
+using DinkToPdf.Contracts;
 
 namespace Admin.Controllers
 {
@@ -29,8 +30,10 @@ namespace Admin.Controllers
         private readonly IEmailRepository emailRepository;
         private readonly ApiHelper apiHelper;
         private readonly IConfiguration configuration;
+        private readonly ViewRenderService _viewRenderService;
+        private readonly IConverter _pdfConverter;
 
-        public AmanController(UserManager<ApplicationUser> userManager, IAmanRepository repo, ICommonRepository common, IEmailRepository emailRepo, ApiHelper apiHelper, IConfiguration configuration)
+        public AmanController(UserManager<ApplicationUser> userManager, IAmanRepository repo, ICommonRepository common, IEmailRepository emailRepo, ApiHelper apiHelper, IConfiguration configuration, ViewRenderService viewRenderService, IConverter pdfConverter)
         {
             this.repository = repo;
             this.crepository = common;
@@ -38,6 +41,8 @@ namespace Admin.Controllers
             this.userManager = userManager;
             this.apiHelper = apiHelper;
             this.configuration = configuration;
+            this._viewRenderService = viewRenderService;
+            this._pdfConverter = pdfConverter;
         }
 
         public ViewResult Index()
@@ -48,6 +53,7 @@ namespace Admin.Controllers
             ViewBag.Statuses = crepository.GetAmanStatuses();
             ViewBag.CorrectionTypes = crepository.GetAmanCorrectionTypes();
             ViewBag.Users = userManager.Users;
+            ViewBag.AllDepartments = crepository.GetAllDepartments();
 
             if (User.IsInRole("AdminQM"))
             {
@@ -463,30 +469,53 @@ namespace Admin.Controllers
             return View(aman);
         }
 
-        public async Task<IActionResult> ExportToPdf(string id)
+        private byte[] GeneratePdf(string htmlContent)
         {
-            var scheme = HttpContext.Request.Scheme;
-            var pathBase = HttpContext.Request.PathBase.Value;
-            var url = $"{scheme}://{Request.Host}{pathBase}/Aman/Report/{id}";
-
-            var text = await new HttpClient().GetStringAsync(url);
-            var pdfContent = await GeneratePdfAsync(text);
-            var fileName = $"{id}.pdf";
-
-            return File(pdfContent, "application/pdf", fileName);
+            var doc = new HtmlToPdfDocument()
+            {
+                GlobalSettings = {
+                    ColorMode = ColorMode.Color,
+                    Orientation = Orientation.Portrait,
+                    PaperSize = PaperKind.A4
+                },
+                Objects = {
+                    new ObjectSettings() {
+                        HtmlContent = htmlContent,
+                        WebSettings = { DefaultEncoding = "utf-8" }
+                    }
+                }
+            };
+            return _pdfConverter.Convert(doc);
         }
 
-        private async Task<byte[]> GeneratePdfAsync(string htmlContent)
+        public async Task<IActionResult> ExportToPdf(string id)
         {
-            using var client = new HttpClient();
-            var response = await client.PostAsync("https://api.html2pdf.app/v1/generate", new StringContent(JsonConvert.SerializeObject(new
-            {
-                html = htmlContent,
-                apiKey = "your_api_key"
-            }), Encoding.UTF8, "application/json"));
+            var aman = repository.Amans.FirstOrDefault(a => a.AmanID == id);
+            // Set up ViewBag as in Report action
+            ViewBag.Locations = crepository.GetLocations();
+            ViewBag.Classifications = crepository.GetClassifications();
+            ViewBag.Priorities = crepository.GetPriorities();
+            ViewBag.Responsibles = crepository.GetResponsibles();
+            ViewBag.AmanSources = crepository.GetAmanSources();
+            ViewBag.AmanStatuses = crepository.GetAmanStatuses();
+            ViewBag.Reschedules = repository.GetReschedules(id);
+            ViewBag.ReschedulesCount = repository.GetReschedules(id).Count();
+            ViewBag.Users = userManager.Users;
 
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadAsByteArrayAsync();
+            // Null checks for debugging
+            if (ViewBag.Locations == null) throw new Exception("ViewBag.Locations is null");
+            if (ViewBag.Classifications == null) throw new Exception("ViewBag.Classifications is null");
+            if (ViewBag.Priorities == null) throw new Exception("ViewBag.Priorities is null");
+            if (ViewBag.Responsibles == null) throw new Exception("ViewBag.Responsibles is null");
+            if (ViewBag.AmanSources == null) throw new Exception("ViewBag.AmanSources is null");
+            if (ViewBag.AmanStatuses == null) throw new Exception("ViewBag.AmanStatuses is null");
+            if (ViewBag.Reschedules == null) throw new Exception("ViewBag.Reschedules is null");
+            if (ViewBag.Users == null) throw new Exception("ViewBag.Users is null");
+
+            var html = await _viewRenderService.RenderToStringAsync(this.ControllerContext, "Report", aman, this.ViewData);
+            var pdfContent = GeneratePdf(html);
+            var fileName = $"{id}.pdf";
+            return File(pdfContent, "application/pdf", fileName);
         }
     }
 }

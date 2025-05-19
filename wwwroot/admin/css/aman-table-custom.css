@@ -1,0 +1,24 @@
+.table-responsive {
+    overflow-x: auto;
+    width: 100%;
+}
+.table {
+    min-width: 1200px; /* Adjust as needed for your columns */
+}
+.table th, .table td {
+    white-space: nowrap !important;
+}
+.table td.text-wrap, .table th.text-wrap {
+    white-space: normal !important;
+    max-width: 200px;
+    word-break: break-word;
+}
+
+.text-wrap {
+    white-space: normal !important;
+    word-break: break-word;
+}
+
+.findings-col, .recommendation-col {
+    max-width: 200px; /* Adjust as needed */
+}

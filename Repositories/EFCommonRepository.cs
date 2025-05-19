@@ -21,12 +21,12 @@ namespace Admin.Repositories
 
         public IEnumerable<Department> GetDepartments()
         {
-            return context.Departments.Where(d => d.IsDepartment == "Y");
+            return context.Departments?.Where(d => d.IsDepartment == "Y").ToList() ?? new List<Department>();
         }
 
         public IEnumerable<Department> GetAllDepartments()
         {
-            return context.Departments;
+            return context.Departments?.ToList() ?? new List<Department>();
         }
 
         public IEnumerable<Classification> GetClassifications()
@@ -59,37 +59,32 @@ namespace Admin.Repositories
 
         public IEnumerable<Location> GetLocations()
         {
-            return context.Locations;
+            return context.Locations?.ToList() ?? new List<Location>();
         }
 
         public IEnumerable<JenisPekerjaan> GetJenisPekerjaan()
         {
-            return context.JenisPekerjaan;
+            return context.JenisPekerjaan?.ToList() ?? new List<JenisPekerjaan>();
         }
 
         public IEnumerable<Responsible> GetResponsibles()
         {
-            return context.Responsibles;
+            return context.Responsibles?.ToList() ?? new List<Responsible>();
         }
 
         public IEnumerable<AmanCorrectionType> GetAmanCorrectionTypes()
         {
-            return context.AmanCorrectionTypes;
+            return context.AmanCorrectionTypes?.ToList() ?? new List<AmanCorrectionType>();
         }
 
         public IEnumerable<AmanSource> GetAmanSources()
         {
-            return context.AmanSources;
+            return context.AmanSources?.ToList() ?? new List<AmanSource>();
         }
 
         public IEnumerable<SemarType> GetSemarTypes()
         {
-            //return new List<SemarType> {
-            //    new SemarType () {  SemarTypeID = 1, Deskripsi = "Document"},
-            //    new SemarType () {  SemarTypeID = 2, Deskripsi = "Record"}
-            //};
-
-            return context.SemarTypes;
+            return context.SemarTypes?.ToList() ?? new List<SemarType>();
         }
 
         public IEnumerable<SemarProduct> GetSemarProducts()
@@ -99,13 +94,11 @@ namespace Admin.Repositories
                 new SemarProduct () {  SemarProductID = 2, Deskripsi = "SK"},
                 new SemarProduct () {  SemarProductID = 3, Deskripsi = "SPRINT"}
             };
-
-            //return context.SemarTypes;
         }
 
         public IEnumerable<SemarLevel> GetSemarLevels()
         {
-            return context.SemarLevels;
+            return context.SemarLevels?.ToList() ?? new List<SemarLevel>();
         }
 
         public IEnumerable<SemarStatus> GetSemarStatuses()
@@ -118,12 +111,12 @@ namespace Admin.Repositories
 
         public IEnumerable<Hazard> GetHazards()
         {
-            return context.Hazards;
+            return context.Hazards?.ToList() ?? new List<Hazard>();
         }
 
         public IEnumerable<Jabatan> GetJabatan()
         {
-            return context.Jabatan;
+            return context.Jabatan?.ToList() ?? new List<Jabatan>();
         }
 
         public IEnumerable<OvertimeStatus> GetOvertimeStatuses()
@@ -147,7 +140,7 @@ namespace Admin.Repositories
 
         public IEnumerable<Atasan> GetAtasan()
         {
-            return context.Atasan;
+            return context.Atasan?.ToList() ?? new List<Atasan>();
         }
     }
 }
