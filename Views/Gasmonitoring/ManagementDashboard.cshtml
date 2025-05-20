@@ -1,17 +1,16 @@
-﻿
-@{
+﻿@{
     Layout = "~/Views/Shared/Panel.cshtml";
     var startDate = (DateTime)ViewData["StartDate"];
     var endDate = (DateTime)ViewData["EndDate"];
     var target_pasokan = (Int32)ViewData["target_pasokan"];
-    var realisasi_pasokan = (Decimal)ViewData["realisasi_pasokan"];
+    var realisasi_pasokan = (Int32)ViewData["realisasi_pasokan"];
     var target_bog = (Int32)ViewData["target_bog"];
     var realisasi_bog = (Decimal)ViewData["realisasi_bog"];
-    var prosentase_bog = target_bog == 0 ? 0 : Math.Round(100 * realisasi_bog / target_bog);
-    var prosentase_pasokan = target_pasokan == 0 ? 0 : Math.Round(realisasi_pasokan * 100 / target_pasokan);
+    var prosentase_bog = target_bog == 0 ? 0 : Math.Round((decimal)(100 * realisasi_bog / target_bog));
+    var prosentase_pasokan = target_pasokan == 0 ? 0 : Math.Round((decimal)(realisasi_pasokan * 100 / target_pasokan));
     var target_penjualan = (Int32)ViewData["target_penjualan"];
     var realisasi_penjualan = (Decimal)ViewData["realisasi_penjualan"];
-    var prosentase_penjualan = target_penjualan == 0 ? 0 : Math.Round(realisasi_penjualan * 100 / target_penjualan);
+    var prosentase_penjualan = target_penjualan == 0 ? 0 : Math.Round((decimal)(realisasi_penjualan * 100 / target_penjualan));
     var jsonPasokan = Html.Raw(ViewData["jsonPasokan"]);
     var jsonPenjualan = Html.Raw(ViewData["jsonPenjualan"]);
 }
