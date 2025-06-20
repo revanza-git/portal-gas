@@ -1,0 +1,397 @@
+/* ============================================
+   Gas Monitoring Dashboard - Enhanced UI/UX
+   ============================================ */
+
+/* Modern Color Palette */
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #3498db;
+    --success-color: #27ae60;
+    --warning-color: #f39c12;
+    --danger-color: #e74c3c;
+    --info-color: #17a2b8;
+    --light-color: #ecf0f1;
+    --dark-color: #34495e;
+    --gradient-blue: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-green: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+    --gradient-orange: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+    --gradient-red: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+    --shadow-light: 0 2px 10px rgba(0,0,0,0.1);
+    --shadow-medium: 0 4px 20px rgba(0,0,0,0.15);
+    --shadow-heavy: 0 8px 30px rgba(0,0,0,0.2);
+}
+
+/* Enhanced Panel Styling */
+.main-content {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.panel {
+    background: #ffffff;
+    border-radius: 15px;
+    box-shadow: var(--shadow-medium);
+    border: none;
+    overflow: hidden;
+}
+
+.panel-heading {
+    background: var(--gradient-blue);
+    color: white;
+    padding: 20px;
+    border: none;
+    border-radius: 0;
+}
+
+.panel-heading .breadcrumb {
+    background: transparent;
+    margin: 0;
+    padding: 0;
+}
+
+.panel-heading .breadcrumb > li + li:before {
+    color: rgba(255,255,255,0.7);
+}
+
+.panel-heading .breadcrumb a {
+    color: rgba(255,255,255,0.8);
+    text-decoration: none;
+}
+
+.panel-heading .breadcrumb .active {
+    color: white;
+    font-weight: 600;
+}
+
+.panel-body {
+    padding: 30px;
+    background: #ffffff;
+}
+
+/* Enhanced Widget Cards */
+.widget {
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: var(--shadow-light);
+}
+
+.widget:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-heavy);
+}
+
+.widget.bg-success {
+    background: var(--gradient-green) !important;
+    color: white;
+}
+
+.widget.bg-warning {
+    background: var(--gradient-orange) !important;
+    color: white;
+}
+
+.widget.bg-danger {
+    background: var(--gradient-red) !important;
+    color: white;
+}
+
+.widget::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.widget:hover::before {
+    left: 100%;
+}
+
+/* Enhanced Widget Details */
+.widget-details {
+    position: relative;
+    z-index: 2;
+}
+
+.widget-details h2 {
+    font-size: 2.5em;
+    font-weight: 700;
+    margin-bottom: 5px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.widget-details small {
+    font-size: 0.9em;
+    font-weight: 500;
+    opacity: 0.9;
+    letter-spacing: 1px;
+}
+
+/* Enhanced Year Selector */
+.year-selector-container {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: var(--shadow-light);
+    margin-bottom: 25px;
+}
+
+.year-selector-container select {
+    background: var(--gradient-blue);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.year-selector-container select:focus {
+    outline: none;
+    transform: scale(1.05);
+    box-shadow: var(--shadow-medium);
+}
+
+.year-selector-container label {
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-right: 10px;
+    font-size: 1.1em;
+}
+
+/* Enhanced BOG Widget */
+.bog-widget {
+    background: var(--gradient-red) !important;
+    border-radius: 15px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.bog-widget .widget-icon {
+    background: rgba(255,255,255,0.2) !important;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5em;
+}
+
+.bog-widget .widget-title {
+    font-size: 1.3em;
+    margin-bottom: 5px;
+}
+
+.bog-widget .widget-subtitle {
+    font-size: 1em;
+    opacity: 0.9;
+    letter-spacing: 1px;
+}
+
+/* Enhanced Date Range Picker */
+.date-range-container {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: var(--shadow-light);
+    margin-bottom: 25px;
+}
+
+.date-range-container .input-group {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--shadow-light);
+}
+
+.date-range-container .input-group-addon {
+    background: var(--secondary-color);
+    color: white;
+    border: none;
+    padding: 12px 15px;
+}
+
+.date-range-container .form-control {
+    border: none;
+    padding: 12px 15px;
+    font-weight: 500;
+}
+
+.date-range-container .form-control:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.date-range-container label {
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+    display: block;
+    font-size: 1.1em;
+}
+
+/* Enhanced Chart Containers */
+.chart-container {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: var(--shadow-light);
+    transition: all 0.3s ease;
+}
+
+.chart-container:hover {
+    box-shadow: var(--shadow-medium);
+}
+
+.chart-title {
+    font-size: 1.2em;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    text-align: center;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--light-color);
+}
+
+#chartdiv, #chartdiv2, #chartdiv11, #chartdiv12 {
+    background: white;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+#chartdiv3, #chartdiv4 {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+}
+
+/* Enhanced Alerts */
+.alert {
+    border-radius: 10px;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    border: none;
+    box-shadow: var(--shadow-light);
+}
+
+.alert-success {
+    background: var(--gradient-green);
+    color: white;
+}
+
+.alert-success .fa {
+    margin-right: 10px;
+}
+
+/* Loading Animation */
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255,255,255,.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 10px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Responsive Enhancements */
+@media (max-width: 768px) {
+    .main-content {
+        padding: 10px;
+    }
+    
+    .panel-body {
+        padding: 20px 15px;
+    }
+    
+    .widget-details h2 {
+        font-size: 2em;
+    }
+    
+    .year-selector-container,
+    .date-range-container {
+        padding: 15px;
+    }
+    
+    .chart-container {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 576px) {
+    .widget-details h2 {
+        font-size: 1.8em;
+    }
+    
+    .widget {
+        padding: 20px 15px;
+    }
+    
+    .panel-body {
+        padding: 15px 10px;
+    }
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+    transition: all 0.3s ease;
+}
+
+/* Enhanced focus states for accessibility */
+select:focus,
+input:focus,
+button:focus {
+    outline: 2px solid var(--secondary-color);
+    outline-offset: 2px;
+}
+
+/* Enhanced hover effects for interactive elements */
+.widget:hover .widget-details h2 {
+    transform: scale(1.05);
+}
+
+/* Pulse animation for important metrics */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.widget-details h2.pulse {
+    animation: pulse 2s infinite;
+}
+
+/* Modern scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--light-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--secondary-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color);
+} 

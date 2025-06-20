@@ -3,11 +3,13 @@ using Admin.Interfaces.Repositories;
 using Admin.Models;
 using Admin.Models.Aman;
 using Admin.Models.User;
+using Admin.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -18,6 +20,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DinkToPdf;
 using DinkToPdf.Contracts;
+using Admin.Services;
 
 namespace Admin.Controllers
 {
@@ -32,8 +35,10 @@ namespace Admin.Controllers
         private readonly IConfiguration configuration;
         private readonly ViewRenderService _viewRenderService;
         private readonly IConverter _pdfConverter;
+        private readonly IMemoryCache _cache;
+        private readonly ICacheService _cacheService;
 
-        public AmanController(UserManager<ApplicationUser> userManager, IAmanRepository repo, ICommonRepository common, IEmailRepository emailRepo, ApiHelper apiHelper, IConfiguration configuration, ViewRenderService viewRenderService, IConverter pdfConverter)
+        public AmanController(UserManager<ApplicationUser> userManager, IAmanRepository repo, ICommonRepository common, IEmailRepository emailRepo, ApiHelper apiHelper, IConfiguration configuration, ViewRenderService viewRenderService, IConverter pdfConverter, IMemoryCache cache, ICacheService cacheService)
         {
             this.repository = repo;
             this.crepository = common;
@@ -43,41 +48,150 @@ namespace Admin.Controllers
             this.configuration = configuration;
             this._viewRenderService = viewRenderService;
             this._pdfConverter = pdfConverter;
+            this._cache = cache;
+            this._cacheService = cacheService;
         }
 
-        public ViewResult Index()
+        [ResponseCache(Duration = 300, VaryByQueryKeys = new[] { "page", "size" })]
+        public async Task<ViewResult> Index(int page = 1, int size = 20)
         {
             ViewData["Title"] = "Action Management (AMAN)";
-            ViewBag.Classifications = crepository.GetClassifications();
-            ViewBag.Priorities = crepository.GetPriorities();
-            ViewBag.Statuses = crepository.GetAmanStatuses();
-            ViewBag.CorrectionTypes = crepository.GetAmanCorrectionTypes();
-            ViewBag.Users = userManager.Users;
-            ViewBag.AllDepartments = crepository.GetAllDepartments();
+            
+            // Cache lookup keys
+            var userRole = User.IsInRole("AdminQM") ? "AdminQM" : "User";
+            var userName = User.Identity.Name;
+            var cacheKey = $"amans_page_{page}_size_{size}_role_{userRole}_user_{userName}";
+            var staticDataCacheKey = "aman_static_data";
 
-            if (User.IsInRole("AdminQM"))
+            // Cache static data (classifications, priorities, etc.)
+            if (!_cache.TryGetValue(staticDataCacheKey, out var staticData))
             {
-                return View(repository.Amans.ToList());
+                staticData = new
+                {
+                    Classifications = crepository.GetClassifications(),
+                    Priorities = crepository.GetPriorities(),
+                    Statuses = crepository.GetAmanStatuses(),
+                    CorrectionTypes = crepository.GetAmanCorrectionTypes(),
+                    Users = userManager.Users.ToList(),
+                    AllDepartments = crepository.GetAllDepartments()
+                };
+                
+                _cache.Set(staticDataCacheKey, staticData, TimeSpan.FromMinutes(15));
             }
-            var amans = repository.Amans.Where(x => x.Creator == User.Identity.Name || x.Responsible == User.Identity.Name || x.Verifier == User.Identity.Name);
-            return View(amans);
+
+            // Set ViewBag from cached data
+            var cachedStaticData = staticData as dynamic;
+            ViewBag.Classifications = cachedStaticData.Classifications;
+            ViewBag.Priorities = cachedStaticData.Priorities;
+            ViewBag.Statuses = cachedStaticData.Statuses;
+            ViewBag.CorrectionTypes = cachedStaticData.CorrectionTypes;
+            ViewBag.Users = cachedStaticData.Users;
+            ViewBag.AllDepartments = cachedStaticData.AllDepartments;
+
+            // Try to get cached paged results
+            if (!_cache.TryGetValue(cacheKey, out var pagedResult))
+            {
+                // If repository has the new async method, use it
+                if (repository is EFAmanRepository efRepo)
+                {
+                    pagedResult = await efRepo.GetPagedAmansAsync(page, size, userRole, userName);
+                }
+                else
+                {
+                    // Fallback to original logic for compatibility
+                    IEnumerable<Aman> amans;
+                    if (User.IsInRole("AdminQM"))
+                    {
+                        amans = repository.Amans.Skip((page - 1) * size).Take(size).ToList();
+                    }
+                    else
+                    {
+                        amans = repository.Amans
+                            .Where(x => x.Creator == User.Identity.Name || x.Responsible == User.Identity.Name || x.Verifier == User.Identity.Name)
+                            .Skip((page - 1) * size).Take(size);
+                    }
+                    pagedResult = (amans, amans.Count());
+                }
+                
+                // Cache for 10 minutes
+                _cache.Set(cacheKey, pagedResult, TimeSpan.FromMinutes(10));
+            }
+
+            var (items, totalCount) = ((IEnumerable<Aman>, int))pagedResult;
+            
+            // Set pagination data
+            ViewBag.CurrentPage = page;
+            ViewBag.PageSize = size;
+            ViewBag.TotalCount = totalCount;
+            ViewBag.TotalPages = (int)Math.Ceiling((double)totalCount / size);
+
+            return View(items);
         }
 
-        public ViewResult ViewAction(string id)
+        [ResponseCache(Duration = 600, VaryByQueryKeys = new[] { "id" })]
+        public async Task<ViewResult> ViewAction(string id)
         {
-            ViewBag.Locations = crepository.GetLocations();
-            ViewBag.Classifications = crepository.GetClassifications();
-            ViewBag.Priorities = crepository.GetPriorities();
-            ViewBag.Responsibles = crepository.GetResponsibles();
-            ViewBag.AmanSources = crepository.GetAmanSources();
-            ViewBag.AmanStatuses = crepository.GetAmanStatuses();
-            ViewBag.AmanStatuses2 = crepository.GetAmanStatuses();
-            ViewBag.Reschedules = repository.GetReschedules(id);
-            ViewBag.CorrectionTypes = crepository.GetAmanCorrectionTypes();
-            ViewBag.Users = userManager.Users;
-            var aman = repository.Amans.FirstOrDefault(a => a.AmanID == id);
-            ViewBag.Auditors = aman.Auditors;
-            return View("View", aman);
+            var cacheKey = $"aman_view_{id}";
+            var staticDataCacheKey = "aman_view_static_data";
+
+            // Cache static data
+            if (!_cache.TryGetValue(staticDataCacheKey, out var staticData))
+            {
+                staticData = new
+                {
+                    Locations = crepository.GetLocations(),
+                    Classifications = crepository.GetClassifications(),
+                    Priorities = crepository.GetPriorities(),
+                    Responsibles = crepository.GetResponsibles(),
+                    AmanSources = crepository.GetAmanSources(),
+                    AmanStatuses = crepository.GetAmanStatuses(),
+                    CorrectionTypes = crepository.GetAmanCorrectionTypes(),
+                    Users = userManager.Users.ToList()
+                };
+                
+                _cache.Set(staticDataCacheKey, staticData, TimeSpan.FromMinutes(30));
+            }
+
+            // Set ViewBag from cached data
+            var cachedStaticData = staticData as dynamic;
+            ViewBag.Locations = cachedStaticData.Locations;
+            ViewBag.Classifications = cachedStaticData.Classifications;
+            ViewBag.Priorities = cachedStaticData.Priorities;
+            ViewBag.Responsibles = cachedStaticData.Responsibles;
+            ViewBag.AmanSources = cachedStaticData.AmanSources;
+            ViewBag.AmanStatuses = cachedStaticData.AmanStatuses;
+            ViewBag.AmanStatuses2 = cachedStaticData.AmanStatuses;
+            ViewBag.CorrectionTypes = cachedStaticData.CorrectionTypes;
+            ViewBag.Users = cachedStaticData.Users;
+
+            // Try to get cached aman data
+            if (!_cache.TryGetValue(cacheKey, out var amanData))
+            {
+                Aman aman;
+                IEnumerable<Reschedule> reschedules;
+
+                if (repository is EFAmanRepository efRepo)
+                {
+                    aman = await efRepo.GetAmanByIdAsync(id);
+                    reschedules = await efRepo.GetReschedulesAsync(id);
+                }
+                else
+                {
+                    aman = repository.Amans.FirstOrDefault(a => a.AmanID == id);
+                    reschedules = repository.GetReschedules(id);
+                }
+
+                amanData = new { Aman = aman, Reschedules = reschedules };
+                
+                // Cache for 5 minutes (shorter because this data changes more frequently)
+                _cache.Set(cacheKey, amanData, TimeSpan.FromMinutes(5));
+            }
+
+            var cachedAmanData = amanData as dynamic;
+            ViewBag.Reschedules = cachedAmanData.Reschedules;
+            ViewBag.Auditors = cachedAmanData.Aman.Auditors;
+
+            return View("View", cachedAmanData.Aman);
         }
 
         public ViewResult Edit(string id)
@@ -113,7 +227,21 @@ namespace Admin.Controllers
 
                 aman.Creator = userManager.GetUserName(User);
                 aman.Department = responsible.Department;
-                repository.Save(aman);
+                
+                // Use async save if available
+                if (repository is EFAmanRepository efRepo)
+                {
+                    await efRepo.SaveAsync(aman);
+                }
+                else
+                {
+                    repository.Save(aman);
+                }
+                
+                // Phase 2 Optimization: Invalidate cache after save
+                _cacheService.InvalidateAmanCache(aman.AmanID);
+                _cacheService.InvalidateAmanCache(); // Invalidate list caches
+                
                 aman = repository.Amans.FirstOrDefault(x => x.AmanID == aman.AmanID);
 
                 var message = new StringBuilder();
@@ -189,7 +317,19 @@ namespace Admin.Controllers
                 }
             }
 
-            repository.SaveProgress(aman);
+            // Use async save if available
+            if (repository is EFAmanRepository efRepo)
+            {
+                await efRepo.SaveProgressAsync(aman);
+            }
+            else
+            {
+                repository.SaveProgress(aman);
+            }
+            
+            // Phase 2 Optimization: Invalidate cache after progress update
+            _cacheService.InvalidateAmanCache(aman.AmanID);
+
             var search = repository.Amans.FirstOrDefault(x => x.AmanID == aman.AmanID);
             if (search.Verifier != null)
             {

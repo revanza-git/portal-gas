@@ -18,6 +18,8 @@
 @section PageLevelPlugin {
     <link rel="stylesheet" href="~/admin/vendor/amcharts_3.21.12/amcharts/plugins/export/export.css" type="text/css" media="all" />
     <link rel="stylesheet" href="~/admin/vendor/bootstrap-daterangepicker/daterangepicker-bs3.css" />
+    <link rel="stylesheet" href="~/admin/css/dashboard-enhancements.css" />
+    <link rel="stylesheet" href="~/admin/css/responsive-enhancements.css" />
     <style>
         #chartdiv, #chartdiv2, #chartdiv11, #chartdiv12 {
             width: 100%;
@@ -28,11 +30,33 @@
             width: 100%;
             height: 500px;
         }
+        
+        .dashboard-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .dashboard-title {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .dashboard-subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
     </style>
 }
 
 @section TitleBar {
-    <strong>Gas Monitoring</strong>
+    <strong>🏭 Gas Monitoring - Management Dashboard</strong>
 }
 
 <!-- main area -->
@@ -41,106 +65,169 @@
         <div class="panel-heading border">
             <ol class="breadcrumb mb0 no-padding">
                 <li>
-                    <a href="javascript:;">Content</a>
+                    <a href="javascript:;"><i class="fa fa-home"></i> Dashboard</a>
                 </li>
                 <li>
-                    <a href="javascript:;">Gas Monitoring</a>
+                    <a href="javascript:;"><i class="fa fa-tachometer"></i> Gas Monitoring</a>
                 </li>
-                <li class="active"><strong>Management Dashboard</strong></li>
+                <li class="active"><strong><i class="fa fa-chart-line"></i> Management Dashboard</strong></li>
             </ol>
         </div>
         <div class="panel-body">
             @if (TempData["message"] != null)
             {
-                <div class="alert alert-success"><i class="fa fa-lg fa-check-circle"></i> @TempData["message"]</div>
+                <div class="alert alert-success">
+                    <i class="fa fa-lg fa-check-circle"></i> 
+                    <span class="loading-spinner" style="display: none;"></span>
+                    @TempData["message"]
+                </div>
             }
-            <div class="row">
-                <div class="col-md-3">
-                    Year:
-                    <select onchange="updateDashboards(this.value)">
-                        @for (Int32 year = DateTime.Now.Year; year >= 2012; year--)
-                        {
-                            <option value="@year">@year</option>
-                        }
-                    </select>
+
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h1 class="dashboard-title">⚡ Gas Monitoring Dashboard</h1>
+                        <p class="dashboard-subtitle">Real-time monitoring and analytics for gas operations</p>
+                    </div>
+                    <div class="col-md-4 text-right">
+                        <div class="year-selector-container" style="background: rgba(255,255,255,0.1); margin: 0;">
+                            <label style="color: white;">📅 Year:</label>
+                            <select onchange="updateDashboards(this.value)" style="background: rgba(255,255,255,0.2);">
+                                @for (Int32 year = DateTime.Now.Year; year >= 2012; year--)
+                                {
+                                    <option value="@year">@year</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <br />
+
+            <!-- Key Performance Indicators -->
             <div class="row">
                 <div class="col-md-6">
                     <section class="widget bg-success text-center bold">
                         <div class="widget-details col-xs-6">
-                            <h2 class="no-margin" id="rkap"><b><label id="target_pasokan">@target_pasokan</label> Kargo</b></h2>
-                            <small class="text-uppercase" style="font-size:15px;"><b>TARGET PASOKAN</b></small>
+                            <h2 class="no-margin pulse" id="rkap">
+                                <b>
+                                    <i class="fa fa-target" style="margin-right: 10px;"></i>
+                                    <label id="target_pasokan">@target_pasokan</label> 
+                                    <small style="font-size: 0.4em;">Kargo</small>
+                                </b>
+                            </h2>
+                            <small class="text-uppercase" style="font-size:15px;"><b>🎯 TARGET PASOKAN</b></small>
                         </div>
                         <div class="widget-details col-xs-6">
-                            <h2 class="no-margin" id="realisasi"><b><label id="realisasi_pasokan">@realisasi_pasokan.ToString("N0")</label> Kargo</b></h2>
-                            <small class="text-uppercase" style="font-size:15px;"><b>REALISASI</b></small>
+                            <h2 class="no-margin" id="realisasi">
+                                <b>
+                                    <i class="fa fa-check-circle" style="margin-right: 10px;"></i>
+                                    <label id="realisasi_pasokan">@realisasi_pasokan.ToString("N0")</label> 
+                                    <small style="font-size: 0.4em;">Kargo</small>
+                                </b>
+                            </h2>
+                            <small class="text-uppercase" style="font-size:15px;"><b>✅ REALISASI</b></small>
                         </div>
                     </section>
                 </div>
                 <div class="col-md-6">
                     <section class="widget bg-warning text-center bold">
                         <div class="widget-details col-xs-6">
-                            <h2 class="no-margin" id="rkap"><b><label id="target_penjualan">@target_penjualan.ToString("N0")</label> MMBTU</b></h2>
-                            <small class="text-uppercase" style="font-size:15px;"><b>TARGET PENJUALAN</b></small>
+                            <h2 class="no-margin" id="rkap">
+                                <b>
+                                    <i class="fa fa-bullseye" style="margin-right: 10px;"></i>
+                                    <label id="target_penjualan">@target_penjualan.ToString("N0")</label> 
+                                    <small style="font-size: 0.4em;">MMBTU</small>
+                                </b>
+                            </h2>
+                            <small class="text-uppercase" style="font-size:15px;"><b>🎯 TARGET PENJUALAN</b></small>
                         </div>
                         <div class="widget-details col-xs-6">
-                            <h2 class="no-margin" id="realisasi"><b><label id="realisasi_penjualan">@realisasi_penjualan.ToString("N0")</label> MMBTU</b></h2>
-                            <small class="text-uppercase" style="font-size:15px;"><b>REALISASI</b></small>
+                            <h2 class="no-margin" id="realisasi">
+                                <b>
+                                    <i class="fa fa-chart-line" style="margin-right: 10px;"></i>
+                                    <label id="realisasi_penjualan">@realisasi_penjualan.ToString("N0")</label> 
+                                    <small style="font-size: 0.4em;">MMBTU</small>
+                                </b>
+                            </h2>
+                            <small class="text-uppercase" style="font-size:15px;"><b>📈 REALISASI</b></small>
                         </div>
                     </section>
                 </div>
+            </div>
 
-                <div class="row">
-                    <div class="col-md-6" style="text-align:center">
+            <!-- Performance Gauges -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="chart-container">
+                        <div class="chart-title">
+                            <i class="fa fa-tachometer"></i> Performance Pasokan (@prosentase_pasokan%)
+                        </div>
                         <div id="chartdiv"></div>
                     </div>
-
-                    <div class="col-md-6">
+                </div>
+                <div class="col-md-6">
+                    <div class="chart-container">
+                        <div class="chart-title">
+                            <i class="fa fa-chart-pie"></i> Performance Penjualan (@prosentase_penjualan%)
+                        </div>
                         <div id="chartdiv2"></div>
                     </div>
                 </div>
-                <!--
-                <div class="row">
-                    <div class="col-md-6" style="text-align:center">
-                        <div id="chartdiv11"></div>
-                    </div>
+            </div>
 
-                    <div class="col-md-6">
-                        <div id="chartdiv212"></div>
-                    </div>
-                </div>
-                -->
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="widget bg-danger">
-                            <div class="widget-icon bg-white pull-left fa fa-tachometer">
-                            </div>
-                            <div class="overflow-hidden">
-                                <span class="widget-title" style="font-weight:bold; color: white">@realisasi_bog.ToString("N0") of @target_bog.ToString("N0") M3/D  ( @prosentase_bog.ToString("N0") %)</span>
-                                <span class="widget-subtitle" style="font-weight:bold; color: white">Boil of Gas</span>
-                            </div>
+            <!-- BOG Monitoring -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="widget bog-widget">
+                        <div class="widget-icon bg-white pull-left fa fa-tachometer">
+                        </div>
+                        <div class="overflow-hidden">
+                            <span class="widget-title">
+                                <i class="fa fa-fire"></i> 
+                                @realisasi_bog.ToString("N0") of @target_bog.ToString("N0") M³/D  
+                                ( @prosentase_bog.ToString("N0")% )
+                            </span>
+                            <span class="widget-subtitle">🔥 Boil of Gas Monitoring</span>
                         </div>
                     </div>
                 </div>
-                <br />
-                <div class="row">
-                    <div class="col-md-3">
-                        Period:
+            </div>
+
+            <!-- Date Range Filter -->
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="date-range-container">
+                        <label><i class="fa fa-calendar"></i> Period Selection:</label>
                         <div class="input-prepend input-group">
                             <span class="add-on input-group-addon"><i class="fa fa-calendar"></i></span>
-                            <input type="text" name="daterange" class="form-control drp" value="@startDate.ToString("dd/MM/yyyy") - @endDate.ToString("dd/MM/yyyy")" onchange="updateGraphs(this.value)" />
+                            <input type="text" name="daterange" class="form-control drp" 
+                                   value="@startDate.ToString("dd/MM/yyyy") - @endDate.ToString("dd/MM/yyyy")" 
+                                   onchange="updateGraphs(this.value)" 
+                                   placeholder="Select date range..." />
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-md-12">
+            </div>
+
+            <!-- Trend Charts -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="chart-container">
+                        <div class="chart-title">
+                            <i class="fa fa-line-chart"></i> Trend Analysis - Target vs Realisasi Pasokan
+                        </div>
                         <div id="chartdiv3"></div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-md-12">
+            </div>
+            
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="chart-container">
+                        <div class="chart-title">
+                            <i class="fa fa-area-chart"></i> Trend Analysis - Target vs Realisasi Penjualan
+                        </div>
                         <div id="chartdiv4"></div>
                     </div>
                 </div>
@@ -148,9 +235,10 @@
         </div>
     </div>
 </div>
-<input type ="hidden" id="prosentase_pasokan" value="@prosentase_pasokan"/>
-<input type="hidden" id="prosentase_penjualan" value="@prosentase_penjualan" /> 
-<!-- /main area -->
+
+<!-- Hidden inputs for JavaScript -->
+<input type="hidden" id="prosentase_pasokan" value="@prosentase_pasokan"/>
+<input type="hidden" id="prosentase_penjualan" value="@prosentase_penjualan" />
 
 @section PageLevelScripts {
     <!-- Resources -->
@@ -161,6 +249,7 @@
     <script src="~/admin/vendor/amcharts_3.21.12/amcharts/plugins/export/export.min.js"></script>
     <script src="~/admin/vendor/moment/moment.js"></script>
     <script src="~/admin/vendor/bootstrap-daterangepicker/daterangepicker.js"></script>
+    <script src="~/admin/scripts/dashboard-enhancements.js"></script>
 }
 
 @section InitPageScripts {

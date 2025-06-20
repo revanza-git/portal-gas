@@ -68,6 +68,121 @@ namespace Admin.Controllers
             return View();
         }
 
+        [AllowAnonymous]
+        public IActionResult DebugGallery()
+        {
+            try
+            {
+                var photos = galleryRepository.GetLastPhotos(10).ToList();
+                var totalPhotos = galleryRepository.GetLastPhotos(1000).Count();
+                var allGalleries = galleryRepository.Galleries.ToList();
+                
+                var debug = new
+                {
+                    TotalPhotosInDatabase = totalPhotos,
+                    TotalGalleries = allGalleries.Count(),
+                    LastPhotosRetrieved = photos.Count(),
+                    Photos = photos.Select(p => new {
+                        p.PhotoID,
+                        p.Keterangan,
+                        p.FileName,
+                        p.GalleryID,
+                        p.CreatedOn,
+                        p.Department,
+                        p.Creator,
+                        FileExists = !string.IsNullOrEmpty(p.FileName) && 
+                                   System.IO.File.Exists(System.IO.Path.Combine(configuration["UploadPath:photo"], p.FileName)),
+                        ImageUrl = Url.Action("GetFileContent", "Gallery", new { ID = p.PhotoID }),
+                        FullFilePath = System.IO.Path.Combine(configuration["UploadPath:photo"], p.FileName ?? "")
+                    }).ToList(),
+                    Galleries = allGalleries.Select(g => new {
+                        g.GalleryID,
+                        g.Deskripsi,
+                        g.Department,
+                        g.CreatedOn
+                    }).ToList(),
+                    UploadPath = configuration["UploadPath:photo"]
+                };
+                
+                return Json(debug);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = ex.Message, StackTrace = ex.StackTrace });
+            }
+        }
+
+        [AllowAnonymous]
+        public IActionResult TestPhotoLoad(int id = 54)
+        {
+            try
+            {
+                var photo = galleryRepository.GetPhoto(id);
+                if (photo == null)
+                {
+                    return Json(new { Error = $"Photo {id} not found in database" });
+                }
+
+                var filePath = System.IO.Path.Combine(configuration["UploadPath:photo"], photo.FileName);
+                var fileExists = System.IO.File.Exists(filePath);
+                
+                return Json(new {
+                    PhotoID = photo.PhotoID,
+                    FileName = photo.FileName,
+                    FilePath = filePath,
+                    FileExists = fileExists,
+                    ImageUrl = Url.Action("GetFileContent", "Gallery", new { ID = photo.PhotoID }),
+                    Message = fileExists ? "File exists - image should load" : "File missing from disk"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = ex.Message });
+            }
+        }
+
+        [AllowAnonymous]
+        public IActionResult TestDirectImageLoad(int id = 54)
+        {
+            try
+            {
+                var photo = galleryRepository.GetPhoto(id);
+                if (photo == null)
+                {
+                    return NotFound($"Photo {id} not found");
+                }
+
+                var filePath = System.IO.Path.Combine(configuration["UploadPath:photo"], photo.FileName);
+                if (!System.IO.File.Exists(filePath))
+                {
+                    return NotFound("File not found on disk");
+                }
+
+                var fileBytes = System.IO.File.ReadAllBytes(filePath);
+                var contentType = GetContentType(photo.FileName);
+                
+                return File(fileBytes, contentType, photo.FileName);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error: {ex.Message}");
+            }
+        }
+
+        private string GetContentType(string fileName)
+        {
+            var extension = System.IO.Path.GetExtension(fileName).ToLowerInvariant();
+            return extension switch
+            {
+                ".jpg" or ".jpeg" or ".jfif" => "image/jpeg",
+                ".png" => "image/png",
+                ".gif" => "image/gif",
+                ".bmp" => "image/bmp",
+                ".webp" => "image/webp",
+                _ => "image/jpeg"
+            };
+        }
+
         private (string startdate, string enddate) GetDateRange(string daterange)
         {
             if (string.IsNullOrEmpty(daterange))
@@ -105,8 +220,6 @@ namespace Admin.Controllers
                 UnsafeAndActCondition = nocs.Count(x => x.DaftarPengamatan == 2 || x.DaftarPengamatan == 3)
             };
         }
-
-
 
         private string GetTopNocJson(DateTime dtStart, DateTime dtEnd)
         {
