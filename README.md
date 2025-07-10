@@ -66,6 +66,19 @@ Portal Gas is a comprehensive web application designed for gas operations manage
 ![Safety Management](wwwroot/portal2.jpg)
 *Safety Management Interface*
 
+## Application Architecture
+
+```mermaid
+graph TD;
+    A[Client Browser] --> B(ASP.NET Core MVC);
+    B --> C{Controllers};
+    C --> D[Services];
+    D --> E[Repositories];
+    E --> F[(Database)];
+    C --> G[Views];
+    G --> A;
+```
+
 ## Setup Guide
 
 ### Prerequisites
