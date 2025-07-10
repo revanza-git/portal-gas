@@ -7,7 +7,7 @@ Portal Gas is a comprehensive web application designed for gas operations manage
 ## Key Technologies
 
 - **ASP.NET Core 8.0**: Provides high-performance, cross-platform web application framework
-- **Entity Framework Core 9.0**: Enables efficient database operations and migrations
+- **Entity Framework Core 8**: Enables efficient database operations and migrations
 - **SQL Server**: Primary database for storing application data
 - **Identity Framework**: Handles user authentication and authorization
 - **MailKit**: Manages email communications within the application
@@ -21,26 +21,39 @@ Portal Gas is a comprehensive web application designed for gas operations manage
    - User profile management
    - Enterprise authentication integration
 
-2. **Work Overtime Management**
+2. **Action Management (AMAN)**
+   - Comprehensive module for tracking findings, recommendations, and corrective actions.
+   - Includes workflows for verification, rescheduling, and closure.
+
+3. **Work Overtime Management**
    - Overtime request submission
    - Approval workflows
    - Overtime tracking and reporting
 
-3. **Document Management**
+4. **Document Management (DCU)**
    - Secure file storage
    - Version control
    - Document sharing and collaboration
 
-4. **Gas Monitoring**
+5. **Gas Monitoring**
    - Real-time gas level monitoring
    - Alert system
    - Historical data tracking
 
-5. **Safety Management**
+6. **Safety Management**
    - Job Safety Analysis (JSA)
-   - Risk assessment
+   - Risk assessment (Hazard)
    - Incident reporting
    - Daily check-up management
+
+7. **Network Operation Center (NOC)**
+   - Module for logging and managing operational observations.
+
+8. **News & Announcements**
+   - A section for internal news and updates.
+
+9. **Media Gallery**
+   - Media gallery for photos and videos.
 
 ## Screenshots
 
