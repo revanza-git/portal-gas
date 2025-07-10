@@ -4,7 +4,7 @@
 <div class="sidebar-panel offscreen-left">
     <div class="brand" style="background-color:white;">
         <div class="brand-logo">
-            <img src="~/admin/images/logo-regas.png" height="25" alt="">
+            <img src="~/admin/images/logo.png" height="25" alt="">
         </div>
         <a href="javascript:;" data-toggle="layout-small-menu">
             <i class="toggle-sidebar hidden-xs v3 fa fa-th fa-lg" style="color:Highlight"></i>
@@ -23,39 +23,39 @@
                 </a>
             </li>
             <li>
-                <a href="https://apps.pertamina.com/eproc_nusantararegas" target="_blank">
+                <a href="#" target="_blank">
                     <i class="fa fa-desktop"></i>
                     <span>E-Procurement</span>
                 </a>
             </li>
             <li>
-                <a href="http://appnr.pertamina.com/portal/semar" target="_blank">
+                <a href="#" target="_blank">
                     <i class="fa fa-desktop"></i>
-                    <span>&nbsp;SEMAR</span>
+                    <span>SEMAR</span>
                 </a>
             </li>
             <li>
-                <a href="http://10.10.10.14/login" target="_blank">
+                <a href="#" target="_blank">
                     <i class="fa fa-navicon fa-lg"></i>
-                    <span>&nbsp;SYMMIN</span>
+                    <span>SYMMIN</span>
                 </a>
             </li>
             <li>
-                <a href="http://10.10.10.15/" target="_blank">
+                <a href="#" target="_blank">
                     <i class="fa fa-archive fa-lg"></i>
-                    <span>&nbsp;Activo</span>
+                    <span>Activo</span>
                 </a>
             </li>
             <li>
-                <a href="https://appnr.pertamina.com/meetingroom.nr" target="_blank">
+                <a href="#" target="_blank">
                     <i class="fa fa-share-alt fa-lg"></i>
-                    <span>&nbsp;Meeting Room</span>
+                    <span>Meeting Room</span>
                 </a>
             </li>
             <li>
-                <a href="https://nusantararegas.com" target="_blank">
-                    <i class="fa fa-share-alt fa-lg"></i>
-                    <span>&nbsp;Website NR</span>
+                <a href="#" target="_blank">
+                    <i class="fa fa-globe fa-lg"></i>
+                    <span>Company Website</span>
                 </a>
             </li>
             @if (User.IsInRole("SuperAdmin"))
@@ -75,7 +75,7 @@
                 <li>
                     <a href="javascript:;">
                         <i class="fa fa-cog"></i>
-                        <span>Setting</span>
+                        <span>Settings</span>
                     </a>
                     <ul class="sub-menu">
                         <li>
@@ -102,7 +102,7 @@
             <li>
                 <a href="javascript:;" data-toggle="dropdown">
                     <i class="fa fa-users fa-lg"></i>
-                    <span>&nbsp;SDM</span>
+                    <span>HR Management</span>
                 </a>
                 <ul class="sub-menu">
                     <li>
@@ -222,13 +222,12 @@
                 @if (UserManager.FindByNameAsync(User.Identity.Name).Result.GCG == true)
                 {
                     <li>
-                        <a href="https://apps.pertamina.com/compols/" target="_blank">
+                        <a href="#" target="_blank">
                             <i class="fa fa-briefcase"></i>
                             <span>GCG</span>
                         </a>
                     </li>
                 }
-
                 <li>
                     <a asp-controller="Gallery" asp-action="Index">
                         <i class="fa fa-image"></i>
@@ -238,98 +237,77 @@
             }
             <li>
                 <a href="javascript:;" data-toggle="dropdown">
-                    <i class="fa fa-file fa-lg"></i>
-                    <span>&nbsp;Pertamina</span>
+                    <i class="fa fa-building fa-lg"></i>
+                    <span>Corporate Systems</span>
                 </a>
                 <ul class="sub-menu">
                     <li>
-                        <a href="https://myssc.pertamina.com/" target="_blank">
+                        <a href="#" target="_blank">
                             <div class="overflow-hidden">
                                 <span>MYSSC</span>
                             </div>
                         </a>
                     </li>
                     <li>
-                        <a href="http://intra.pertamina.com" target="_blank">
+                        <a href="#" target="_blank">
                             <div class="overflow-hidden">
-                                <span>Intra Pertamina</span>
+                                <span>Intranet</span>
                             </div>
                         </a>
                     </li>
                     <li>
-                        <a href="https://mail.pertamina.com" target="_blank">
+                        <a href="#" target="_blank">
                             <div class="overflow-hidden">
                                 <span>Mail</span>
                             </div>
                         </a>
                     </li>
                     <li>
-                        <a href="http://intra-iam.pertamina.com" target="_blank">
+                        <a href="#" target="_blank">
                             <div class="overflow-hidden">
-                                <span>I-am</span>
+                                <span>IAM</span>
                             </div>
                         </a>
                     </li>
                     <li>
-                        <a href="https://ptmkpwa16prd01.pertamina.com/ERMS" target="_blank">
+                        <a href="#" target="_blank">
                             <div class="overflow-hidden">
-                                <span>Risk Managament</span>
+                                <span>Risk Management</span>
                             </div>
                         </a>
                     </li>
                     <li>
-                        <a href="http://ptmkpwab81.pertamina.com/horsekorporat/Default.aspx" target="_blank">
+                        <a href="#" target="_blank">
                             <div class="overflow-hidden">
-                                <span>Horse</span>
+                                <span>Document Management</span>
                             </div>
                         </a>
                     </li>
                     <li>
-                        <a href="http://ptmkpweb12app01.pertamina.com/Peraturan/" target="_blank">
-                            <div class="overflow-hidden">
-                                <span>STK & SK</span>
-                            </div>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://apps.pertamina.com/changepassword" target="_blank">
+                        <a href="#" target="_blank">
                             <div class="overflow-hidden">
                                 <span>Update Password</span>
                             </div>
                         </a>
                     </li>
                     <li>
-                        <a href="https://app.poffice.pertamina.com" target="_blank">
+                        <a href="#" target="_blank">
                             <div class="overflow-hidden">
-                                <span>P-Office</span>
+                                <span>Office Portal</span>
                             </div>
                         </a>
                     </li>
                     <li>
-                        <a href="https://apps.pertamina.com/SMART" target="_blank">
+                        <a href="#" target="_blank">
                             <div class="overflow-hidden">
                                 <span>SMART</span>
                             </div>
                         </a>
                     </li>
                     <li>
-                        <a href="https://personal.idaman.pertamina.com" target="_blank">
+                        <a href="#" target="_blank">
                             <div class="overflow-hidden">
-                                <span>idAMan</span>
-                            </div>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://dsclient.poffice.pertamina.com" target="_blank">
-                            <div class="overflow-hidden">
-                                <span>Pertamina-Sign</span>
-                            </div>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://pertaminasign.peruri.co.id/login" target="_blank">
-                            <div class="overflow-hidden">
-                                <span>Digital Document</span>
+                                <span>Digital Sign</span>
                             </div>
                         </a>
                     </li>
