@@ -1,13 +1,32 @@
+/* AMAN Table Custom Styles - Fixed Horizontal Scrolling */
 .table-responsive {
-    overflow-x: auto;
-    width: 100%;
+    overflow-x: auto !important;   /* show scrollbar when needed */
 }
-.table {
-    min-width: 1200px; /* Adjust as needed for your columns */
+
+/* Let the table grow as wide as needed (natural content width) */
+.table#table1, #table1 {
+    width: max-content;            /* modern browsers */
+    min-width: 1600px;             /* reasonable fallback */
 }
+
+/* Remove previously forced minimum widths so columns are not squeezed */
 .table th, .table td {
-    white-space: nowrap !important;
+    min-width: unset !important;
 }
+
+/* Remove per-column min-width overrides */
+.table th:nth-child(n), .table td:nth-child(n) {
+    min-width: unset !important;
+}
+
+/* Keep long-text columns readable but capped */
+.findings-col, .recommendation-col {
+    max-width: 300px;
+    white-space: normal !important;
+    word-break: break-word;
+}
+
+/* Allow specific columns to wrap text */
 .table td.text-wrap, .table th.text-wrap {
     white-space: normal !important;
     max-width: 200px;
@@ -19,6 +38,62 @@
     word-break: break-word;
 }
 
-.findings-col, .recommendation-col {
-    max-width: 200px; /* Adjust as needed */
+/* === BEGIN scrollX alignment fix === */
+.dataTables_scrollHeadInner, .dataTables_scrollBody table {
+    width: 100% !important;      /* keep header and body tables identical width */
+}
+
+/* Fixed table layout so column widths come only from DataTables calculated values */
+.dataTables_scrollBody table {
+    table-layout: fixed !important;
+}
+
+/* Ensure the main table can shrink/grow but starts with a sensible width */
+#table1 {
+    width: max-content !important; /* natural width */
+    min-width: 100%;
+}
+
+/* Keep long text columns readable but capped (can wrap) */
+.findings-col,
+.recommendation-col {
+    max-width: 300px;
+    white-space: normal !important;
+    word-break: break-word;
+}
+/* === END scrollX alignment fix === */
+
+#table1 thead th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    border-bottom: 2px solid #dee2e6;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+#table1 tbody tr:hover {
+    background-color: #f5f5f5;
+}
+
+/* DataTables wrapper adjustments */
+.dataTables_wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .table-responsive {
+        font-size: 0.9em;
+    }
+    
+    .table th, .table td {
+        padding: 6px 8px;
+    }
+    
+    .findings-col, .recommendation-col {
+        max-width: 150px;
+        min-width: 150px;
+    }
 }
