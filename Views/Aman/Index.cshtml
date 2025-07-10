@@ -8,6 +8,7 @@
 @section PageLevelPlugin {
     <link rel="stylesheet" href="~/admin/vendor/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css" />
     <link rel="stylesheet" href="~/admin/vendor/datatables/Buttons-1.5.1/css/buttons.dataTables.min.css" />
+    <link rel="stylesheet" href="~/admin/vendor/bootstrap-daterangepicker/daterangepicker-bs3.css" />
 }
 
     @section TitleBar {
@@ -39,6 +40,66 @@
                     <a asp-controller="Aman" asp-action="Add" class="btn btn-round btn-sm btn-primary"><i class="fa fa-plus"></i> Add New</a>
                 </div>
             }
+
+            <!-- Filter Controls -->
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <label>Date Range</label>
+                    <input type="text" id="daterange" class="form-control drp" placeholder="Select range" />
+                </div>
+                <div class="col-md-2">
+                    <label>Verifier</label>
+                    <select id="filterVerifier" class="form-control">
+                        <option value="">All</option>
+                        @foreach (var user in ViewBag.Users)
+                        {
+                            <option value="@user.Name">@user.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label>Creator</label>
+                    <select id="filterCreator" class="form-control">
+                        <option value="">All</option>
+                        @foreach (var user in ViewBag.Users)
+                        {
+                            <option value="@user.Name">@user.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label>Status</label>
+                    <select id="filterStatus" class="form-control">
+                        <option value="">All</option>
+                        @foreach (var st in ViewBag.Statuses)
+                        {
+                            <option value="@st.Deskripsi">@st.Deskripsi</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label>Department</label>
+                    <select id="filterDepartment" class="form-control">
+                        <option value="">All</option>
+                        @foreach (var dept in ViewBag.AllDepartments)
+                        {
+                            <option value="@dept.Deskripsi">@dept.Deskripsi</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3 mt-2">
+                    <label>Auditor(s)</label>
+                    <input type="text" id="filterAuditor" class="form-control" placeholder="Auditor(s)" />
+                </div>
+                <div class="col-md-3 mt-2">
+                    <label>Findings</label>
+                    <input type="text" id="filterFindings" class="form-control" placeholder="Findings" />
+                </div>
+                <div class="col-md-3 mt-2">
+                    <label>Recommendation</label>
+                    <input type="text" id="filterRecommendation" class="form-control" placeholder="Recommendation" />
+                </div>
+            </div>
             <table id="table1" class="table table-bordered bordered table-striped table-condensed datatable">
                     <thead>
                         <tr>
@@ -179,16 +240,70 @@
     <script src="~/admin/vendor/datatables/pdfmake-0.1.32/vfs_fonts.js"></script>
     <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/buttons.html5.min.js"></script>
     <script src="~/admin/vendor/datatables/Buttons-1.5.1/js/buttons.print.min.js"></script>
+    <script src="~/admin/vendor/moment/moment.js"></script>
+    <script src="~/admin/vendor/bootstrap-daterangepicker/daterangepicker.js"></script>
 }
 
     @section InitPageScripts {
     <script>
         $(document).ready(function () {
-            $('#table1').DataTable({
+            var table = $('#table1').DataTable({
                 order: [[0, 'desc']],
                 dom: 'Bfrtip',
                 buttons: ['excel', 'pdf'],
                 scrollX: true
+            });
+
+            // Initialize daterangepicker with current month default
+            var start = moment().startOf('month');
+            var end = moment();
+            $('#daterange').daterangepicker({
+                locale: { format: 'DD/MM/YYYY' },
+                startDate: start,
+                endDate: end
+            });
+
+            // Custom date range filter for DataTables
+            $.fn.dataTable.ext.search.push(
+                function (settings, data, dataIndex) {
+                    var range = $('#daterange').val();
+                    if (!range) {
+                        return true;
+                    }
+                    var parts = range.split('-');
+                    var min = moment(parts[0].trim(), 'DD/MM/YYYY');
+                    var max = moment(parts[1].trim(), 'DD/MM/YYYY');
+                    var startDate = moment(data[1], 'DD/MM/YYYY'); // Start Date column
+                    var endDate = moment(data[2], 'DD/MM/YYYY');   // End Date column
+
+                    if (!min.isValid() || !max.isValid() || !startDate.isValid() || !endDate.isValid()) {
+                        return true;
+                    }
+
+                    return (startDate.isSameOrAfter(min) && endDate.isSameOrBefore(max));
+                }
+            );
+
+            function applyFilters() {
+                table.column(5).search($('#filterVerifier').val());
+                table.column(6).search($('#filterAuditor').val());
+                table.column(8).search($('#filterStatus').val());
+                table.column(9).search($('#filterDepartment').val());
+                table.column(10).search($('#filterFindings').val());
+                table.column(11).search($('#filterRecommendation').val());
+                table.column(12).search($('#filterCreator').val());
+                table.draw();
+            }
+
+            // Bind events
+            $('#filterVerifier, #filterStatus, #filterDepartment, #filterCreator')
+                .on('change', applyFilters);
+
+            $('#filterAuditor, #filterFindings, #filterRecommendation')
+                .on('keyup change', applyFilters);
+
+            $('#daterange').on('apply.daterangepicker cancel.daterangepicker', function () {
+                table.draw();
             });
         });
     </script>
