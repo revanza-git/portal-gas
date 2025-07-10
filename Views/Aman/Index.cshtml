@@ -8,7 +8,6 @@
 @section PageLevelPlugin {
     <link rel="stylesheet" href="~/admin/vendor/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css" />
     <link rel="stylesheet" href="~/admin/vendor/datatables/Buttons-1.5.1/css/buttons.dataTables.min.css" />
-    <link rel="stylesheet" href="~/admin/css/aman-table-custom.css" />
 }
 
     @section TitleBar {
@@ -40,8 +39,7 @@
                     <a asp-controller="Aman" asp-action="Add" class="btn btn-round btn-sm btn-primary"><i class="fa fa-plus"></i> Add New</a>
                 </div>
             }
-            <div class="table-responsive">
-                <table id="table1" class="table table-bordered bordered table-striped table-condensed datatable">
+            <table id="table1" class="table table-bordered bordered table-striped table-condensed datatable">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -166,7 +164,6 @@
                         }
                     </tbody>
                 </table>
-            </div>
         </div>
     </div>
 
@@ -186,13 +183,13 @@
 
     @section InitPageScripts {
     <script>
-        $('#table1').DataTable({
-            "order": [[0, "desc"]],
-            "dom": 'Bfrtip',
-            "buttons": [
-                'excel', 'pdf'
-            ],
-            "scrollX": true
+        $(document).ready(function () {
+            $('#table1').DataTable({
+                order: [[0, 'desc']],
+                dom: 'Bfrtip',
+                buttons: ['excel', 'pdf'],
+                scrollX: true
+            });
         });
     </script>
 }
