@@ -3,15 +3,20 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"]</title>
+    <title>@ViewData["Title"] - Portal Nusantara Regas</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <environment names="Development,Staging,Production">
         <link rel="shortcut icon" href="~/admin/favicon.ico">
-        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
         <!-- page level plugin styles -->
         @RenderSection("PageLevelPlugin", required: false)
         <!-- /page level plugin styles -->
-        <!-- build:css({.tmp,app}) styles/app.min.css -->
+        
+        <!-- Original Styles -->
         <link rel="stylesheet" href="~/admin/vendor/bootstrap/dist/css/bootstrap.css">
         <link rel="stylesheet" href="~/admin/vendor/perfect-scrollbar/css/perfect-scrollbar.css">
         <link rel="stylesheet" href="~/admin/styles/roboto.css">
@@ -21,7 +26,70 @@
         <link rel="stylesheet" href="~/admin/styles/animate.css">
         <link rel="stylesheet" href="~/admin/styles/urban.css">
         <link rel="stylesheet" href="~/admin/styles/urban.skins.css">
-        <!-- endbuild -->
+        
+        <!-- Modern Portal Styles -->
+        <link rel="stylesheet" href="~/css/modern-portal.css">
+        
+        <!-- Additional Modern CSS -->
+        <style>
+            /* Enhanced portal-specific styles */
+            .app {
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            }
+            
+            /* Improve chart containers */
+            #chartdiv, #chartdiv2 {
+                border-radius: 0.75rem;
+                box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+                padding: 1rem;
+                background: white;
+                margin-bottom: 1rem;
+            }
+            
+            /* Improved slider styling */
+            .bxslider {
+                border-radius: 0.75rem;
+                overflow: hidden;
+                box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            }
+            
+            /* Loading animations */
+            .fade-in-up {
+                animation: fadeInUp 0.6s ease-out;
+            }
+            
+            @@keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(30px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
+            /* Enhanced video container */
+            video {
+                border-radius: 0.75rem;
+                box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            }
+            
+            /* Dropdown arrow icon */
+            .sidebar-panel .nav li a[data-toggle="dropdown"]:after {
+                content: "\f107";
+                font-family: "FontAwesome";
+                position: absolute;
+                right: 20px;
+                top: 50%;
+                transform: translateY(-50%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar-panel .nav li.open a[data-toggle="dropdown"]:after {
+                transform: translateY(-50%) rotate(180deg);
+            }
+        </style>
     </environment>
 </head>
 <body>
@@ -47,7 +115,66 @@
         <script src="~/admin/scripts/ui/toggle.js"></script>
         <script src="~/admin/scripts/urban-constants.js"></script>
         <script src="~/admin/scripts/extentions/lib.js"></script>
-        <!-- endbuild -->
+        
+        <!-- Modern Portal Enhancements -->
+        <script>
+            // Add loading states and animations
+            $(document).ready(function() {
+                // Add fade-in animation to main content
+                $('.main-content').addClass('fade-in-up');
+                
+                // Enhanced button interactions
+                $('.btn').on('mouseenter', function() {
+                    $(this).addClass('shadow-hover');
+                });
+                
+                // Smooth scrolling for internal links
+                $('a[href^="#"]').on('click', function(event) {
+                    var target = $(this.getAttribute('href'));
+                    if( target.length ) {
+                        event.preventDefault();
+                        $('html, body').stop().animate({
+                            scrollTop: target.offset().top - 80
+                        }, 1000);
+                    }
+                });
+                
+                // Auto-hide alerts after 5 seconds
+                setTimeout(function() {
+                    $('.alert').fadeOut('slow');
+                }, 5000);
+                
+                // Sidebar dropdown functionality
+                $('.sidebar-panel .nav li a[data-toggle="dropdown"]').on('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    var $parentLi = $(this).parent();
+                    var $submenu = $parentLi.find('.sub-menu');
+                    
+                    if ($submenu.length === 0) return;
+                    
+                    // Check if this dropdown is currently open
+                    var isCurrentlyOpen = $parentLi.hasClass('open');
+                    
+                    // Close all open dropdowns first
+                    $('.sidebar-panel .nav li.open').removeClass('open');
+                    
+                    // If it wasn't open before, open it now (toggle behavior)
+                    if (!isCurrentlyOpen) {
+                        $parentLi.addClass('open');
+                    }
+                });
+                
+                // Close dropdowns when clicking outside
+                $(document).on('click', function(e) {
+                    if (!$(e.target).closest('.sidebar-panel').length) {
+                        $('.sidebar-panel .nav li.open').removeClass('open');
+                    }
+                });
+            });
+        </script>
+        
         <!-- page level scripts -->
         @RenderSection("PageLevelScripts", required: false)
         <!-- /page level scripts -->

@@ -4,6 +4,7 @@
 
 @{
     Layout = "~/Views/Shared/Panel.cshtml";
+    ViewData["Title"] = "NOC Management";
 }
 
 @section PageLevelPlugin {
@@ -16,15 +17,244 @@
     <link rel="stylesheet" href="~/admin/vendor/mjolnic-bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css">
     <link rel="stylesheet" href="~/admin/vendor/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" />
     <link rel="stylesheet" href="~/admin/vendor/bootstrap-touchspin/dist/jquery.bootstrap-touchspin.min.css">
+    
+    <style>
+        .noc-header {
+            background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .noc-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .noc-header p {
+            margin: 0.5rem 0 0 0;
+            opacity: 0.9;
+        }
+        
+        .noc-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .noc-stat-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            border-left: 4px solid #0891b2;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .noc-stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+        
+        .noc-stat-card.priority-high { border-left-color: #dc2626; }
+        .noc-stat-card.priority-medium { border-left-color: #d97706; }
+        .noc-stat-card.priority-low { border-left-color: #059669; }
+        .noc-stat-card.status-open { border-left-color: #2563eb; }
+        
+        .noc-stat-card h3 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+            color: #1e293b;
+        }
+        
+        .noc-stat-card p {
+            color: #64748b;
+            margin: 0.5rem 0 0 0;
+            font-weight: 500;
+        }
+        
+        .filter-section {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .filter-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .priority-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .priority-badge.high {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+        
+        .priority-badge.medium {
+            background: #fffbeb;
+            color: #d97706;
+        }
+        
+        .priority-badge.low {
+            background: #ecfdf5;
+            color: #059669;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .status-badge.open {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+        
+        .status-badge.close {
+            background: #ecfdf5;
+            color: #059669;
+        }
+        
+        .observer-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .observer-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+        
+        .observation-type {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            background: #f1f5f9;
+            color: #475569;
+        }
+        
+        .table-enhanced {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            overflow: hidden;
+        }
+        
+        .table-header-enhanced {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .table-header-enhanced h3 {
+            margin: 0;
+            color: #1e293b;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .actions-toolbar {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        @@media (max-width: 768px) {
+            .noc-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .actions-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .noc-header h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
 }
 
 @section TitleBar {
-    <strong>Nusantara Regas Observation Card (NOC)</strong>
+    <strong>📡 NOC Management</strong>
 }
 
 <!-- main area -->
 <div class="main-content">
-    <div class="panel">
+    <!-- NOC Header -->
+    <div class="noc-header fade-in">
+        <h1>📡 Nusantara Regas Observation Card</h1>
+        <p>Sistem Monitoring dan Pelaporan Observasi Keselamatan</p>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="noc-stats fade-in">
+        <div class="noc-stat-card">
+            <h3>@Model.Count()</h3>
+            <p>Total NOC Reports</p>
+        </div>
+        <div class="noc-stat-card status-open">
+            <h3>@Model.Count(x => x.Status == 1)</h3>
+            <p>Open Cases</p>
+        </div>
+        <div class="noc-stat-card priority-high">
+            <h3>@Model.Count(x => x.Prioritas == 1)</h3>
+            <p>High Priority</p>
+        </div>
+        <div class="noc-stat-card priority-medium">
+            <h3>@Model.Count(x => x.Prioritas == 2)</h3>
+            <p>Medium Priority</p>
+        </div>
+    </div>
+
+    <!-- Main Panel -->
+    <div class="panel slide-up">
         <div class="panel-heading border">
             <ol class="breadcrumb mb0 no-padding">
                 <li><a href="javascript:;">Content</a></li>
@@ -39,98 +269,185 @@
         <div class="panel-body">
             @if (TempData["message"] != null)
             {
-                <div class="alert alert-success"><i class="fa fa-lg fa-check-circle"></i> @TempData["message"]</div>
+                <div class="alert alert-success">
+                    <i class="fa fa-lg fa-check-circle"></i> @TempData["message"]
+                </div>
             }
-            <div class="row container-fluid no-footer">
-                @if (User.IsInRole("AdminNOC"))
-                {
+
+            <!-- Filter Section -->
+            @if (User.IsInRole("AdminNOC"))
+            {
+                <div class="filter-section">
+                    <h3 class="filter-title">
+                        <i class="fa fa-filter"></i>
+                        Filter Periode
+                    </h3>
                     <div class="row container-fluid no-footer">
-                        <label class="col-sm-1 control-label">Periode:</label>
-                        <div class="col-sm-3">
+                        <div class="col-sm-4">
                             <div class="input-prepend input-group input-group-sm">
                                 <span class="add-on input-group-addon"><i class="fa fa-calendar"></i></span>
-                                <input type="text" name="daterange" class="form-control drp" onchange="load_params()" />
+                                <input type="text" name="daterange" class="form-control drp" onchange="load_params()" placeholder="Select date range..." />
                             </div>
                         </div>
                     </div>
-                }
+                </div>
+            }
+
+            <!-- Actions Toolbar -->
+            <div class="actions-toolbar">
+                <div>
+                    <h3 style="margin: 0; color: #1e293b;">
+                        <i class="fa fa-eye" style="margin-right: 0.5rem;"></i>
+                        Observation Reports
+                    </h3>
+                    <p style="margin: 0; color: #64748b;">Manage safety observation cards and reports</p>
+                </div>
                 @if (User.IsInRole("Admin") || User.IsInRole("AtasanAdmin") || User.IsInRole("AdminQM") || User.IsInRole("AdminNOC"))
                 {
-                    <div class="pb25">
-                        <a asp-controller="NOC" asp-action="Add" class="btn btn-primary btn-round btn-sm"><i class="fa fa-plus"></i> Add New</a>
+                    <div>
+                        <a asp-controller="NOC" asp-action="Add" class="btn btn-primary btn-round">
+                            <i class="fa fa-plus"></i> Add New Report
+                        </a>
                     </div>
                 }
             </div>
-            <div id="list">
-                <table id="table1" class="table table-bordered bordered table-striped table-condensed datatable">
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Waktu</th>
-                            <th>Lokasi</th>
-                            <th>Prioritas</th>
-                            <th>Nama Observer</th>
-                            <th>Daftar Pengamatan</th>
-                            <th>Deskripsi</th>
-                            <th>Tindakan</th>
-                            <th>Fungsi</th>
-                            <th>Rekomendasi</th>
-                            <th>Photo</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="listBody">
-                        @inject UserManager<ApplicationUser> UserManager
-                        @foreach (var item in Model)
-                        {
-                            var locations = ViewBag.Locations as IEnumerable<Admin.Models.Common.Location>;
-                            var priorities = ViewBag.Priorities as IEnumerable<Admin.Models.Common.Priority>;
-                            var observationLists = ViewBag.ObservationLists as IEnumerable<Admin.Models.Common.ObservationList>;
-                            var departments = ViewBag.Departments as IEnumerable<Admin.Models.Common.Department>;
 
+            <!-- Enhanced Table -->
+            <div class="table-enhanced">
+                <div class="table-header-enhanced">
+                    <h3>
+                        <i class="fa fa-table"></i>
+                        NOC Reports List
+                    </h3>
+                </div>
+                <div id="list" style="padding: 1.5rem;">
+                    <table id="table1" class="table table-bordered table-striped table-hover datatable">
+                        <thead>
                             <tr>
-                                <td>@item.NOCID</td>
-                                <td>@item.EntryDate.ToString("dd/MM/yyyy hh:mm")</td>
-                                <td>@locations?.FirstOrDefault(l => l.LocationID == item.Lokasi)?.Deskripsi</td>
-                                <td>@priorities?.FirstOrDefault(p => p.PriorityID == item.Prioritas)?.Deskripsi</td>
-                                <td>@(UserManager.FindByNameAsync(item.NamaObserver).Result?.Name ?? "")</td>
-                                <td>@observationLists?.FirstOrDefault(o => o.ObservationListID == item.DaftarPengamatan)?.Deskripsi</td>
-                                <td>@item.Deskripsi</td>
-                                <td>@item.Tindakan</td>
-                                <td>@departments?.FirstOrDefault(d => d.DepartmentID == item.DivisiObserver)?.Deskripsi</td>
-                                <td>@item.Rekomendasi</td>
-                                <td>
-                                    @if (item.Photo != null)
-                                    {
-                                        <a class="btn btn-info btn-round btn-xs" name="download" href="@Url.Action("DownloadFile", "NOC", new { ID = item.NOCID })"><i class="fa fa-download"></i> Download</a>
-                                    }
-                                    else
-                                    {
-                                        <span class="btn btn-warning btn-round btn-xs">No File</span>
-                                    }
-                                </td>
-                                <td>@(item.Status == 1 ? "Open" : "Close")</td>
-                                <td>
-                                    <form method="post" asp-action="Delete">
-                                        <input type="hidden" name="NOCID" value="@item.NOCID" />
-                                        <a asp-controller="NOC" asp-action="Edit" asp-route-id="@item.NOCID" class="btn btn-warning btn-round btn-xs"><i class="fa fa-pencil"></i> Edit</a>
-                                        <button type="submit" onclick="return confirm('Are you sure you want to delete @item.NOCID ?');" class="btn btn-round btn-xs btn-danger"><i class="fa fa-times"></i> Delete</button>
-                                        @if (User.IsInRole("Admin") || User.IsInRole("AtasanAdmin") || User.IsInRole("AdminQM") || User.IsInRole("AdminNOC"))
-                                        {
-                                            <button type="button" name="aman" class="btn btn-info btn-round btn-xs" hidden="hidden"><i class="fa fa-arrow-right"></i>AMAN</button>
-                                        }
-                                    </form>
-                                </td>
+                                <th width="5%">No</th>
+                                <th width="10%">Time</th>
+                                <th width="12%">Location</th>
+                                <th width="8%">Priority</th>
+                                <th width="15%">Observer</th>
+                                <th width="15%">Observation Type</th>
+                                <th width="15%">Description</th>
+                                <th width="8%">Status</th>
+                                <th width="12%">Actions</th>
                             </tr>
-                        }
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody id="listBody">
+                            @inject UserManager<ApplicationUser> UserManager
+                            @foreach (var item in Model)
+                            {
+                                var locations = ViewBag.Locations as IEnumerable<Admin.Models.Common.Location>;
+                                var priorities = ViewBag.Priorities as IEnumerable<Admin.Models.Common.Priority>;
+                                var observationLists = ViewBag.ObservationLists as IEnumerable<Admin.Models.Common.ObservationList>;
+                                var departments = ViewBag.Departments as IEnumerable<Admin.Models.Common.Department>;
+
+                                <tr>
+                                    <td class="text-center">
+                                        <strong style="color: #64748b;">@item.NOCID</strong>
+                                    </td>
+                                    <td>
+                                        <div style="font-weight: 500; color: #1e293b;">
+                                            @item.EntryDate.ToString("dd/MM/yyyy")
+                                        </div>
+                                        <div style="font-size: 0.75rem; color: #64748b;">
+                                            @item.EntryDate.ToString("HH:mm")
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <i class="fa fa-map-marker" style="color: #64748b; margin-right: 0.5rem;"></i>
+                                        @locations?.FirstOrDefault(l => l.LocationID == item.Lokasi)?.Deskripsi
+                                    </td>
+                                    <td>
+                                        @{
+                                            var priorityClass = item.Prioritas switch {
+                                                1 => "high",
+                                                2 => "medium",
+                                                _ => "low"
+                                            };
+                                        }
+                                        <span class="priority-badge @priorityClass">
+                                            @priorities?.FirstOrDefault(p => p.PriorityID == item.Prioritas)?.Deskripsi
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="observer-info">
+                                            <div class="observer-avatar">
+                                                @(UserManager.FindByNameAsync(item.NamaObserver).Result?.Name?.Substring(0, 1).ToUpper() ?? "U")
+                                            </div>
+                                            <div>
+                                                <div style="font-weight: 500; color: #1e293b;">
+                                                    @(UserManager.FindByNameAsync(item.NamaObserver).Result?.Name ?? "")
+                                                </div>
+                                                <div style="font-size: 0.75rem; color: #64748b;">
+                                                    @departments?.FirstOrDefault(d => d.DepartmentID == item.DivisiObserver)?.Deskripsi
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="observation-type">
+                                            @observationLists?.FirstOrDefault(o => o.ObservationListID == item.DaftarPengamatan)?.Deskripsi
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div title="@item.Deskripsi" style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                            @item.Deskripsi
+                                        </div>
+                                        @if (!string.IsNullOrEmpty(item.Tindakan))
+                                        {
+                                            <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.25rem;">
+                                                <i class="fa fa-wrench" style="margin-right: 0.25rem;"></i>
+                                                Action taken
+                                            </div>
+                                        }
+                                        @if (item.Photo != null)
+                                        {
+                                            <div style="margin-top: 0.5rem;">
+                                                <a class="btn btn-info btn-round btn-xs" name="download" href="@Url.Action("DownloadFile", "NOC", new { ID = item.NOCID })">
+                                                    <i class="fa fa-download"></i> File
+                                                </a>
+                                            </div>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="status-badge @(item.Status == 1 ? "open" : "close")">
+                                            @(item.Status == 1 ? "Open" : "Closed")
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons" style="display: flex; gap: 0.25rem; flex-wrap: wrap;">
+                                            <form method="post" asp-action="Delete" style="display: contents;">
+                                                <input type="hidden" name="NOCID" value="@item.NOCID" />
+                                                <a asp-controller="NOC" asp-action="Edit" asp-route-id="@item.NOCID" class="btn btn-warning btn-round btn-xs" title="Edit Report">
+                                                    <i class="fa fa-pencil"></i>
+                                                </a>
+                                                <button type="submit" onclick="return confirm('Are you sure you want to delete NOC @item.NOCID?');" 
+                                                        class="btn btn-danger btn-round btn-xs" title="Delete Report">
+                                                    <i class="fa fa-times"></i>
+                                                </button>
+                                                @if (User.IsInRole("Admin") || User.IsInRole("AtasanAdmin") || User.IsInRole("AdminQM") || User.IsInRole("AdminNOC"))
+                                                {
+                                                    <button type="button" name="aman" class="btn btn-info btn-round btn-xs" hidden="hidden" title="Move to AMAN">
+                                                        <i class="fa fa-arrow-right"></i>
+                                                    </button>
+                                                }
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 </div>
 <!-- /main area -->
+
 @section PageLevelScripts {
     <script src="~/admin/scripts/nocIndex.js"></script>
     <script src="~/env.js"></script>
@@ -155,10 +472,79 @@
 
 @section InitPageScripts {
     <script>
+        $(document).ready(function() {
+            // Enhanced DataTable with modern styling
+            $('#table1').DataTable({
+                order: [[0, "desc"]],
+                dom: "Bfrtip",
+                buttons: [
+                    {
+                        extend: "excel",
+                        text: '<i class="fa fa-file-excel-o"></i> Export Excel',
+                        className: "btn btn-success btn-sm"
+                    }
+                ],
+                scrollX: true,
+                pageLength: 10,
+                lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+                columnDefs: [
+                    { targets: [8], orderable: false },
+                    { targets: [0], width: "5%" },
+                    { targets: [1], width: "10%" },
+                    { targets: [2], width: "12%" },
+                    { targets: [3], width: "8%" },
+                    { targets: [4], width: "15%" },
+                    { targets: [5], width: "15%" },
+                    { targets: [6], width: "15%" },
+                    { targets: [7], width: "8%" },
+                    { targets: [8], width: "12%" }
+                ],
+                language: {
+                    search: "🔍 Search NOC:",
+                    lengthMenu: "Show _MENU_ reports per page",
+                    info: "Showing _START_ to _END_ of _TOTAL_ reports",
+                    paginate: {
+                        first: "⏮️",
+                        last: "⏭️",
+                        next: "▶️",
+                        previous: "◀️"
+                    },
+                    emptyTable: "No NOC reports found"
+                },
+                drawCallback: function() {
+                    // Add hover effects to table rows
+                    $('#table1 tbody tr').hover(
+                        function() {
+                            $(this).addClass('shadow-hover');
+                        },
+                        function() {
+                            $(this).removeClass('shadow-hover');
+                        }
+                    );
+                }
+            });
+
+            // Enhanced date range picker
+            $('.drp').daterangepicker({
+                format: 'DD/MM/YYYY',
+                locale: {
+                    format: 'DD/MM/YYYY'
+                }
+            });
+
+            // Animate statistics cards
+            $('.noc-stat-card').each(function(index) {
+                $(this).delay(index * 100).queue(function() {
+                    $(this).addClass('fade-in').dequeue();
+                });
+            });
+        });
+
         function load_params() {
-            $('#table1').html("<span class='fa-stack fa-lg' style='position: static;'>\n\
-                              <i class='fa fa-spinner fa-spin fa-stack-2x fa-fw'></i>\n\
-                           </span>");
+            $('#table1').html("<div class='text-center' style='padding: 2rem;'>" +
+                              "<i class='fa fa-spinner fa-spin fa-2x' style='color: #64748b;'></i>" +
+                              "<p style='margin-top: 1rem; color: #64748b;'>Loading...</p>" +
+                              "</div>");
 
             var dateRange = $('.drp').val().split("-");
             var startDate = dateRange[0].trim();
@@ -175,8 +561,16 @@
                         dom: "Bfrtip",
                         buttons: ["excel"],
                         scrollX: true,
-                        pageLength: 5 // Limit to 5 rows per page
+                        pageLength: 10,
+                        language: {
+                            search: "🔍 Search NOC:",
+                            lengthMenu: "Show _MENU_ reports per page",
+                            info: "Showing _START_ to _END_ of _TOTAL_ reports"
+                        }
                     });
+                },
+                error: function() {
+                    $('#list').html("<div class='alert alert-danger'>Error loading data</div>");
                 }
             });
         }

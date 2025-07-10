@@ -1,19 +1,23 @@
 {
-  "name": "pdf",
+  "name": "portal-gas-optimization",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "dependencies": {
-    "jsreport-core": "^1.3.1",
-    "jsreport-jsrender": "^1.0.2",
-    "jsreport-phantom-pdf": "^1.4.4"
+  "description": "Static asset optimization for Portal Gas application",
+  "scripts": {
+    "build": "npm run build:css && npm run build:js",
+    "build:css": "cleancss --batch --batch-suffix .min wwwroot/css/*.css wwwroot/admin/styles/*.css",
+    "build:js": "uglifyjs wwwroot/js/*.js -c -m -o wwwroot/js/bundle.min.js",
+    "optimize": "npm run build",
+    "watch": "npm run watch:css & npm run watch:js",
+    "watch:css": "chokidar 'wwwroot/css/*.css' 'wwwroot/admin/styles/*.css' -c 'npm run build:css'",
+    "watch:js": "chokidar 'wwwroot/js/*.js' -c 'npm run build:js'"
   },
   "devDependencies": {
-    "eslint": "^9.15.0"
+    "clean-css-cli": "^5.6.3",
+    "uglify-js": "^3.17.4",
+    "chokidar-cli": "^3.0.0"
   },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC"
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  }
 }

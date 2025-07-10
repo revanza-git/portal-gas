@@ -3,11 +3,13 @@ using Admin.Interfaces.Repositories;
 using Admin.Models;
 using Admin.Models.Aman;
 using Admin.Models.User;
+using Admin.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -18,6 +20,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DinkToPdf;
 using DinkToPdf.Contracts;
+using Admin.Services;
 
 namespace Admin.Controllers
 {
@@ -32,8 +35,11 @@ namespace Admin.Controllers
         private readonly IConfiguration configuration;
         private readonly ViewRenderService _viewRenderService;
         private readonly IConverter _pdfConverter;
+        private readonly IMemoryCache _cache;
+        private readonly ICacheService _cacheService;
+        private readonly IEmailService _emailService;
 
-        public AmanController(UserManager<ApplicationUser> userManager, IAmanRepository repo, ICommonRepository common, IEmailRepository emailRepo, ApiHelper apiHelper, IConfiguration configuration, ViewRenderService viewRenderService, IConverter pdfConverter)
+        public AmanController(UserManager<ApplicationUser> userManager, IAmanRepository repo, ICommonRepository common, IEmailRepository emailRepo, ApiHelper apiHelper, IConfiguration configuration, ViewRenderService viewRenderService, IConverter pdfConverter, IMemoryCache cache, ICacheService cacheService, IEmailService emailService)
         {
             this.repository = repo;
             this.crepository = common;
@@ -43,41 +49,151 @@ namespace Admin.Controllers
             this.configuration = configuration;
             this._viewRenderService = viewRenderService;
             this._pdfConverter = pdfConverter;
+            this._cache = cache;
+            this._cacheService = cacheService;
+            this._emailService = emailService;
         }
 
-        public ViewResult Index()
+        [ResponseCache(Duration = 300, VaryByQueryKeys = new[] { "page", "size" })]
+        public async Task<ViewResult> Index(int page = 1, int size = 20)
         {
             ViewData["Title"] = "Action Management (AMAN)";
-            ViewBag.Classifications = crepository.GetClassifications();
-            ViewBag.Priorities = crepository.GetPriorities();
-            ViewBag.Statuses = crepository.GetAmanStatuses();
-            ViewBag.CorrectionTypes = crepository.GetAmanCorrectionTypes();
-            ViewBag.Users = userManager.Users;
-            ViewBag.AllDepartments = crepository.GetAllDepartments();
+            
+            // Cache lookup keys
+            var userRole = User.IsInRole("AdminQM") ? "AdminQM" : "User";
+            var userName = User.Identity.Name;
+            var cacheKey = $"amans_page_{page}_size_{size}_role_{userRole}_user_{userName}";
+            var staticDataCacheKey = "aman_static_data";
 
-            if (User.IsInRole("AdminQM"))
+            // Cache static data (classifications, priorities, etc.)
+            if (!_cache.TryGetValue(staticDataCacheKey, out var staticData))
             {
-                return View(repository.Amans.ToList());
+                staticData = new
+                {
+                    Classifications = crepository.GetClassifications(),
+                    Priorities = crepository.GetPriorities(),
+                    Statuses = crepository.GetAmanStatuses(),
+                    CorrectionTypes = crepository.GetAmanCorrectionTypes(),
+                    Users = userManager.Users.ToList(),
+                    AllDepartments = crepository.GetAllDepartments()
+                };
+                
+                _cache.Set(staticDataCacheKey, staticData, TimeSpan.FromMinutes(15));
             }
-            var amans = repository.Amans.Where(x => x.Creator == User.Identity.Name || x.Responsible == User.Identity.Name || x.Verifier == User.Identity.Name);
-            return View(amans);
+
+            // Set ViewBag from cached data
+            var cachedStaticData = staticData as dynamic;
+            ViewBag.Classifications = cachedStaticData.Classifications;
+            ViewBag.Priorities = cachedStaticData.Priorities;
+            ViewBag.Statuses = cachedStaticData.Statuses;
+            ViewBag.CorrectionTypes = cachedStaticData.CorrectionTypes;
+            ViewBag.Users = cachedStaticData.Users;
+            ViewBag.AllDepartments = cachedStaticData.AllDepartments;
+
+            // Try to get cached paged results
+            if (!_cache.TryGetValue(cacheKey, out var pagedResult))
+            {
+                // If repository has the new async method, use it
+                if (repository is EFAmanRepository efRepo)
+                {
+                    pagedResult = await efRepo.GetPagedAmansAsync(page, size, userRole, userName);
+                }
+                else
+                {
+                    // Fallback to original logic for compatibility
+                    IEnumerable<Aman> amans;
+                    if (User.IsInRole("AdminQM"))
+                    {
+                        amans = repository.Amans.Skip((page - 1) * size).Take(size).ToList();
+                    }
+                    else
+                    {
+                        amans = repository.Amans
+                            .Where(x => x.Creator == User.Identity.Name || x.Responsible == User.Identity.Name || x.Verifier == User.Identity.Name)
+                            .Skip((page - 1) * size).Take(size);
+                    }
+                    pagedResult = (amans, amans.Count());
+                }
+                
+                // Cache for 10 minutes
+                _cache.Set(cacheKey, pagedResult, TimeSpan.FromMinutes(10));
+            }
+
+            var (items, totalCount) = ((IEnumerable<Aman>, int))pagedResult;
+            
+            // Set pagination data
+            ViewBag.CurrentPage = page;
+            ViewBag.PageSize = size;
+            ViewBag.TotalCount = totalCount;
+            ViewBag.TotalPages = (int)Math.Ceiling((double)totalCount / size);
+
+            return View(items);
         }
 
-        public ViewResult ViewAction(string id)
+        [ResponseCache(Duration = 600, VaryByQueryKeys = new[] { "id" })]
+        public async Task<ViewResult> ViewAction(string id)
         {
-            ViewBag.Locations = crepository.GetLocations();
-            ViewBag.Classifications = crepository.GetClassifications();
-            ViewBag.Priorities = crepository.GetPriorities();
-            ViewBag.Responsibles = crepository.GetResponsibles();
-            ViewBag.AmanSources = crepository.GetAmanSources();
-            ViewBag.AmanStatuses = crepository.GetAmanStatuses();
-            ViewBag.AmanStatuses2 = crepository.GetAmanStatuses();
-            ViewBag.Reschedules = repository.GetReschedules(id);
-            ViewBag.CorrectionTypes = crepository.GetAmanCorrectionTypes();
-            ViewBag.Users = userManager.Users;
-            var aman = repository.Amans.FirstOrDefault(a => a.AmanID == id);
-            ViewBag.Auditors = aman.Auditors;
-            return View("View", aman);
+            var cacheKey = $"aman_view_{id}";
+            var staticDataCacheKey = "aman_view_static_data";
+
+            // Cache static data
+            if (!_cache.TryGetValue(staticDataCacheKey, out var staticData))
+            {
+                staticData = new
+                {
+                    Locations = crepository.GetLocations(),
+                    Classifications = crepository.GetClassifications(),
+                    Priorities = crepository.GetPriorities(),
+                    Responsibles = crepository.GetResponsibles(),
+                    AmanSources = crepository.GetAmanSources(),
+                    AmanStatuses = crepository.GetAmanStatuses(),
+                    CorrectionTypes = crepository.GetAmanCorrectionTypes(),
+                    Users = userManager.Users.ToList()
+                };
+                
+                _cache.Set(staticDataCacheKey, staticData, TimeSpan.FromMinutes(30));
+            }
+
+            // Set ViewBag from cached data
+            var cachedStaticData = staticData as dynamic;
+            ViewBag.Locations = cachedStaticData.Locations;
+            ViewBag.Classifications = cachedStaticData.Classifications;
+            ViewBag.Priorities = cachedStaticData.Priorities;
+            ViewBag.Responsibles = cachedStaticData.Responsibles;
+            ViewBag.AmanSources = cachedStaticData.AmanSources;
+            ViewBag.AmanStatuses = cachedStaticData.AmanStatuses;
+            ViewBag.AmanStatuses2 = cachedStaticData.AmanStatuses;
+            ViewBag.CorrectionTypes = cachedStaticData.CorrectionTypes;
+            ViewBag.Users = cachedStaticData.Users;
+
+            // Try to get cached aman data
+            if (!_cache.TryGetValue(cacheKey, out var amanData))
+            {
+                Aman aman;
+                IEnumerable<Reschedule> reschedules;
+
+                if (repository is EFAmanRepository efRepo)
+                {
+                    aman = await efRepo.GetAmanByIdAsync(id);
+                    reschedules = await efRepo.GetReschedulesAsync(id);
+                }
+                else
+                {
+                    aman = repository.Amans.FirstOrDefault(a => a.AmanID == id);
+                    reschedules = repository.GetReschedules(id);
+                }
+
+                amanData = new { Aman = aman, Reschedules = reschedules };
+                
+                // Cache for 5 minutes (shorter because this data changes more frequently)
+                _cache.Set(cacheKey, amanData, TimeSpan.FromMinutes(5));
+            }
+
+            var cachedAmanData = amanData as dynamic;
+            ViewBag.Reschedules = cachedAmanData.Reschedules;
+            ViewBag.Auditors = cachedAmanData.Aman.Auditors;
+
+            return View("View", cachedAmanData.Aman);
         }
 
         public ViewResult Edit(string id)
@@ -108,52 +224,76 @@ namespace Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                var verifier = await userManager.FindByNameAsync(aman.Verifier);
                 var responsible = await userManager.FindByNameAsync(aman.Responsible);
+                var verifier = await userManager.FindByNameAsync(aman.Verifier);
 
                 aman.Creator = userManager.GetUserName(User);
                 aman.Department = responsible.Department;
-                repository.Save(aman);
+                
+                // Use async save if available
+                if (repository is EFAmanRepository efRepo)
+                {
+                    await efRepo.SaveAsync(aman);
+                }
+                else
+                {
+                    repository.Save(aman);
+                }
+                
+                // Phase 2 Optimization: Invalidate cache after save
+                _cacheService.InvalidateAmanCache(aman.AmanID);
+                _cacheService.InvalidateAmanCache(); // Invalidate list caches
+                
                 aman = repository.Amans.FirstOrDefault(x => x.AmanID == aman.AmanID);
 
-                var message = new StringBuilder();
-                message.Append("<table>");
-                message.Append($"<tr><td>No.</td><td>:</td><td>{aman.AmanID}</td></tr>");
-                message.Append($"<tr><td>Start Date</td><td>:</td><td>{aman.StartDate:dd MMMM yyyy}</td></tr>");
-                message.Append($"<tr><td>End Date</td><td>:</td><td>{aman.EndDate:dd MMMM yyyy}</td></tr>");
-                message.Append($"<tr><td>Source</td><td>:</td><td>{crepository.GetAmanSources().FirstOrDefault(x => x.AmanSourceID == aman.Source)?.Deskripsi}</td></tr>");
-                message.Append($"<tr><td>Location</td><td>:</td><td>{crepository.GetLocations().FirstOrDefault(x => x.LocationID == aman.Location)?.Deskripsi}</td></tr>");
-                message.Append($"<tr><td>Findings / Opportunities</td><td>:</td><td>{aman.Findings}</td></tr>");
-                message.Append($"<tr><td>Recommendation</td><td>:</td><td>{aman.Recommendation}</td></tr>");
-                message.Append($"<tr><td>Creator</td><td>:</td><td>{(await userManager.FindByNameAsync(aman.Creator)).Name}</td></tr>");
-                message.Append($"<tr><td>Responsible</td><td>:</td><td>{responsible.Name}</td></tr>");
-                message.Append($"<tr><td>Email</td><td>:</td><td>{responsible.Email}</td></tr>");
-                message.Append($"<tr><td>Verifier</td><td>:</td><td>{verifier.Name}</td></tr>");
-                message.Append($"<tr><td>Auditor(s)</td><td>:</td><td>{aman.Auditors}</td></tr>");
-                message.Append($"<tr><td>Status</td><td>:</td><td>{crepository.GetAmanStatuses().FirstOrDefault(x => x.AmanStatusID == aman.Status)?.Deskripsi}</td></tr>");
-                message.Append("</table>");
-
-                var email = new Email
+                // Use templated email service instead of manual email creation
+                var amanData = new
                 {
-                    Receiver = responsible.Email,
-                    Subject = "New AMAN Notification",
-                    Message = $"Dear {responsible.Name},<br/><p>There is a new AMAN with detail:</p>{message}",
-                    Schedule = DateTime.Now,
-                    CreatedOn = DateTime.Now
+                    AmanID = aman.AmanID,
+                    RecipientName = responsible.Name,
+                    StartDate = aman.StartDate.ToString("dd MMMM yyyy"),
+                    EndDate = aman.EndDate.ToString("dd MMMM yyyy"),
+                    Findings = aman.Findings,
+                    Recommendation = aman.Recommendation,
+                    Responsible = responsible.Name,
+                    ResponsibleEmail = responsible.Email,
+                    Verifier = verifier.Name,
+                    VerifierEmail = verifier.Email
                 };
-                emailRepository.Save(email);
 
-                var email2 = new Email
+                // Send to responsible person
+                await _emailService.SendTemplatedEmailAsync(
+                    "AMAN_NEW",
+                    responsible.Email,
+                    amanData,
+                    "en", // or "id" for Indonesian
+                    EmailPriority.High,
+                    "AMAN"
+                );
+
+                // Send to verifier
+                var verifierData = new
                 {
-                    Receiver = verifier.Email,
-                    Subject = "New AMAN Notification",
-                    Message = $"Dear {verifier.Name},<br/><p>There is a new AMAN with detail:</p>{message}",
-                    Schedule = DateTime.Now,
-                    CreatedOn = DateTime.Now
+                    AmanID = aman.AmanID,
+                    RecipientName = verifier.Name,
+                    StartDate = aman.StartDate.ToString("dd MMMM yyyy"),
+                    EndDate = aman.EndDate.ToString("dd MMMM yyyy"),
+                    Findings = aman.Findings,
+                    Recommendation = aman.Recommendation,
+                    Responsible = responsible.Name,
+                    ResponsibleEmail = responsible.Email,
+                    Verifier = verifier.Name,
+                    VerifierEmail = verifier.Email
                 };
-                emailRepository.Save(email2);
 
-                await apiHelper.SendEmailAsync();
+                await _emailService.SendTemplatedEmailAsync(
+                    "AMAN_NEW",
+                    verifier.Email,
+                    verifierData,
+                    "en",
+                    EmailPriority.High,
+                    "AMAN"
+                );
 
                 TempData["message"] = $"{aman.AmanID} has been saved";
                 return RedirectToAction("Index");
@@ -179,7 +319,7 @@ namespace Admin.Controllers
             {
                 if (file.Length > 0)
                 {
-                    var fileName = aman.AmanID + Path.GetExtension(file.FileName);
+                    var fileName = aman.AmanID + "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + Path.GetExtension(file.FileName);
                     using (var fileStream = new FileStream(Path.Combine(uploadPath, fileName), FileMode.Create))
                     {
                         await file.CopyToAsync(fileStream);
@@ -188,40 +328,31 @@ namespace Admin.Controllers
                     aman.FileName = fileName;
                 }
             }
-
             repository.SaveProgress(aman);
-            var search = repository.Amans.FirstOrDefault(x => x.AmanID == aman.AmanID);
-            if (search.Verifier != null)
+
+            if (aman.Status == 3)
             {
-                var message = new StringBuilder();
-                message.Append("<br><b>Details of AMAN:</b><table>");
-                message.Append($"<tr><td>No.</td><td>:</td><td>{search.AmanID}</td></tr>");
-                message.Append($"<tr><td>Start Date</td><td>:</td><td>{search.StartDate:dd MMMM yyyy}</td></tr>");
-                message.Append($"<tr><td>End Date</td><td>:</td><td>{search.EndDate:dd MMMM yyyy}</td></tr>");
-                message.Append($"<tr><td>Source</td><td>:</td><td>{crepository.GetAmanSources().FirstOrDefault(x => x.AmanSourceID == search.Source)?.Deskripsi}</td></tr>");
-                message.Append($"<tr><td>Location</td><td>:</td><td>{crepository.GetLocations().FirstOrDefault(x => x.LocationID == search.Location)?.Deskripsi}</td></tr>");
-                message.Append($"<tr><td>Findings / Opportunities</td><td>:</td><td>{search.Findings}</td></tr>");
-                message.Append($"<tr><td>Recommendation</td><td>:</td><td>{search.Recommendation}</td></tr>");
-                message.Append($"<tr><td>Creator</td><td>:</td><td>{(await userManager.FindByNameAsync(search.Creator)).Name}</td></tr>");
-                message.Append($"<tr><td>Responsible</td><td>:</td><td>{(await userManager.FindByNameAsync(search.Responsible)).Name}</td></tr>");
-                message.Append($"<tr><td>Email</td><td>:</td><td>{(await userManager.FindByNameAsync(search.Responsible)).Email}</td></tr>");
-                message.Append($"<tr><td>Verifier</td><td>:</td><td>{(await userManager.FindByNameAsync(search.Verifier)).Name}</td></tr>");
-                message.Append($"<tr><td>Status</td><td>:</td><td>{crepository.GetAmanStatuses().FirstOrDefault(x => x.AmanStatusID == search.Status)?.Deskripsi}</td></tr>");
-                message.Append("</table>");
-
-                var verifier = await userManager.FindByNameAsync(search.Verifier);
-                var message2 = aman.Progress == 100 ? "<br/>Please log in to the Nusantara Regas Internal Portal to close it." : "";
-                var email = new Email
-                {
-                    Receiver = verifier.Email,
-                    Subject = "AMAN Status Update Notification",
-                    Message = $"Dear {verifier.Name},<br/><p>The progress of AMAN with ID {aman.AmanID} has been updated to {aman.Progress}%.</p>{message}{message2}",
-                    Schedule = DateTime.Now,
-                    CreatedOn = DateTime.Now
-                };
-                emailRepository.Save(email);
-
-                await apiHelper.SendEmailAsync();
+                var verifier = await userManager.FindByNameAsync(aman.Verifier);
+                await _emailService.SendTemplatedEmailAsync(
+                    "AMAN_PROGRESS",
+                    verifier.Email,
+                    new
+                    {
+                        AmanID = aman.AmanID,
+                        RecipientName = verifier.Name,
+                        Status = "Completed - Waiting for Verification",
+                        Progress = 100,
+                        StartDate = aman.StartDate.ToString("dd MMMM yyyy"),
+                        EndDate = aman.EndDate.ToString("dd MMMM yyyy"),
+                        Findings = aman.Findings,
+                        Recommendation = aman.Recommendation,
+                        Responsible = (await userManager.FindByNameAsync(aman.Responsible)).Name,
+                        Creator = (await userManager.FindByNameAsync(aman.Creator)).Name
+                    },
+                    "id",
+                    EmailPriority.Medium,
+                    "AMAN"
+                );
             }
             TempData["message"] = $"Progress {aman.AmanID} has been updated";
             return RedirectToAction("ViewAction", new { ID = aman.AmanID });
@@ -232,40 +363,34 @@ namespace Admin.Controllers
         {
             var aman = repository.Amans.FirstOrDefault(x => x.AmanID == reschedule.AmanID);
             var verifier = await userManager.FindByNameAsync(aman.Verifier);
+            var responsible = await userManager.FindByNameAsync(aman.Responsible);
 
-            var message = new StringBuilder();
-            message.Append("<b>Details of AMAN:</b><br><table>");
-            message.Append($"<tr><td>No.</td><td>:</td><td>{aman.AmanID}</td></tr>");
-            message.Append($"<tr><td>Start Date</td><td>:</td><td>{aman.StartDate:dd MMMM yyyy}</td></tr>");
-            message.Append($"<tr><td>End Date</td><td>:</td><td>{aman.EndDate:dd MMMM yyyy}</td></tr>");
-            message.Append($"<tr><td>Source</td><td>:</td><td>{crepository.GetAmanSources().FirstOrDefault(x => x.AmanSourceID == aman.Source)?.Deskripsi}</td></tr>");
-            message.Append($"<tr><td>Location</td><td>:</td><td>{crepository.GetLocations().FirstOrDefault(x => x.LocationID == aman.Location)?.Deskripsi}</td></tr>");
-            message.Append($"<tr><td>Findings / Opportunities</td><td>:</td><td>{aman.Findings}</td></tr>");
-            message.Append($"<tr><td>Recommendation</td><td>:</td><td>{aman.Recommendation}</td></tr>");
-            message.Append($"<tr><td>Creator</td><td>:</td><td>{(await userManager.FindByNameAsync(aman.Creator)).Name}</td></tr>");
-            message.Append($"<tr><td>Responsible</td><td>:</td><td>{(await userManager.FindByNameAsync(aman.Responsible)).Name}</td></tr>");
-            message.Append($"<tr><td>Email</td><td>:</td><td>{(await userManager.FindByNameAsync(aman.Responsible)).Email}</td></tr>");
-            message.Append($"<tr><td>Verifier</td><td>:</td><td>{(await userManager.FindByNameAsync(aman.Verifier)).Name}</td></tr>");
-            message.Append($"<tr><td>Status</td><td>:</td><td>{crepository.GetAmanStatuses().FirstOrDefault(x => x.AmanStatusID == aman.Status)?.Deskripsi}</td></tr>");
-            message.Append("</table>");
-
-            message.Append("<br><b>Details of Reschedule Data:</b><br><table>");
-            message.Append($"<tr><td>Old End Date</td><td>:</td><td>{reschedule.OldEndDate:dd MMMM yyyy}</td></tr>");
-            message.Append($"<tr><td>New End Date</td><td>:</td><td>{reschedule.NewEndDate:dd MMMM yyyy}</td></tr>");
-            message.Append($"<tr><td>Reason</td><td>:</td><td>{reschedule.Reason}</td></tr>");
-            message.Append("</table>");
-
-            var email = new Email
-            {
-                Receiver = verifier.Email,
-                Subject = "AMAN Reschedule Notification",
-                Message = $"Dear {verifier.Name},<br/><p>AMAN with ID {aman.AmanID} has been requested for reschedule.</p>{message}<br/>Please log in to the Nusantara Regas Internal Portal to approve or reject it.",
-                Schedule = DateTime.Now,
-                CreatedOn = DateTime.Now
-            };
-            emailRepository.Save(email);
-
-            await apiHelper.SendEmailAsync();
+            await _emailService.SendTemplatedEmailAsync(
+                "AMAN_PROGRESS",
+                verifier.Email,
+                new
+                {
+                    AmanID = aman.AmanID,
+                    RecipientName = verifier.Name,
+                    Status = "Reschedule Request",
+                    Progress = 0,
+                    StartDate = aman.StartDate.ToString("dd MMMM yyyy"),
+                    EndDate = aman.EndDate.ToString("dd MMMM yyyy"),
+                    OldEndDate = reschedule.OldEndDate.ToString("dd MMMM yyyy"),
+                    NewEndDate = reschedule.NewEndDate.ToString("dd MMMM yyyy"),
+                    RescheduleReason = reschedule.Reason,
+                    Findings = aman.Findings,
+                    Recommendation = aman.Recommendation,
+                    Responsible = responsible.Name,
+                    ResponsibleEmail = responsible.Email,
+                    Creator = (await userManager.FindByNameAsync(aman.Creator)).Name,
+                    Source = crepository.GetAmanSources().FirstOrDefault(x => x.AmanSourceID == aman.Source)?.Deskripsi,
+                    Location = crepository.GetLocations().FirstOrDefault(x => x.LocationID == aman.Location)?.Deskripsi
+                },
+                "id",
+                EmailPriority.Medium,
+                "AMAN"
+            );
 
             repository.SaveReschedule(reschedule);
             TempData["message"] = $"New schedule for {reschedule.AmanID} has been saved";
@@ -280,31 +405,43 @@ namespace Admin.Controllers
 
             if (action == "Approve")
             {
-                var email = new Email
-                {
-                    Receiver = responsible.Email,
-                    Subject = "AMAN Reschedule Approve Notification",
-                    Message = $"Dear {responsible.Name},<br/><p>Reschedule request for {aman.AmanID} has been approved.",
-                    Schedule = DateTime.Now,
-                    CreatedOn = DateTime.Now
-                };
-                emailRepository.Save(email);
-                await apiHelper.SendEmailAsync();
+                await _emailService.SendTemplatedEmailAsync(
+                    "AMAN_PROGRESS",
+                    responsible.Email,
+                    new
+                    {
+                        AmanID = aman.AmanID,
+                        RecipientName = responsible.Name,
+                        Status = "Reschedule Approved",
+                        Progress = 0,
+                        NextStep = "Continue with new deadline",
+                        NewEndDate = reschedule.NewEndDate.ToString("dd MMMM yyyy")
+                    },
+                    "id",
+                    EmailPriority.Medium,
+                    "AMAN"
+                );
                 repository.ApproveReschedule(reschedule);
                 TempData["message"] = $"New schedule for {reschedule.AmanID} has been approved";
             }
             else if (action == "Reject")
             {
-                var email = new Email
-                {
-                    Receiver = responsible.Email,
-                    Subject = "AMAN Reschedule Reject Notification",
-                    Message = $"Dear {responsible.Name},<br/><p>Reschedule request for {aman.AmanID} has been rejected by Verifier.",
-                    Schedule = DateTime.Now,
-                    CreatedOn = DateTime.Now
-                };
-                emailRepository.Save(email);
-                await apiHelper.SendEmailAsync();
+                await _emailService.SendTemplatedEmailAsync(
+                    "AMAN_PROGRESS",
+                    responsible.Email,
+                    new
+                    {
+                        AmanID = aman.AmanID,
+                        RecipientName = responsible.Name,
+                        Status = "Reschedule Rejected",
+                        Progress = 0,
+                        NextStep = "Continue with original deadline",
+                        RejectionReason = "Reschedule request has been rejected by Verifier"
+                    },
+                    "id",
+                    EmailPriority.Medium,
+                    "AMAN"
+                );
                 repository.RejectReschedule(reschedule);
                 TempData["message"] = $"New schedule for {reschedule.AmanID} has been rejected";
             }

@@ -15,14 +15,14 @@
     <header class="header navbar">
         <div class="brand visible-xs">
             <div class="toggle-offscreen">
-                <a href="#" class="fa fa-times visible-xs" data-toggle="offscreen" data-move="ltr">
+                <a href="#" class="fa fa-bars visible-xs" data-toggle="offscreen" data-move="ltr" onclick="toggleSidebar()">
                     <span></span>
                     <span></span>
                     <span></span>
                 </a>
             </div>
             <div class="brand-logo">
-                <img src="~/admin/images/logo-regas.png" height="15" alt="">
+                <img src="~/admin/images/logo-regas.png" height="30" alt="">
             </div>
             <div class="toggle-chat">
                 <a href="javascript:;" class="hamburger-icon v2 visible-xs" data-toggle="layout-chat-open">
@@ -47,11 +47,77 @@
 
 </div>
 <!-- /content panel -->
+
+<!-- Mobile Sidebar Overlay -->
+<div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
 <!-- bottom footer -->
 @await Html.PartialAsync("_Footer")
 
 @section PageLevelScripts {
     @RenderSection("PageLevelScripts", required: false)
+    
+    <script>
+        // Mobile sidebar toggle functionality
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar-panel');
+            const overlay = document.querySelector('.sidebar-overlay');
+            
+            if (sidebar.classList.contains('show')) {
+                closeSidebar();
+            } else {
+                sidebar.classList.add('show');
+                overlay.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            }
+        }
+        
+        function closeSidebar() {
+            const sidebar = document.querySelector('.sidebar-panel');
+            const overlay = document.querySelector('.sidebar-overlay');
+            
+            sidebar.classList.remove('show');
+            overlay.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+        
+        // Close sidebar when clicking on main content in mobile
+        document.addEventListener('DOMContentLoaded', function() {
+            const mainPanel = document.querySelector('.main-panel');
+            
+            mainPanel.addEventListener('click', function() {
+                if (window.innerWidth <= 768) {
+                    closeSidebar();
+                }
+            });
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    closeSidebar();
+                }
+            });
+        });
+    </script>
+    
+    <style>
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1049;
+        }
+        
+        @@media (max-width: 768px) {
+            .sidebar-overlay.show {
+                display: block;
+            }
+        }
+    </style>
 }
 
 @section InitPageScripts {

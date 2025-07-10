@@ -34,11 +34,28 @@ namespace Admin.Controllers
             Configuration = builder.Build();
         }
 
-        public ViewResult Index()
+        public async Task<ViewResult> Index()
         {
-            // Get all news filter by department
-            String department = userManager.FindByIdAsync(userManager.GetUserId(User)).Result.Department;
-            IEnumerable<Gallery> galleries = repository.Galleries.Where(x => x.Department == department).OrderByDescending(x => x.GalleryID);
+            // Get current user
+            var user = await userManager.FindByIdAsync(userManager.GetUserId(User));
+            var userRoles = await userManager.GetRolesAsync(user);
+            
+            // Check if user has admin roles
+            var adminRoles = new[] { "Admin", "AtasanAdmin", "AdminQM", "AdminNOC" };
+            bool isAdmin = userRoles.Any(role => adminRoles.Contains(role, StringComparer.OrdinalIgnoreCase));
+            
+            IEnumerable<Gallery> galleries;
+            
+            if (isAdmin)
+            {
+                // Admin users can see all galleries
+                galleries = repository.Galleries.OrderByDescending(x => x.GalleryID);
+            }
+            else
+            {
+                // Regular users see only galleries from their department
+                galleries = repository.Galleries.Where(x => x.Department == user.Department).OrderByDescending(x => x.GalleryID);
+            }
 
             return View(galleries);
         }
@@ -87,12 +104,37 @@ namespace Admin.Controllers
             return File(fileBytes, contentType, randomPhoto.FileName);
         }
 
-        public IActionResult ViewPhoto(int ID)
+        public async Task<IActionResult> ViewPhoto(int ID)
         {
             try
             {
-                String department = userManager.FindByIdAsync(userManager.GetUserId(User)).Result.Department;
-                Gallery gallery = repository.Galleries.FirstOrDefault(x => x.GalleryID == ID && x.Department == department);
+                // Get current user
+                var user = await userManager.FindByIdAsync(userManager.GetUserId(User));
+                var userRoles = await userManager.GetRolesAsync(user);
+                
+                // Check if user has admin roles
+                var adminRoles = new[] { "admin", "atasanadmin", "adminQM", "adminNOC" };
+                bool isAdmin = userRoles.Any(role => adminRoles.Contains(role, StringComparer.OrdinalIgnoreCase));
+                
+                Gallery gallery;
+                
+                if (isAdmin)
+                {
+                    // Admin users can view galleries from all departments
+                    gallery = repository.Galleries.FirstOrDefault(x => x.GalleryID == ID);
+                }
+                else
+                {
+                    // Regular users can only view galleries from their department
+                    gallery = repository.Galleries.FirstOrDefault(x => x.GalleryID == ID && x.Department == user.Department);
+                }
+                
+                if (gallery == null)
+                {
+                    TempData["error"] = $"You can not access Photo ID {ID}";
+                    return RedirectToAction("Index");
+                }
+                
                 IEnumerable<Photo> photos = repository.GetPhotos(gallery.GalleryID);
                 ViewBag.Gallery = gallery;
                 return View(photos);
@@ -104,12 +146,37 @@ namespace Admin.Controllers
             }
         }
 
-        public IActionResult ViewVideo(int ID)
+        public async Task<IActionResult> ViewVideo(int ID)
         {
             try
             {
-                String department = userManager.FindByIdAsync(userManager.GetUserId(User)).Result.Department;
-                Gallery gallery = repository.Galleries.FirstOrDefault(x => x.GalleryID == ID && x.Department == department);
+                // Get current user
+                var user = await userManager.FindByIdAsync(userManager.GetUserId(User));
+                var userRoles = await userManager.GetRolesAsync(user);
+                
+                // Check if user has admin roles
+                var adminRoles = new[] { "admin", "atasanadmin", "adminQM", "adminNOC" };
+                bool isAdmin = userRoles.Any(role => adminRoles.Contains(role, StringComparer.OrdinalIgnoreCase));
+                
+                Gallery gallery;
+                
+                if (isAdmin)
+                {
+                    // Admin users can view galleries from all departments
+                    gallery = repository.Galleries.FirstOrDefault(x => x.GalleryID == ID);
+                }
+                else
+                {
+                    // Regular users can only view galleries from their department
+                    gallery = repository.Galleries.FirstOrDefault(x => x.GalleryID == ID && x.Department == user.Department);
+                }
+                
+                if (gallery == null)
+                {
+                    TempData["error"] = $"You can not access Video ID {ID}";
+                    return RedirectToAction("Index");
+                }
+                
                 IEnumerable<Video> videos = repository.GetVideos(gallery.GalleryID);
                 ViewBag.Gallery = gallery;
                 return View(videos);
@@ -191,10 +258,29 @@ namespace Admin.Controllers
             return RedirectToAction("Index");
         }
 
-        public IActionResult AddPhoto(int ID)
+        public async Task<IActionResult> AddPhoto(int ID)
         {
-            String department = userManager.FindByIdAsync(userManager.GetUserId(User)).Result.Department;
-            Gallery gallery = repository.Galleries.FirstOrDefault(x => x.GalleryID == ID && x.Department == department);
+            // Get current user
+            var user = await userManager.FindByIdAsync(userManager.GetUserId(User));
+            var userRoles = await userManager.GetRolesAsync(user);
+            
+            // Check if user has admin roles
+            var adminRoles = new[] { "admin", "atasanadmin", "adminQM", "adminNOC" };
+            bool isAdmin = userRoles.Any(role => adminRoles.Contains(role, StringComparer.OrdinalIgnoreCase));
+            
+            Gallery gallery;
+            
+            if (isAdmin)
+            {
+                // Admin users can add photos to galleries from all departments
+                gallery = repository.Galleries.FirstOrDefault(x => x.GalleryID == ID);
+            }
+            else
+            {
+                // Regular users can only add photos to galleries from their department
+                gallery = repository.Galleries.FirstOrDefault(x => x.GalleryID == ID && x.Department == user.Department);
+            }
+            
             if (gallery != null)
             {
                 ViewBag.Title = "Add Photo";
@@ -276,25 +362,85 @@ namespace Admin.Controllers
         [AllowAnonymous]
         public FileResult GetFileContent(int ID)
         {
-            if (ID > 0)
+            try
             {
-                Photo photo = repository.GetPhoto(ID);
-                if (photo != null)
+                if (ID <= 0)
                 {
-                    var filepath = Path.Combine(Configuration["UploadPath:photo"], photo.FileName);
-                    byte[] fileBytes = System.IO.File.ReadAllBytes(filepath);
-                    String ContentType = "image/" + photo.FileName.Substring(photo.FileName.IndexOf('.') + 1);
-                    return File(fileBytes, ContentType, photo.FileName);
+                    throw new ArgumentException($"Invalid PhotoID: {ID}");
                 }
-            }
 
-            return null;
+                Photo photo = repository.GetPhoto(ID);
+                if (photo == null)
+                {
+                    throw new ArgumentException($"Photo not found for ID: {ID}");
+                }
+
+                if (string.IsNullOrEmpty(photo.FileName))
+                {
+                    throw new ArgumentException($"FileName is null or empty for PhotoID: {ID}");
+                }
+
+                var filepath = Path.Combine(Configuration["UploadPath:photo"], photo.FileName);
+                
+                if (!System.IO.File.Exists(filepath))
+                {
+                    throw new FileNotFoundException($"File not found: {filepath}");
+                }
+
+                byte[] fileBytes = System.IO.File.ReadAllBytes(filepath);
+                string ContentType = DetermineContentType(photo.FileName);
+                
+                return File(fileBytes, ContentType, photo.FileName);
+            }
+            catch (Exception ex)
+            {
+                // Log the error (you can replace this with your logging framework)
+                System.Diagnostics.Debug.WriteLine($"GetFileContent Error for ID {ID}: {ex.Message}");
+                
+                // Return a 1x1 pixel transparent PNG as placeholder
+                byte[] transparentPixel = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==");
+                return File(transparentPixel, "image/png", "placeholder.png");
+            }
         }
 
-        public IActionResult AddVideo(int ID)
+        private string DetermineContentType(string fileName)
         {
-            String department = userManager.FindByIdAsync(userManager.GetUserId(User)).Result.Department;
-            Gallery gallery = repository.Galleries.FirstOrDefault(x => x.GalleryID == ID && x.Department == department);
+            var extension = Path.GetExtension(fileName).ToLowerInvariant();
+            return extension switch
+            {
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                ".gif" => "image/gif",
+                ".bmp" => "image/bmp",
+                ".webp" => "image/webp",
+                ".jfif" => "image/jpeg",
+                _ => "image/jpeg" // Default fallback
+            };
+        }
+
+        public async Task<IActionResult> AddVideo(int ID)
+        {
+            // Get current user
+            var user = await userManager.FindByIdAsync(userManager.GetUserId(User));
+            var userRoles = await userManager.GetRolesAsync(user);
+            
+            // Check if user has admin roles
+            var adminRoles = new[] { "admin", "atasanadmin", "adminQM", "adminNOC" };
+            bool isAdmin = userRoles.Any(role => adminRoles.Contains(role, StringComparer.OrdinalIgnoreCase));
+            
+            Gallery gallery;
+            
+            if (isAdmin)
+            {
+                // Admin users can add videos to galleries from all departments
+                gallery = repository.Galleries.FirstOrDefault(x => x.GalleryID == ID);
+            }
+            else
+            {
+                // Regular users can only add videos to galleries from their department
+                gallery = repository.Galleries.FirstOrDefault(x => x.GalleryID == ID && x.Department == user.Department);
+            }
+            
             if (gallery != null)
             {
                 ViewBag.Title = "Add Video";

@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Identity;
 using System.Text;
 using Admin.Models.User;
 using Admin.Interfaces.Repositories;
+using Admin.Interfaces.Services;
+using Admin.Services;
 
 namespace Admin.Controllers
 {
@@ -22,8 +24,9 @@ namespace Admin.Controllers
         private readonly UserManager<ApplicationUser> userManager;
         private readonly ApiHelper apiHelper;
         private readonly IConfiguration configuration;
+        private readonly IEmailService emailService;
 
-        public EmailNotificationController(UserManager<ApplicationUser> userManager, IAmanRepository arepository, ISemarRepository srepository, ICommonRepository common, IEmailRepository erepository, ApiHelper apiHelper, IConfiguration configuration)
+        public EmailNotificationController(UserManager<ApplicationUser> userManager, IAmanRepository arepository, ISemarRepository srepository, ICommonRepository common, IEmailRepository erepository, ApiHelper apiHelper, IConfiguration configuration, IEmailService emailService)
         {
             this.userManager = userManager;
             this.semarrepository = srepository;
@@ -32,6 +35,7 @@ namespace Admin.Controllers
             this.crepository = common;
             this.apiHelper = apiHelper;
             this.configuration = configuration;
+            this.emailService = emailService;
         }
 
         public async Task Index()
@@ -45,21 +49,6 @@ namespace Admin.Controllers
 
             foreach (var semar in semars)
             {
-                var message = new StringBuilder();
-                message.Append("<table>");
-                message.Append($"<tr><td>Id.</td><td>:</td><td>{semar.SemarID}</td></tr>");
-                message.Append($"<tr><td>Type</td><td>:</td><td>{crepository.GetSemarTypes().FirstOrDefault(x => x.SemarTypeID == semar.Type)?.Deskripsi}</td></tr>");
-                message.Append($"<tr><td>No. Dokumen</td><td>:</td><td>{semar.NoDocument}</td></tr>");
-                message.Append($"<tr><td>Title</td><td>:</td><td>{semar.Title}</td></tr>");
-                message.Append($"<tr><td>Level</td><td>:</td><td>{crepository.GetSemarLevels().FirstOrDefault(x => x.SemarLevelID == semar.SemarLevel)?.Deskripsi}</td></tr>");
-                message.Append($"<tr><td>Owner</td><td>:</td><td>{crepository.GetAllDepartments().FirstOrDefault(x => x.DepartmentID == semar.Owner)?.Deskripsi}</td></tr>");
-                message.Append($"<tr><td>Description</td><td>:</td><td>{semar.Description}</td></tr>");
-                message.Append($"<tr><td>Revision</td><td>:</td><td>{semar.Revision}</td></tr>");
-                message.Append($"<tr><td>Classification</td><td>:</td><td>{crepository.GetClassifications().FirstOrDefault(x => x.ClassificationID == semar.Classification)?.Deskripsi}</td></tr>");
-                message.Append($"<tr><td>Published Date</td><td>:</td><td>{semar.PublishDate:dd MMMM yyyy}</td></tr>");
-                message.Append($"<tr><td>Expired Date</td><td>:</td><td>{semar.ExpiredDate:dd MMMM yyyy}</td></tr>");
-                message.Append("</table>");
-
                 string expiredRemark = semar.ExpiredNotification switch
                 {
                     0 => "SEMAR berikut akan expired dalam 7 hari:",
@@ -74,15 +63,29 @@ namespace Admin.Controllers
                     var roles = await userManager.GetRolesAsync(user);
                     if (roles.Contains("Admin") || roles.Contains("AtasanAdmin"))
                     {
-                        var email = new Email
-                        {
-                            Receiver = user.Email,
-                            Subject = "Expired SEMAR Notification",
-                            Message = $"Dear {user.Name},<br/><p>{expiredRemark}</p>{message}",
-                            Schedule = DateTime.Now,
-                            CreatedOn = DateTime.Now
-                        };
-                        emailrepository.Save(email);
+                        await emailService.SendTemplatedEmailAsync(
+                            "SEMAR_EXPIRY",
+                            user.Email,
+                            new
+                            {
+                                SemarID = semar.SemarID,
+                                RecipientName = user.Name,
+                                ExpiryStatus = expiredRemark,
+                                Type = crepository.GetSemarTypes().FirstOrDefault(x => x.SemarTypeID == semar.Type)?.Deskripsi,
+                                NoDocument = semar.NoDocument,
+                                Title = semar.Title,
+                                Level = crepository.GetSemarLevels().FirstOrDefault(x => x.SemarLevelID == semar.SemarLevel)?.Deskripsi,
+                                Owner = crepository.GetAllDepartments().FirstOrDefault(x => x.DepartmentID == semar.Owner)?.Deskripsi,
+                                Description = semar.Description,
+                                Revision = semar.Revision,
+                                Classification = crepository.GetClassifications().FirstOrDefault(x => x.ClassificationID == semar.Classification)?.Deskripsi,
+                                PublishedDate = semar.PublishDate.ToString("dd MMMM yyyy"),
+                                ExpiredDate = semar.ExpiredDate.ToString("dd MMMM yyyy")
+                            },
+                            "id",
+                            EmailPriority.High,
+                            "SEMAR"
+                        );
                     }
                 }
                 semarrepository.UpdateExpiredNotif(semar.SemarID);
@@ -97,21 +100,6 @@ namespace Admin.Controllers
 
             foreach (var aman in amans)
             {
-                var message = new StringBuilder();
-                message.Append("<table>");
-                message.Append($"<tr><td>No.</td><td>:</td><td>{aman.AmanID}</td></tr>");
-                message.Append($"<tr><td>Start Date</td><td>:</td><td>{aman.StartDate:dd MMMM yyyy}</td></tr>");
-                message.Append($"<tr><td>End Date</td><td>:</td><td>{aman.EndDate:dd MMMM yyyy}</td></tr>");
-                message.Append($"<tr><td>Source</td><td>:</td><td>{crepository.GetAmanSources().FirstOrDefault(x => x.AmanSourceID == aman.Source)?.Deskripsi}</td></tr>");
-                message.Append($"<tr><td>Location</td><td>:</td><td>{crepository.GetLocations().FirstOrDefault(x => x.LocationID == aman.Location)?.Deskripsi}</td></tr>");
-                message.Append($"<tr><td>Findings / Opportunities</td><td>:</td><td>{aman.Findings}</td></tr>");
-                message.Append($"<tr><td>Recommendation</td><td>:</td><td>{aman.Recommendation}</td></tr>");
-                message.Append($"<tr><td>Responsible</td><td>:</td><td>{(await userManager.FindByNameAsync(aman.Responsible)).Name}</td></tr>");
-                message.Append($"<tr><td>Email</td><td>:</td><td>{(await userManager.FindByNameAsync(aman.Responsible)).Email}</td></tr>");
-                message.Append($"<tr><td>Verifier</td><td>:</td><td>{(await userManager.FindByNameAsync(aman.Verifier)).Name}</td></tr>");
-                message.Append($"<tr><td>Status</td><td>:</td><td>{crepository.GetAmanStatuses().FirstOrDefault(x => x.AmanStatusID == aman.Status)?.Deskripsi}</td></tr>");
-                message.Append("</table>");
-
                 var responsible = await userManager.FindByNameAsync(aman.Responsible);
                 var users = userManager.Users.Where(x => x.Department == responsible.Department && x.UserName != aman.Responsible).ToList();
                 foreach (var user in users)
@@ -119,21 +107,33 @@ namespace Admin.Controllers
                     var roles = await userManager.GetRolesAsync(user);
                     if (roles.Contains("AtasanAdmin"))
                     {
-                        var email = new Email
-                        {
-                            Receiver = user.Email,
-                            Subject = "Overdue AMAN Notification",
-                            Message = $"Dear {user.Name},<br/><p>AMAN berikut telah mengalami keterlambatan:</p>{message}",
-                            Schedule = DateTime.Now,
-                            CreatedOn = DateTime.Now
-                        };
-                        emailrepository.Save(email);
+                        await emailService.SendTemplatedEmailAsync(
+                            "AMAN_OVERDUE",
+                            user.Email,
+                            new
+                            {
+                                AmanID = aman.AmanID,
+                                RecipientName = user.Name,
+                                StartDate = aman.StartDate.ToString("dd MMMM yyyy"),
+                                EndDate = aman.EndDate.ToString("dd MMMM yyyy"),
+                                Source = crepository.GetAmanSources().FirstOrDefault(x => x.AmanSourceID == aman.Source)?.Deskripsi,
+                                Location = crepository.GetLocations().FirstOrDefault(x => x.LocationID == aman.Location)?.Deskripsi,
+                                Findings = aman.Findings,
+                                Recommendation = aman.Recommendation,
+                                ResponsibleName = responsible.Name,
+                                ResponsibleEmail = responsible.Email,
+                                VerifierName = (await userManager.FindByNameAsync(aman.Verifier)).Name,
+                                Status = crepository.GetAmanStatuses().FirstOrDefault(x => x.AmanStatusID == aman.Status)?.Deskripsi
+                            },
+                            "id",
+                            EmailPriority.High,
+                            "AMAN"
+                        );
                     }
                 }
 
                 amanrepository.UpdateOverdueNotif(aman.AmanID);
             }
-            await apiHelper.SendEmailAsync();
         }
     }
 }

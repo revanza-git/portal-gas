@@ -4,7 +4,7 @@
 <div class="sidebar-panel offscreen-left">
     <div class="brand" style="background-color:white;">
         <div class="brand-logo">
-            <img src="~/admin/images/logo.png" height="25" alt="">
+            <img src="~/admin/images/logo-regas.png" height="40" alt="">
         </div>
         <a href="javascript:;" data-toggle="layout-small-menu">
             <i class="toggle-sidebar hidden-xs v3 fa fa-th fa-lg" style="color:Highlight"></i>
@@ -121,14 +121,23 @@
                         <span>AMAN</span>
                     </a>
                 </li>
+                @if (User.IsInRole("Admin") || User.IsInRole("AtasanAdmin"))
+                {
+                    <li>
+                        <a asp-controller="EmailAdmin" asp-action="Index">
+                            <i class="fa fa-envelope"></i>
+                            <span>Email System</span>
+                        </a>
+                    </li>
+                }
                 <li>
-                    <a href="javascript:;">
+                    <a href="javascript:;" data-toggle="dropdown">
                         <i class="fa fa-plus-square-o"></i>
                         <span>HSSE</span>
                     </a>
                     <ul class="sub-menu">
                         <li>
-                            <a href="javascript:;">
+                            <a href="javascript:;" data-toggle="dropdown">
                                 <i class="fa fa-file"></i>
                                 <span>HSSE Report</span>
                             </a>
@@ -148,7 +157,7 @@
                             </ul>
                         </li>
                         <li>
-                            <a href="javascript:;">
+                            <a href="javascript:;" data-toggle="dropdown">
                                 <i class="fa fa-table"></i>
                                 <span>JSA & Risk</span>
                             </a>
@@ -182,7 +191,7 @@
                     </ul>
                 </li>
                 <li>
-                    <a href="javascript:;">
+                    <a href="javascript:;" data-toggle="dropdown">
                         <i class="fa fa-laptop"></i>
                         <span>Gas Monitoring</span>
                     </a>

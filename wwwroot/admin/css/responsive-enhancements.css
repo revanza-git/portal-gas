@@ -1,0 +1,337 @@
+/* ============================================
+   Responsive Design Enhancements
+   ============================================ */
+
+/* Mobile First Approach */
+@media (max-width: 767px) {
+    
+    /* Dashboard Header */
+    .dashboard-header {
+        padding: 15px;
+        text-align: center;
+    }
+    
+    .dashboard-title {
+        font-size: 1.8em !important;
+    }
+    
+    .dashboard-subtitle {
+        font-size: 1em !important;
+    }
+    
+    /* Year Selector */
+    .year-selector-container {
+        margin-top: 15px;
+        text-align: center;
+    }
+    
+    /* Widgets - Stack vertically */
+    .widget {
+        margin-bottom: 15px;
+    }
+    
+    .widget-details {
+        text-align: center;
+    }
+    
+    .widget-details h2 {
+        font-size: 1.5em !important;
+    }
+    
+    .widget-details small {
+        font-size: 0.8em;
+    }
+    
+    /* Charts */
+    #chartdiv, #chartdiv2 {
+        height: 250px !important;
+    }
+    
+    #chartdiv3, #chartdiv4 {
+        height: 300px !important;
+    }
+    
+    .chart-title {
+        font-size: 1em;
+        padding: 10px 5px;
+    }
+    
+    /* BOG Widget */
+    .bog-widget {
+        text-align: center;
+        padding: 15px;
+    }
+    
+    .bog-widget .widget-icon {
+        float: none !important;
+        margin: 0 auto 10px;
+    }
+    
+    /* Date Range Container */
+    .date-range-container {
+        padding: 15px;
+    }
+    
+    .date-range-container .input-group {
+        margin-top: 10px;
+    }
+    
+    /* Panel Body */
+    .panel-body {
+        padding: 15px 10px;
+    }
+    
+    /* Breadcrumb */
+    .breadcrumb {
+        font-size: 0.9em;
+    }
+    
+    .breadcrumb li {
+        display: block;
+        margin-bottom: 5px;
+    }
+    
+    .breadcrumb > li + li:before {
+        content: "→ ";
+        padding: 0 5px;
+    }
+}
+
+/* Tablet Portrait */
+@media (min-width: 768px) and (max-width: 991px) {
+    
+    .dashboard-title {
+        font-size: 2.2em;
+    }
+    
+    .widget-details h2 {
+        font-size: 2em;
+    }
+    
+    #chartdiv, #chartdiv2 {
+        height: 300px;
+    }
+    
+    #chartdiv3, #chartdiv4 {
+        height: 400px;
+    }
+}
+
+/* Large Desktop */
+@media (min-width: 1200px) {
+    
+    .main-content {
+        padding: 30px;
+    }
+    
+    .panel-body {
+        padding: 40px;
+    }
+    
+    .dashboard-title {
+        font-size: 3em;
+    }
+    
+    .widget-details h2 {
+        font-size: 3em;
+    }
+    
+    #chartdiv, #chartdiv2 {
+        height: 400px;
+    }
+    
+    #chartdiv3, #chartdiv4 {
+        height: 550px;
+    }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+    
+    /* Larger touch targets */
+    select, input, button {
+        min-height: 44px;
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+    
+    /* Remove hover effects on touch devices */
+    .widget:hover,
+    .chart-container:hover {
+        transform: none;
+        box-shadow: var(--shadow-light);
+    }
+    
+    /* Larger tap targets for interactive elements */
+    .widget {
+        min-height: 120px;
+    }
+    
+    /* Simplified animations for performance */
+    .widget::before {
+        display: none;
+    }
+}
+
+/* Retina Display Support */
+@media only screen and (-webkit-min-device-pixel-ratio: 2),
+       only screen and (min--moz-device-pixel-ratio: 2),
+       only screen and (-o-min-device-pixel-ratio: 2/1),
+       only screen and (min-device-pixel-ratio: 2),
+       only screen and (min-resolution: 192dpi),
+       only screen and (min-resolution: 2dppx) {
+    
+    /* Sharper text rendering */
+    .dashboard-title,
+    .widget-details h2 {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    
+    /* Disable animations for users who prefer reduced motion */
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .widget::before {
+        display: none;
+    }
+    
+    .pulse {
+        animation: none !important;
+    }
+}
+
+/* Print Styles */
+@media print {
+    
+    .main-content {
+        background: white !important;
+        padding: 0;
+    }
+    
+    .panel {
+        box-shadow: none;
+        border: 1px solid #ccc;
+    }
+    
+    .dashboard-header {
+        background: #f8f9fa !important;
+        color: #333 !important;
+        -webkit-print-color-adjust: exact;
+    }
+    
+    .widget {
+        background: #f8f9fa !important;
+        color: #333 !important;
+        box-shadow: none;
+        border: 1px solid #ccc;
+        -webkit-print-color-adjust: exact;
+    }
+    
+    .year-selector-container,
+    .date-range-container {
+        display: none;
+    }
+    
+    .chart-container {
+        page-break-inside: avoid;
+    }
+    
+    .panel-heading .breadcrumb {
+        color: #333 !important;
+    }
+}
+
+/* Focus Indicators for Accessibility */
+.widget:focus,
+.chart-container:focus,
+select:focus,
+input:focus {
+    outline: 3px solid #007bff;
+    outline-offset: 2px;
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+    
+    .widget {
+        border: 2px solid;
+    }
+    
+    .chart-container {
+        border: 2px solid;
+    }
+    
+    .dashboard-title,
+    .widget-details h2 {
+        text-shadow: none;
+    }
+}
+
+/* Landscape Orientation on Mobile */
+@media (max-width: 767px) and (orientation: landscape) {
+    
+    .dashboard-header {
+        padding: 10px;
+    }
+    
+    .dashboard-title {
+        font-size: 1.5em !important;
+    }
+    
+    .widget {
+        padding: 15px;
+    }
+    
+    .widget-details h2 {
+        font-size: 1.3em !important;
+    }
+    
+    #chartdiv, #chartdiv2 {
+        height: 200px !important;
+    }
+    
+    #chartdiv3, #chartdiv4 {
+        height: 250px !important;
+    }
+}
+
+/* Extra Small Devices */
+@media (max-width: 480px) {
+    
+    .dashboard-title {
+        font-size: 1.5em !important;
+    }
+    
+    .widget-details h2 {
+        font-size: 1.2em !important;
+    }
+    
+    .panel-body {
+        padding: 10px 5px;
+    }
+    
+    .chart-container {
+        padding: 10px;
+    }
+    
+    .bog-widget {
+        padding: 10px;
+    }
+    
+    .widget-title {
+        font-size: 1em !important;
+    }
+    
+    .chart-title {
+        font-size: 0.9em;
+    }
+} 

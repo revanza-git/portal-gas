@@ -3739,8 +3739,8 @@ a.list-group-item-danger.active:focus {
 }
 .modal {
   z-index: 2020;
-  background: black;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.3);
 }
 .modal-content {
   -webkit-box-shadow: none;
@@ -4167,10 +4167,6 @@ a.list-group-item-danger.active:focus {
 }
 .panel-warning > .panel-heading + .panel-collapse .panel-body {
   border-top-color: #ffc65d;
-}
-.panel-warning > .panel-heading .badge {
-  color: #ffc65d;
-  background-color: #ffffff;
 }
 .panel-warning > .panel-footer + .panel-collapse .panel-body {
   border-bottom-color: #ffc65d;

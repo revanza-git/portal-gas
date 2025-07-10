@@ -18,6 +18,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Admin.Services;
 
 namespace Admin.Controllers
 {
@@ -36,7 +37,8 @@ namespace Admin.Controllers
         private readonly IConfiguration _configuration;
         private readonly HttpClient _httpClient;
         private readonly AdSettings _adSettings;
-        private readonly LdapConnection _ldapConnection;
+        private readonly IEmailService _emailService;
+        private readonly IImmediateEmailService _immediateEmailService;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
@@ -50,7 +52,9 @@ namespace Admin.Controllers
             ApiHelper apiHelper,
             IConfiguration configuration,
             HttpClient httpClient,
-            AdSettings adSettings)
+            AdSettings adSettings,
+            IEmailService emailService,
+            IImmediateEmailService immediateEmailService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -64,6 +68,8 @@ namespace Admin.Controllers
             _configuration = configuration;
             _httpClient = httpClient;
             _adSettings = adSettings;
+            _emailService = emailService;
+            _immediateEmailService = immediateEmailService;
         }
 
         [HttpGet]
@@ -296,10 +302,49 @@ namespace Admin.Controllers
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
             {
+                // Don't reveal that the user does not exist or is not confirmed
                 return View("ForgotPasswordConfirmation");
             }
 
-            // Send email with reset link (implementation not shown)
+            try
+            {
+                // Generate password reset token
+                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                
+                // Create reset link
+                var resetLink = Url.Action("ResetPassword", "Account", 
+                    new { userId = user.Id, code = token }, 
+                    protocol: HttpContext.Request.Scheme);
+
+                // Send email using ImmediateEmailService for instant delivery
+                var emailSent = await _immediateEmailService.SendImmediateTemplatedEmailAsync(
+                    "PASSWORD_RESET_LINK",
+                    user.Email,
+                    new
+                    {
+                        Name = user.Name ?? user.UserName,
+                        ResetLink = resetLink
+                    },
+                    "en",
+                    logToDatabase: true
+                );
+
+                if (!emailSent)
+                {
+                    _logger.LogError($"Failed to send immediate password reset email for {user.Email}");
+                    // Still show confirmation to prevent user enumeration
+                }
+                else
+                {
+                    _logger.LogInformation($"Password reset email sent immediately to {user.Email}");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error during password reset process for {model.Email}");
+                // Still show confirmation to prevent user enumeration
+            }
+
             return View("ForgotPasswordConfirmation");
         }
 
@@ -312,9 +357,35 @@ namespace Admin.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult ResetPassword(string code = null)
+        public async Task<IActionResult> ResetPassword(string userId = null, string code = null)
         {
-            return code == null ? View("Error") : View();
+            if (userId == null || code == null)
+            {
+                return View("Error");
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return View("Error");
+            }
+
+            // Verify that the token is valid
+            var isTokenValid = await _userManager.VerifyUserTokenAsync(user, 
+                _userManager.Options.Tokens.PasswordResetTokenProvider, "ResetPassword", code);
+            
+            if (!isTokenValid)
+            {
+                return View("Error");
+            }
+
+            var model = new ResetPasswordViewModel
+            {
+                Code = code,
+                Email = user.Email
+            };
+
+            return View(model);
         }
 
         [HttpPost]
@@ -596,6 +667,196 @@ namespace Admin.Controllers
             return _signInManager.IsSignedIn(User) ? "Y" : "N";
         }
 
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> TestEmailService(string email = null)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                return Json(new { success = false, message = "Email parameter is required" });
+            }
+
+            try
+            {
+                // Test with regular EmailService (queued)
+                var result = await _emailService.SendTemplatedEmailAsync(
+                    "PASSWORD_RESET_LINK",
+                    email,
+                    new
+                    {
+                        Name = "Test User",
+                        ResetLink = "https://portal.nusantararegas.com/Account/ResetPassword?userId=test&code=test123"
+                    },
+                    "en",
+                    EmailPriority.High,
+                    "TEST"
+                );
+
+                var responseMessage = result 
+                    ? "Email queued successfully! Check the Emails table in database." 
+                    : "Failed to queue email. Check logs for details.";
+
+                return Json(new { 
+                    success = result, 
+                    message = responseMessage,
+                    smtpServer = _configuration["Email:SmtpServer"],
+                    smtpPort = _configuration["Email:SmtpPort"],
+                    backgroundServiceEnabled = _configuration["Email:EnableBackgroundProcessing"]
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error testing email service to {email}");
+                return Json(new { 
+                    success = false, 
+                    message = ex.Message,
+                    smtpServer = _configuration["Email:SmtpServer"],
+                    smtpPort = _configuration["Email:SmtpPort"]
+                });
+            }
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> TestImmediateEmailService(string email = null)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                return Json(new { success = false, message = "Email parameter is required" });
+            }
+
+            try
+            {
+                // First test SMTP connection
+                var smtpTestResult = await _immediateEmailService.TestSmtpConnectionAsync();
+                
+                // Test immediate email sending
+                var result = await _immediateEmailService.SendImmediateTemplatedEmailAsync(
+                    "PASSWORD_RESET",
+                    email,
+                    new
+                    {
+                        RecipientName = "Test User",
+                        UserName = "testuser",
+                        Password = "TestPassword123!",
+                        LoginUrl = "http://portal.nusantararegas.com"
+                    },
+                    "en",
+                    logToDatabase: true
+                );
+
+                var responseMessage = result 
+                    ? "Immediate email sent successfully!" 
+                    : "Failed to send immediate email. Check logs for details.";
+
+                return Json(new { 
+                    success = result, 
+                    message = responseMessage,
+                    smtpConnectionTest = smtpTestResult,
+                    smtpServer = _configuration["Email:SmtpServer"],
+                    smtpPort = _configuration["Email:SmtpPort"],
+                    fromEmail = _configuration["Email:FromEmail"],
+                    fromName = _configuration["Email:FromName"]
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error testing immediate email service to {email}");
+                return Json(new { 
+                    success = false, 
+                    message = ex.Message,
+                    smtpServer = _configuration["Email:SmtpServer"],
+                    smtpPort = _configuration["Email:SmtpPort"],
+                    stackTrace = ex.StackTrace
+                });
+            }
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> TestPasswordResetEmail(string email = null, string userName = null)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                return Json(new { success = false, message = "Email parameter is required" });
+            }
+
+            try
+            {
+                _logger.LogInformation($"Testing password reset email functionality for {email}");
+                
+                // Check if email exists in database before sending
+                var emailsBefore = _emailRepository.Emails.Count();
+                var pendingEmailsBefore = _emailRepository.GetEmailsByStatus(EmailStatus.Pending).Count();
+                var failedEmailsBefore = _emailRepository.GetEmailsByStatus(EmailStatus.Failed).Count();
+                
+                // Test the email sending with correct template data
+                var testEmailSent = await _immediateEmailService.SendImmediateTemplatedEmailAsync(
+                    "PASSWORD_RESET",
+                    email,
+                    new
+                    {
+                        Name = userName ?? "Test User",     // Template expects "Name"
+                        Username = userName ?? "testuser",  // Template expects "Username"
+                        Password = "TestPassword123!"
+                    },
+                    "id",
+                    logToDatabase: true
+                );
+                
+                // Check email counts after
+                await Task.Delay(1000); // Give time for database operations
+                var emailsAfter = _emailRepository.Emails.Count();
+                var pendingEmailsAfter = _emailRepository.GetEmailsByStatus(EmailStatus.Pending).Count();
+                var failedEmailsAfter = _emailRepository.GetEmailsByStatus(EmailStatus.Failed).Count();
+                var sentEmailsAfter = _emailRepository.GetEmailsByStatus(EmailStatus.Sent).Count();
+                
+                // Get the latest email record for this recipient
+                var latestEmail = _emailRepository.GetEmailsByCategory("IMMEDIATE")
+                    .Where(e => e.Receiver == email)
+                    .OrderByDescending(e => e.CreatedOn)
+                    .FirstOrDefault();
+
+                var responseMessage = testEmailSent 
+                    ? "Password reset email sent successfully!" 
+                    : "Failed to send password reset email. Check logs for details.";
+
+                return Json(new { 
+                    success = testEmailSent, 
+                    message = responseMessage,
+                    emailCounts = new {
+                        before = new { total = emailsBefore, pending = pendingEmailsBefore, failed = failedEmailsBefore },
+                        after = new { total = emailsAfter, pending = pendingEmailsAfter, failed = failedEmailsAfter, sent = sentEmailsAfter }
+                    },
+                    latestEmailRecord = latestEmail != null ? new {
+                        id = latestEmail.EmailID,
+                        status = latestEmail.Status,
+                        statusText = ((EmailStatus)latestEmail.Status).ToString(),
+                        createdOn = latestEmail.CreatedOn,
+                        sentOn = latestEmail.SentOn,
+                        errorMessage = latestEmail.ErrorMessage,
+                        templateType = latestEmail.TemplateType
+                    } : null,
+                    smtpConfig = new {
+                        server = _configuration["Email:SmtpServer"],
+                        port = _configuration["Email:SmtpPort"],
+                        fromEmail = _configuration["Email:FromEmail"],
+                        fromName = _configuration["Email:FromName"],
+                        user = !string.IsNullOrEmpty(_configuration["Email:SmtpUser"]) ? "Configured" : "Not configured"
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error testing password reset email to {email}");
+                return Json(new { 
+                    success = false, 
+                    message = ex.Message,
+                    stackTrace = ex.StackTrace
+                });
+            }
+        }
+
         #region Helpers
 
         private async Task<IdentityResult> CreateUser(AccountViewModel model)
@@ -658,16 +919,20 @@ namespace Admin.Controllers
 
         private async Task SendConfirmationEmail(ApplicationUser user, string password)
         {
-            var email = new Email
-            {
-                Subject = "Konfirmasi Pendaftaran User",
-                Receiver = user.Email,
-                Message = $"Dear Bpk/Ibu {user.Name},<p/>Anda telah terdaftar di Portal Nusantara Regas.<br/>Silahkan login ke http://portal.nusantararegas.com menggunakan username dan password berikut ini.<br>Username: {user.UserName}<br/>Password baru: {password}",
-                Schedule = DateTime.Now,
-                CreatedOn = DateTime.Now
-            };
-            _emailRepository.Save(email);
-            await _apiHelper.SendEmailAsync();
+            await _emailService.SendTemplatedEmailAsync(
+                "ACCOUNT_REGISTRATION",
+                user.Email,
+                new
+                {
+                    RecipientName = user.Name,
+                    UserName = user.UserName,
+                    Password = password,
+                    LoginUrl = "http://portal.nusantararegas.com"
+                },
+                "id", // Indonesian language
+                EmailPriority.High,
+                "ACCOUNT"
+            );
         }
 
         private async Task ResetUserPassword(ApplicationUser user)
@@ -677,17 +942,36 @@ namespace Admin.Controllers
             var result = await _userManager.ResetPasswordAsync(user, token, password);
             if (result.Succeeded)
             {
-                var email = new Email
+                _logger.LogInformation($"Password reset succeeded for user {user.UserName}. Attempting to send email...");
+                
+                // Send email notification using ImmediateEmailService for instant delivery
+                var emailSent = await _immediateEmailService.SendImmediateTemplatedEmailAsync(
+                    "PASSWORD_RESET",
+                    user.Email,
+                    new
+                    {
+                        Name = user.Name ?? user.UserName,        // Template expects "Name"
+                        Username = user.UserName,                 // Template expects "Username" 
+                        Password = password
+                    },
+                    "id", // Indonesian language
+                    logToDatabase: true
+                );
+
+                if (emailSent)
                 {
-                    Subject = "Konfirmasi Reset Password",
-                    Receiver = user.Email,
-                    Message = $"Dear Bpk/Ibu {user.Name},<p/>Password Anda telah direset.<br/>Silahkan login ke http://portal.nusantararegas.com menggunakan username dan password berikut ini.<br>Username: {user.UserName}<br/>Password baru: {password}",
-                    Schedule = DateTime.Now,
-                    CreatedOn = DateTime.Now
-                };
-                _emailRepository.Save(email);
-                await _apiHelper.SendEmailAsync();
-                TempData["message"] = $"Password {user.UserName} has been reset.";
+                    TempData["message"] = $"Password {user.UserName} has been reset and email sent immediately.";
+                    _logger.LogInformation($"Password reset email sent immediately to {user.Email}");
+                }
+                else
+                {
+                    TempData["message"] = $"Password {user.UserName} has been reset, but email sending failed. Please check logs and email configuration.";
+                    _logger.LogError($"Failed to send immediate password reset email to {user.Email}. Email record should be in database with Failed status.");
+                }
+            }
+            else
+            {
+                _logger.LogError($"Password reset failed for user {user.UserName}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
             }
         }
 
@@ -723,7 +1007,7 @@ namespace Admin.Controllers
 
         public new void Dispose()
         {
-            _ldapConnection?.Dispose();
+            // Dispose of any other resources if needed
         }
 
         #endregion

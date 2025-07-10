@@ -1,0 +1,915 @@
+@using Admin.Controllers
+@using Admin.Models.User
+@using Admin.Services
+@model EmailAdminViewModel
+@{
+    ViewData["Title"] = "Email System Dashboard";
+    Layout = "~/Views/Shared/Panel.cshtml";
+}
+
+@section PageLevelPlugin {
+    <link rel="stylesheet" href="~/admin/vendor/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css" />
+    <style>
+        /* === FIX SCROLLING ISSUES === */
+        .main-content {
+            min-height: auto !important;
+            height: auto !important;
+            max-height: none !important;
+            overflow: visible !important;
+            padding: 20px !important;
+        }
+
+        .main-panel {
+            min-height: auto !important;
+            height: auto !important;
+            overflow: visible !important;
+        }
+
+        .panel {
+            margin-bottom: 20px;
+            overflow: visible !important;
+        }
+
+        .panel-body {
+            overflow: visible !important;
+            max-height: none !important;
+        }
+
+        /* === EMAIL ADMIN STYLES === */
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 20px;
+            color: white;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+        .stats-card.success {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+        }
+        .stats-card.warning {
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+        }
+        .stats-card.danger {
+            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+        }
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .stats-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .management-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-active { background-color: #4CAF50; }
+        .status-connected { background-color: #2196F3; }
+        .status-ready { background-color: #FF9800; }
+        .btn-modern {
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 500;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        .btn-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* === TABLE RESPONSIVE IMPROVEMENTS === */
+        .table-responsive {
+            overflow-x: auto !important;
+            overflow-y: visible !important;
+            max-height: none !important;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        /* === ENSURE SMOOTH SCROLLING === */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            overflow-x: hidden;
+            overflow-y: auto !important;
+        }
+
+        /* === MODAL FIX === */
+        .modal-dialog {
+            margin: 30px auto;
+        }
+
+        /* === EMAIL DETAILS MODAL STYLING === */
+        #emailDetailsModal {
+            z-index: 1050 !important; /* Bootstrap modal z-index */
+        }
+        
+        #emailDetailsModal .modal-dialog {
+            max-width: 800px !important;
+            margin: 30px auto 30px 280px !important; /* Add left margin to avoid sidebar */
+            position: relative;
+            width: 90%;
+        }
+
+        #emailDetailsModal .modal-content {
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            background: white;
+        }
+
+        #emailDetailsModal .modal-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            border-radius: 8px 8px 0 0;
+            padding: 15px 20px;
+            position: relative;
+        }
+
+        #emailDetailsModal .modal-title {
+            color: #495057;
+            font-weight: 600;
+            margin-right: 30px; /* Make space for close button */
+        }
+
+        #emailDetailsModal .modal-body {
+            padding: 20px;
+            background-color: transparent; /* Remove white background blocking content */
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        #emailDetailsModal .modal-footer {
+            background-color: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+            border-radius: 0 0 8px 8px;
+            padding: 15px 20px;
+        }
+        
+        /* Close button styling - positioned in header top-right */
+        #emailDetailsModal .close {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            font-size: 24px;
+            font-weight: normal;
+            color: #999;
+            opacity: 1;
+            cursor: pointer;
+            z-index: 10;
+            background: none;
+            border: none;
+            padding: 5px;
+            line-height: 1;
+        }
+        
+        #emailDetailsModal .close:hover {
+            color: #333;
+        }
+        
+        /* Responsive adjustments */
+        @@media (max-width: 768px) {
+            #emailDetailsModal .modal-dialog {
+                width: 95%;
+                margin: 15px auto !important; /* No left margin on mobile */
+            }
+            
+            #emailDetailsModal .modal-content {
+                max-height: 90vh;
+            }
+            
+            #emailDetailsModal .modal-body {
+                max-height: 60vh;
+            }
+        }
+        
+        @@media (min-width: 769px) {
+            #emailDetailsModal .modal-dialog {
+                width: 80%;
+                max-width: 800px;
+                margin: 30px auto 30px 280px !important; /* Left margin to avoid sidebar on desktop */
+            }
+        }
+
+        .email-details-container .row {
+            margin-bottom: 10px;
+        }
+
+        .email-details-container hr {
+            margin: 15px 0;
+            border-color: #e9ecef;
+        }
+
+        .email-content-preview {
+            background-color: transparent !important; /* Remove white background */
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .email-content-preview pre {
+            background: none;
+            border: none;
+            padding: 0;
+            margin: 0;
+            white-space: pre-wrap;
+        }
+
+        /* === LOADING STATE === */
+        .modal-body .text-center {
+            padding: 40px 20px;
+        }
+
+        .modal-body .text-center .fa-spinner {
+            color: #007bff;
+            margin-bottom: 15px;
+        }
+
+        /* === MODAL BACKDROP FIX === */
+        .modal-backdrop {
+            display: none !important; /* Hide all modal backdrops since we're using custom positioning */
+        }
+        
+        .modal.fade .modal-dialog {
+            transform: none !important; /* Remove transform animations */
+            transition: none !important;
+        }
+
+        .modal.in .modal-dialog {
+            transform: none !important;
+        }
+        
+        /* === REMOVE SIDEBAR Z-INDEX CONFLICTS === */
+        .sidebar-panel, .sidebar, .app-sidebar {
+            z-index: auto !important; /* Reset to default */
+        }
+        
+        /* === ENSURE MODAL IS CLICKABLE === */
+        #emailDetailsModal.modal {
+            pointer-events: auto !important;
+        }
+        
+        #emailDetailsModal.modal.show {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        
+        #emailDetailsModal .modal-dialog {
+            pointer-events: auto !important;
+        }
+    </style>
+}
+
+@section TitleBar {
+    <strong>Email System Dashboard</strong>
+}
+
+<!-- main area -->
+<div class="main-content">
+    <div class="panel">
+        <div class="panel-heading border">
+            <ol class="breadcrumb mb0 no-padding">
+                <li>
+                    <a href="javascript:;">System</a>
+                </li>
+                <li>
+                    <a href="javascript:;">Email</a>
+                </li>
+                <li class="active"><strong>Dashboard</strong></li>
+            </ol>
+        </div>
+        <div class="panel-body">
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    <i class="fa fa-check"></i> @TempData["Success"]
+                </div>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    <i class="fa fa-warning"></i> @TempData["Error"]
+                </div>
+            }
+
+            <!-- Statistics Cards -->
+            <div class="row">
+                <div class="col-lg-3 col-md-6 col-sm-6">
+                    <div class="stats-card">
+                        <div class="stats-number">@Model.Stats.TotalEmails</div>
+                        <div class="stats-label">
+                            <i class="fa fa-paper-plane"></i> Total Sent
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 col-sm-6">
+                    <div class="stats-card success">
+                        <div class="stats-number">@Model.Stats.SentEmails</div>
+                        <div class="stats-label">
+                            <i class="fa fa-check-circle"></i> Successful
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 col-sm-6">
+                    <div class="stats-card warning">
+                        <div class="stats-number">@Model.Stats.PendingEmails</div>
+                        <div class="stats-label">
+                            <i class="fa fa-clock-o"></i> Pending
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 col-sm-6">
+                    <div class="stats-card danger">
+                        <div class="stats-number">@Model.Stats.FailedEmails</div>
+                        <div class="stats-label">
+                            <i class="fa fa-times-circle"></i> Failed
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Email Queue Management -->
+                <div class="col-md-6">
+                    <div class="management-card">
+                        <h4><i class="fa fa-cogs"></i> Queue Management</h4>
+                        <hr>
+                        <div class="mb15">
+                            <button type="button" class="btn btn-primary btn-modern" onclick="processQueue()">
+                                <i class="fa fa-play"></i> Process Queue Now
+                            </button>
+                            <button type="button" class="btn btn-info btn-modern" onclick="refreshStats()">
+                                <i class="fa fa-refresh"></i> Refresh Stats
+                            </button>
+                        </div>
+                        <div class="mb15">
+                            <button type="button" class="btn btn-warning btn-modern" onclick="showTestEmailModal()">
+                                <i class="fa fa-envelope"></i> Send Test Email
+                            </button>
+                            <button type="button" class="btn btn-default btn-modern" onclick="cleanupOldEmails()">
+                                <i class="fa fa-trash"></i> Cleanup Old Emails
+                            </button>
+                        </div>
+                        <div class="alert alert-info">
+                            <strong>Success Rate:</strong> @Model.Stats.DeliveryRate.ToString("F1")%
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Status -->
+                <div class="col-md-6">
+                    <div class="management-card">
+                        <h4><i class="fa fa-server"></i> System Status</h4>
+                        <hr>
+                        <div class="mb10">
+                            <span class="status-indicator status-active"></span>
+                            <strong>Background Service:</strong> Active
+                        </div>
+                        <div class="mb10">
+                            <span class="status-indicator status-connected"></span>
+                            <strong>Database:</strong> Connected
+                        </div>
+                        <div class="mb10">
+                            <span class="status-indicator status-ready"></span>
+                            <strong>SMTP Server:</strong> Ready
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Pending Emails -->
+                <div class="col-md-6">
+                    <div class="management-card">
+                        <h4><i class="fa fa-clock-o"></i> Pending Emails (Last 10)</h4>
+                        <hr>
+                        @if (Model.PendingEmails.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-striped table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Subject</th>
+                                            <th>Recipient</th>
+                                            <th>Priority</th>
+                                            <th>Retry</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var email in Model.PendingEmails)
+                                        {
+                                            <tr>
+                                                <td>@email.Subject</td>
+                                                <td>@email.Receiver</td>
+                                                <td>
+                                                    @{
+                                                        var priorityClass = "label-default";
+                                                        var priorityText = "Low";
+                                                        switch (email.Priority)
+                                                        {
+                                                            case (int)EmailPriority.Critical:
+                                                                priorityClass = "label-danger";
+                                                                priorityText = "Critical";
+                                                                break;
+                                                            case (int)EmailPriority.High:
+                                                                priorityClass = "label-warning";
+                                                                priorityText = "High";
+                                                                break;
+                                                            case (int)EmailPriority.Medium:
+                                                                priorityClass = "label-info";
+                                                                priorityText = "Medium";
+                                                                break;
+                                                        }
+                                                    }
+                                                    <span class="label @priorityClass">@priorityText</span>
+                                                </td>
+                                                <td>@email.RetryCount/@email.MaxRetries</td>
+                                                <td>
+                                                    <button class="btn btn-primary btn-xs" onclick="retryEmail(@email.EmailID)" title="Retry">
+                                                        <i class="fa fa-refresh"></i>
+                                                    </button>
+                                                    <button class="btn btn-info btn-xs view-email-btn" data-email-id="@email.EmailID" title="View">
+                                                        <i class="fa fa-eye"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No pending emails.</p>
+                        }
+                    </div>
+                </div>
+
+                <!-- Recent Emails -->
+                <div class="col-md-6">
+                    <div class="management-card">
+                        <h4><i class="fa fa-history"></i> Recent Emails</h4>
+                        <hr>
+                        @if (Model.RecentEmails.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-striped table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Subject</th>
+                                            <th>Status</th>
+                                            <th>Created</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var email in Model.RecentEmails)
+                                        {
+                                            <tr>
+                                                <td>@email.Subject</td>
+                                                <td>
+                                                    @{
+                                                        var statusClass = "label-default";
+                                                        var statusText = "Unknown";
+                                                        switch (email.Status)
+                                                        {
+                                                            case (int)EmailStatus.Sent:
+                                                                statusClass = "label-success";
+                                                                statusText = "Sent";
+                                                                break;
+                                                            case (int)EmailStatus.Failed:
+                                                                statusClass = "label-danger";
+                                                                statusText = "Failed";
+                                                                break;
+                                                            case (int)EmailStatus.Pending:
+                                                                statusClass = "label-warning";
+                                                                statusText = "Pending";
+                                                                break;
+                                                            case (int)EmailStatus.Retry:
+                                                                statusClass = "label-info";
+                                                                statusText = "Retry";
+                                                                break;
+                                                        }
+                                                    }
+                                                    <span class="label @statusClass">@statusText</span>
+                                                </td>
+                                                <td>@email.CreatedOn.ToString("MM/dd HH:mm")</td>
+                                                <td>
+                                                    <button class="btn btn-info btn-xs view-email-btn" data-email-id="@email.EmailID" title="View">
+                                                        <i class="fa fa-eye"></i>
+                                                    </button>
+                                                    @if (email.Status == (int)EmailStatus.Failed)
+                                                    {
+                                                        <button class="btn btn-primary btn-xs" onclick="retryEmail(@email.EmailID)" title="Retry">
+                                                            <i class="fa fa-refresh"></i>
+                                                        </button>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No recent emails.</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /main area -->
+
+<!-- Test Email Modal -->
+<div class="modal fade" id="testEmailModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">Send Test Email</h4>
+            </div>
+            <div class="modal-body">
+                <form id="testEmailForm">
+                    <div class="form-group">
+                        <label>Template Type</label>
+                        <select class="form-control" id="templateType" required>
+                            <option value="AMAN_NEW">AMAN New</option>
+                            <option value="AMAN_PROGRESS">AMAN Progress</option>
+                            <option value="AMAN_OVERDUE">AMAN Overdue</option>
+                            <option value="SEMAR_EXPIRY">SEMAR Expiry</option>
+                            <option value="SEMAR_APPROVAL">SEMAR Approval</option>
+                            <option value="NOC_INCIDENT">NOC Incident</option>
+                            <option value="NEWS_APPROVAL">News Approval</option>
+                            <option value="ACCOUNT_REGISTRATION">Account Registration</option>
+                            <option value="PASSWORD_RESET">Password Reset</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Recipient Email</label>
+                        <input type="email" class="form-control" id="recipient" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Test Data (JSON)</label>
+                        <textarea class="form-control" id="testData" rows="5" placeholder='{"name": "Test User", "data": "test"}'></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="sendTestEmail()">Send Test Email</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Email Details Modal -->
+<div id="emailDetailsModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="emailDetailsTitle" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="emailDetailsTitle">Email Details</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="emailDetailsContent">
+                <!-- Content loaded via AJAX -->
+                <div class="text-center">
+                    <i class="fa fa-spinner fa-spin fa-2x text-primary"></i>
+                    <p class="mt-2">Loading email details...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <i class="fa fa-times"></i> Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section PageLevelScripts {
+    <script src="~/admin/vendor/datatables/datatables.min.js"></script>
+    <script src="~/admin/vendor/noty/js/noty/packaged/jquery.noty.packaged.js"></script>
+    <script>
+        // Auto-refresh statistics every 30 seconds
+        setInterval(function() {
+            refreshStats();
+        }, 30000);
+
+        function refreshStats() {
+            $.get('/EmailAdmin/Stats', function(data) {
+                location.reload(); // Simple refresh for now
+            });
+        }
+
+        function processQueue() {
+            $.post('/EmailAdmin/ProcessQueue', function(response) {
+                if (response.success) {
+                    noty({
+                        text: response.message,
+                        type: 'success',
+                        layout: 'topRight',
+                        timeout: 3000
+                    });
+                    setTimeout(function() { location.reload(); }, 1000);
+                } else {
+                    noty({
+                        text: response.message || 'Failed to process queue',
+                        type: 'error',
+                        layout: 'topRight',
+                        timeout: 3000
+                    });
+                }
+            }).fail(function() {
+                noty({
+                    text: 'Error processing queue',
+                    type: 'error',
+                    layout: 'topRight',
+                    timeout: 3000
+                });
+            });
+        }
+
+        function retryEmail(emailId) {
+            $.post('/EmailAdmin/RetryEmail', { emailId: emailId }, function(response) {
+                if (response.success) {
+                    noty({
+                        text: response.message,
+                        type: 'success',
+                        layout: 'topRight',
+                        timeout: 3000
+                    });
+                    setTimeout(function() { location.reload(); }, 1000);
+                } else {
+                    noty({
+                        text: response.message || 'Failed to retry email',
+                        type: 'error',
+                        layout: 'topRight',
+                        timeout: 3000
+                    });
+                }
+            }).fail(function() {
+                noty({
+                    text: 'Error retrying email',
+                    type: 'error',
+                    layout: 'topRight',
+                    timeout: 3000
+                });
+            });
+        }
+
+        function cleanupOldEmails() {
+            if (confirm('Are you sure you want to cleanup old emails (30+ days)?')) {
+                $.post('/EmailAdmin/CleanupOldEmails', function(response) {
+                    if (response.success) {
+                        noty({
+                            text: response.message,
+                            type: 'success',
+                            layout: 'topRight',
+                            timeout: 3000
+                        });
+                        setTimeout(function() { location.reload(); }, 1000);
+                    } else {
+                        noty({
+                            text: response.message || 'Failed to cleanup emails',
+                            type: 'error',
+                            layout: 'topRight',
+                            timeout: 3000
+                        });
+                    }
+                }).fail(function() {
+                    noty({
+                        text: 'Error cleaning up emails',
+                        type: 'error',
+                        layout: 'topRight',
+                        timeout: 3000
+                    });
+                });
+            }
+        }
+
+        function showTestEmailModal() {
+            $('#testEmailModal').modal('show');
+        }
+
+        function sendTestEmail() {
+            var templateType = $('#templateType').val();
+            var recipient = $('#recipient').val();
+            var testData = $('#testData').val();
+
+            if (!templateType || !recipient) {
+                noty({
+                    text: 'Please fill in all required fields',
+                    type: 'error',
+                    layout: 'topRight',
+                    timeout: 3000
+                });
+                return;
+            }
+
+            var data = {
+                TemplateType: templateType,
+                Recipient: recipient,
+                TestData: testData ? JSON.parse(testData) : {}
+            };
+
+            $.ajax({
+                url: '/EmailAdmin/TestEmail',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function(response) {
+                    if (response.success) {
+                        noty({
+                            text: response.message,
+                            type: 'success',
+                            layout: 'topRight',
+                            timeout: 3000
+                        });
+                        $('#testEmailModal').modal('hide');
+                        setTimeout(function() { location.reload(); }, 1000);
+                    } else {
+                        noty({
+                            text: response.message || 'Failed to send test email',
+                            type: 'error',
+                            layout: 'topRight',
+                            timeout: 3000
+                        });
+                    }
+                },
+                error: function() {
+                    noty({
+                        text: 'Error sending test email',
+                        type: 'error',
+                        layout: 'topRight',
+                        timeout: 3000
+                    });
+                }
+            });
+        }
+
+        function viewEmailDetails(emailId) {
+            console.log('Opening email details for ID:', emailId); // Debug log
+            
+            // Show loading state
+            $('#emailDetailsContent').html(`
+                <div class="text-center">
+                    <i class="fa fa-spinner fa-spin fa-2x text-primary"></i>
+                    <p class="mt-2">Loading email details...</p>
+                </div>
+            `);
+            
+            // Show modal properly using Bootstrap method
+            $('#emailDetailsModal').modal('show');
+            
+            $.get('/EmailAdmin/EmailDetails/' + emailId, function(data) {
+                console.log('Email details loaded:', data); // Debug log
+                
+                var statusBadge = '';
+                var priorityBadge = '';
+                
+                // Status badge
+                switch(data.status) {
+                    case 1: // Sent
+                        statusBadge = '<span class="label label-success"><i class="fa fa-check"></i> Sent</span>';
+                        break;
+                    case 2: // Failed
+                        statusBadge = '<span class="label label-danger"><i class="fa fa-times"></i> Failed</span>';
+                        break;
+                    case 0: // Pending
+                        statusBadge = '<span class="label label-warning"><i class="fa fa-clock-o"></i> Pending</span>';
+                        break;
+                    case 3: // Retry
+                        statusBadge = '<span class="label label-info"><i class="fa fa-refresh"></i> Retry</span>';
+                        break;
+                    default:
+                        statusBadge = '<span class="label label-default">Unknown</span>';
+                }
+
+                var content = `
+                    <div class="email-details-container">
+                        <div class="row mb-3">
+                            <div class="col-md-3"><strong><i class="fa fa-envelope"></i> Subject:</strong></div>
+                            <div class="col-md-9">${data.subject || 'N/A'}</div>
+                        </div>
+                        <hr>
+                        <div class="row mb-3">
+                            <div class="col-md-3"><strong><i class="fa fa-user"></i> Recipient:</strong></div>
+                            <div class="col-md-9">${data.receiver || 'N/A'}</div>
+                        </div>
+                        <hr>
+                        <div class="row mb-3">
+                            <div class="col-md-3"><strong><i class="fa fa-info-circle"></i> Status:</strong></div>
+                            <div class="col-md-9">${statusBadge}</div>
+                        </div>
+                        <hr>
+                        <div class="row mb-3">
+                            <div class="col-md-3"><strong><i class="fa fa-calendar"></i> Created:</strong></div>
+                            <div class="col-md-9">${new Date(data.createdOn).toLocaleString()}</div>
+                        </div>
+                        ${data.sentOn ? `
+                        <hr>
+                        <div class="row mb-3">
+                            <div class="col-md-3"><strong><i class="fa fa-paper-plane"></i> Sent:</strong></div>
+                            <div class="col-md-9">${new Date(data.sentOn).toLocaleString()}</div>
+                        </div>
+                        ` : ''}
+                        ${data.retryCount > 0 ? `
+                        <hr>
+                        <div class="row mb-3">
+                            <div class="col-md-3"><strong><i class="fa fa-repeat"></i> Retry Count:</strong></div>
+                            <div class="col-md-9">${data.retryCount}/${data.maxRetries || 3}</div>
+                        </div>
+                        ` : ''}
+                        ${data.errorMessage ? `
+                        <hr>
+                        <div class="row mb-3">
+                            <div class="col-md-3"><strong><i class="fa fa-exclamation-triangle text-danger"></i> Error:</strong></div>
+                            <div class="col-md-9"><span class="text-danger">${data.errorMessage}</span></div>
+                        </div>
+                        ` : ''}
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <strong><i class="fa fa-file-text-o"></i> Message Content:</strong>
+                                <div class="email-content-preview mt-2">
+                                    ${data.message || 'No content available'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                $('#emailDetailsContent').html(content);
+            }).fail(function() {
+                $('#emailDetailsContent').html(`
+                    <div class="alert alert-danger text-center">
+                        <i class="fa fa-exclamation-triangle fa-2x"></i>
+                        <h4>Error Loading Email Details</h4>
+                        <p>Unable to load email details. Please try again.</p>
+                    </div>
+                `);
+            });
+        }
+
+        // Function to close the email details modal
+        function closeEmailDetailsModal() {
+            console.log('Closing email details modal'); // Debug log
+            $('#emailDetailsModal').modal('hide');
+        }
+
+        // Initialize modal event handlers
+        $(document).ready(function() {
+            // Handle view email button clicks with proper event handling
+            $(document).on('click', '.view-email-btn', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var emailId = $(this).data('email-id');
+                console.log('View button clicked for email ID:', emailId); // Debug log
+                viewEmailDetails(emailId);
+            });
+        });
+
+        // Initialize tooltips
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+} 

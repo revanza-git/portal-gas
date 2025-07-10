@@ -1,4 +1,5 @@
-﻿@{
+﻿@using Admin.Models.Gallery
+@{
     Layout = "~/Views/Shared/PanelPortal.cshtml";
     ViewData["Title"] = "Portal Nusantara Regas";
 }
@@ -6,93 +7,461 @@
 @section PageLevelPlugin {
     <link rel="stylesheet" href="~/admin/styles/climacons-font.css">
     <link rel="stylesheet" href="~/admin/vendor/rickshaw/rickshaw.min.css">
-    <link rel="stylesheet" href="~/admin/vendor/bxslider/jquery.bxslider.css" />
     <link rel="stylesheet" href="~/admin/vendor/bootstrap-daterangepicker/daterangepicker-bs3.css"/>
-    <!-- Styles -->
+    <!-- Modern Dashboard Styles -->
     <style>
-        #chartdiv {
-            width: 100%;
-            height: 180px;
-            font-size: 10px;
+        /* Fix sidebar logo positioning */
+        .sidebar-panel .brand {
+            height: 55px;
+            max-width: 250px;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        #chartdiv2 {
+        
+        .sidebar-panel .brand-logo {
+            max-width: 180px;
+            overflow: hidden;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+        }
+        
+        .sidebar-panel .brand-logo img {
+            max-width: 100%;
+            height: auto;
+            max-height: 40px;
+        }
+        
+        .sidebar-panel .toggle-sidebar {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        /* Ensure proper sidebar structure */
+        .sidebar-panel {
+            width: 250px;
+            background-color: #0891b2 !important;
+        }
+        
+        .sidebar-panel nav {
+            background-color: #0891b2 !important;
+        }
+        
+        /* Override sidebar panel navigation styles to match blue theme */
+        .sidebar-panel > nav > ul > li > ul {
+            background-color: #0284c7 !important;
+        }
+        
+        .sidebar-panel > nav > ul > li > a:hover,
+        .sidebar-panel > nav > ul > li.open > a,
+        .sidebar-panel > nav > ul > li.open > a:hover,
+        .sidebar-panel > nav > ul > li.open > a:focus {
+            background-color: #0284c7 !important;
+        }
+        
+        .sidebar-panel > nav li.open > a,
+        .sidebar-panel > nav li.active > a {
+            color: white !important;
+        }
+        
+        .sidebar-panel > nav a {
+            color: #e0f2fe !important;
+        }
+        
+        .sidebar-panel > nav a:active,
+        .sidebar-panel > nav a:focus,
+        .sidebar-panel > nav a:hover {
+            color: white !important;
+        }
+        
+        /* Update brand area to match */
+        .sidebar-panel > .brand {
+            background-color: #0891b2 !important;
+        }
+        
+        .sidebar-panel > .brand a {
+            color: white !important;
+        }
+        
+        .sidebar-panel > .brand a:active,
+        .sidebar-panel > .brand a:focus,
+        .sidebar-panel > .brand a:hover {
+            color: white !important;
+        }
+        
+        .sidebar-panel > .brand .hamburger-icon span {
+            background-color: white !important;
+        }
+        
+        .sidebar-panel > .brand .hamburger-icon:hover span {
+            background-color: white !important;
+        }
+        
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            border-left: 4px solid #2563eb;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+        
+        .stat-card.danger { border-left-color: #dc2626; }
+        .stat-card.warning { border-left-color: #d97706; }
+        .stat-card.success { border-left-color: #059669; }
+        .stat-card.info { border-left-color: #0891b2; }
+        
+        .stat-card h3 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+            color: #1e293b;
+        }
+        
+        .stat-card p {
+            color: #0891b2;
+            margin: 0.5rem 0 0 0;
+            font-weight: 500;
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 1rem;
+            padding: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            text-align: center;
+            overflow: visible;
+            min-height: 380px;
+        }
+        
+        .chart-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .date-filter {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .media-section {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            padding-bottom: 0.75rem;
+            border-bottom: 3px solid #2563eb;
+            display: inline-block;
             width: 100%;
-            height: 180px;
-            font-size: 10px;
+        }
+
+        /* Modern CSS-only Gallery Slider */
+        .gallery-slider {
+            position: relative;
+            width: 100%;
+            height: 350px;
+            overflow: hidden;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            background: #e0f2fe;
+        }
+
+        .gallery-slides {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+            height: 100%;
+        }
+
+        .gallery-slide {
+            min-width: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #e0f2fe;
+        }
+
+        .gallery-slide img {
+            width: 100%;
+            height: 350px;
+            object-fit: contain;
+            object-position: center;
+            border-radius: 1rem;
+            background: #e0f2fe;
+        }
+
+        .gallery-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(255,255,255,0.9));
+            color: #1e293b;
+            padding: 2rem 1.5rem 1.5rem;
+            text-align: center;
+        }
+
+        .gallery-caption h4 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .gallery-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.8);
+            color: #1e293b;
+            border: 2px solid #e2e8f0;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .gallery-nav:hover {
+            background: rgba(255,255,255,0.95);
+            border-color: #2563eb;
+            color: #2563eb;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .gallery-nav.prev {
+            left: 15px;
+        }
+
+        .gallery-nav.next {
+            right: 15px;
+        }
+
+        .gallery-dots {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .gallery-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.7);
+            border: 2px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .gallery-dot.active {
+            background: #2563eb;
+            border-color: #2563eb;
+            transform: scale(1.2);
+        }
+        
+        #chartdiv, #chartdiv2 {
+            width: 100%;
+            height: 280px;
+            border-radius: 0.75rem;
+            padding: 0.5rem;
+            background: #e0f2fe;
+            margin: 1rem 0;
+            max-width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            overflow: visible;
+        }
+        
+        /* Specific styling for the accident triangle chart */
+        #chartdiv {
+            max-width: 450px;
+            width: 100%;
+            height: 320px;
+            margin: 1rem auto;
+        }
+        
+        #chartdiv2 {
+            max-width: 450px;
+            width: 100%;
+            height: 280px;
+            margin: 1rem auto;
+        }
+        
+        @@media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-overview {
+                grid-template-columns: 1fr;
+            }
+
+            .gallery-slider {
+                height: 250px;
+            }
+
+            .gallery-slide img {
+                height: 250px;
+                object-fit: contain;
+                background: #cffafe;
+            }
         }
     </style>
 }
 
 <!-- main area -->
 <div class="main-content">
-   <div class="row">
-        <div class="col-md-12">
-            <div>
-                <div class="widget bg-white">
-                    <h3>Photo Gallery</h3>
-                    <hr>
-                    @if (ViewBag.photos != null)
+
+    <!-- Gallery Section (Moved to Top) -->
+    <div class="media-section slide-up">
+        <h3 class="section-title">📸 Gallery Terbaru</h3>
+        
+        @if (ViewBag.photos != null && ((IEnumerable<Photo>)ViewBag.photos).Any())
+        {
+            var photosList = ((IEnumerable<Photo>)ViewBag.photos).ToList();
+            <div class="gallery-slider">
+                <div class="gallery-slides">
+                    @foreach (var item in photosList)
                     {
-                        <ul class="bxslider" style="align-items:center">                       
-                            @foreach (var item in ViewBag.photos)
-                            {
-                                <li style="text-align:center">
-                                    <img style="height:350px;display:block;margin:0 auto;" src="@Url.Action("GetFileContent", "Gallery", new { ID = item.PhotoID })" />
-                                    <label>@item.Keterangan</label>
-                                </li>
-                            }
-                        </ul>
+                        <div class="gallery-slide">
+                            <img src="@Url.Action("GetFileContent", "Gallery", new { ID = item.PhotoID })" alt="@item.Keterangan">
+                            <div class="gallery-caption">
+                                <h4>@item.Keterangan</h4>
+                            </div>
+                        </div>
                     }
-                    else
+                </div>
+                <button class="gallery-nav prev">&lt;</button>
+                <button class="gallery-nav next">&gt;</button>
+                <div class="gallery-dots">
+                    @for (int i = 0; i < photosList.Count; i++)
                     {
-                        <p>Tidak ada photo</p>
+                        <span class="gallery-dot @(i == 0 ? "active" : "")"></span>
                     }
                 </div>
             </div>
-        </div>
-        <div class="col-md-12">
-            
-            <div class="widget bg-white" style="text-align:center">
-                <h3>New Video</h3>
-                <hr>
-                @if (ViewBag.video != null)
+        }
+        else
+        {
+            <div style="text-align:center; padding:2rem; color:#0891b2;">
+                <i class="fa fa-image fa-3x" style="margin-bottom:1rem; opacity:0.5;"></i>
+                <h4>Belum ada foto tersedia</h4>
+                @if (ViewBag.photos == null)
                 {
-                    <video style="width:100%;padding:0;margin:0" controls>
-                        <source type="@GalleryHelper.GetContentType(ViewBag.video.FileName)" src="@Url.Action("GetVideoContent", "Gallery", new { ID = ViewBag.video.VideoID })" alt="@ViewBag.video.Keterangan">
-                    </video><br />
-                    <label>@ViewBag.video.Keterangan</label>
+                    <p style="color: #dc3545; font-size: 14px;">
+                        <i class="fa fa-exclamation-triangle"></i> 
+                        Database connection issue - please contact administrator
+                    </p>
                 }
                 else
                 {
-                    <p>Tidak ada video</p>
-
+                    <p style="color: #0891b2; font-size: 14px;">
+                        Silakan upload foto melalui menu Gallery
+                    </p>
                 }
             </div>
-            <div class="widget bg-white" style="text-align:center">
-                <form method="post">
-                    <div class="form-group">
-                        <div class="col-sm-12">
-                            <div class="input-prepend input-group">
-                                <span class="add-on input-group-addon"><i class="fa fa-calendar"></i></span>
-                                <input type="text" name="daterange" class="form-control drp" value="@ViewBag.startdate - @ViewBag.enddate" onchange="this.form.submit()" />
-                            </div>
-                        </div>
-                    </div>
-                </form>
+        }
+    </div>
+
+    <!-- Video Section (Moved above Filter) -->
+    <div class="media-section slide-up">
+        <h3 class="section-title">🎥 Video Terbaru</h3>
+        @if (ViewBag.video != null)
+        {
+            <div style="text-align:center;">
+                <video style="width:100%; max-height:300px; border-radius:0.75rem;" controls>
+                    <source type="@GalleryHelper.GetContentType(ViewBag.video.FileName)" src="@Url.Action("GetVideoContent", "Gallery", new { ID = ViewBag.video.VideoID })" alt="@ViewBag.video.Keterangan">
+                </video>
+                <div style="padding:1rem; text-align:center;">
+                    <label style="font-weight:500; color:#1e293b;">@ViewBag.video.Keterangan</label>
+                </div>
             </div>
-            <div class="widget bg-white" style="text-align:center">
-                <div id="chartdiv"></div>
-                <label>Accident Triangle</label>
+        }
+        else
+        {
+            <div style="text-align:center; padding:2rem; color:#0891b2;">
+                <i class="fa fa-video-camera fa-3x" style="margin-bottom:1rem; opacity:0.5;"></i>
+                <p>Belum ada video tersedia</p>
             </div>
-            <div class="widget bg-white" style="text-align:center">
-                <div id="chartdiv2"></div>
-                <label>NOC Terbanyak Bulan Ini</label>
+        }
+    </div>
+
+    <!-- Date Filter -->
+    <div class="date-filter fade-in">
+        <h3 class="chart-title">📅 Filter Periode Data</h3>
+        <form method="get">
+            <div class="form-group">
+                <div class="input-prepend input-group" style="max-width: 300px; margin: 0 auto;">
+                    <span class="add-on input-group-addon"><i class="fa fa-calendar"></i></span>
+                    <input type="text" name="daterange" class="form-control drp" value="@ViewBag.startdate - @ViewBag.enddate" onchange="this.form.submit()" />
+                </div>
             </div>
+        </form>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="content-grid">
+        <div class="chart-container slide-up">
+            <h3 class="chart-title">📊 Accident Triangle</h3>
+            <div id="chartdiv"></div>
         </div>
-     
+        
+        <div class="chart-container slide-up">
+            <h3 class="chart-title">👥 Top NOC Contributors</h3>
+            <div id="chartdiv2"></div>
+        </div>
     </div>
 </div>
-<!-- main area -->
+<!-- /main area -->
 
 @section PageLevelScripts {
     <script src="~/admin/vendor/d3/d3.min.js"></script>
@@ -101,7 +470,6 @@
     <script src="~/admin/vendor/flot/jquery.flot.resize.js"></script>
     <script src="~/admin/vendor/flot/jquery.flot.categories.js"></script>
     <script src="~/admin/vendor/flot/jquery.flot.pie.js"></script>
-    <script src="~/admin/vendor/bxslider/jquery.bxslider.min.js"></script>
     <script src="~/admin/vendor/moment/moment.js"></script>
     <script src="~/admin/vendor/bootstrap-daterangepicker/daterangepicker.js"></script>
 }
@@ -114,103 +482,176 @@
     <script src="~/admin/vendor/amcharts_3.21.12/amcharts/plugins/export/export.min.js"></script>    
     <link rel="stylesheet" href="~/admin/vendor/amcharts_3.21.12/amcharts/plugins/export/export.css" type="text/css" media="all" />
     <script src="~/admin/vendor/amcharts_3.21.12/amcharts/themes/light.js"></script>
+    
     <script>
         $(document).ready(function () {
-            $('.bxslider').bxSlider({
-                auto: true,
-                autoControls: true,
-                mode: 'fade',
-                startSlide: 2,
-                captions: true
+            // Initialize date range picker
+            $('.drp').daterangepicker({
+                format: 'DD/MM/YYYY',
+                locale: {
+                    format: 'DD/MM/YYYY'
+                }
             });
+
+            // Modern Gallery Slider
+            let currentSlide = 0;
+            const slides = document.querySelectorAll('.gallery-slide');
+            const dots = document.querySelectorAll('.gallery-dot');
+            const slidesContainer = document.querySelector('.gallery-slides');
+            const totalSlides = slides.length;
+
+            if (totalSlides > 0) {
+                function updateSlider() {
+                    if (slidesContainer) {
+                        slidesContainer.style.transform = `translateX(-${currentSlide * 100}%)`;
+                    }
+                    
+                    // Update dots
+                    dots.forEach((dot, index) => {
+                        dot.classList.toggle('active', index === currentSlide);
+                    });
+                }
+
+                function nextSlide() {
+                    currentSlide = (currentSlide + 1) % totalSlides;
+                    updateSlider();
+                }
+
+                function prevSlide() {
+                    currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+                    updateSlider();
+                }
+
+                // Navigation buttons
+                document.querySelector('.gallery-nav.next')?.addEventListener('click', nextSlide);
+                document.querySelector('.gallery-nav.prev')?.addEventListener('click', prevSlide);
+
+                // Dot navigation
+                dots.forEach((dot, index) => {
+                    dot.addEventListener('click', () => {
+                        currentSlide = index;
+                        updateSlider();
+                    });
+                });
+
+                // Auto-play
+                setInterval(nextSlide, 5000);
+
+                console.log('Gallery initialized with', totalSlides, 'slides');
+            }
+            
+            // Add loading animation to charts
+            $('#chartdiv, #chartdiv2').addClass('loading');
+            
+            setTimeout(function() {
+                $('#chartdiv, #chartdiv2').removeClass('loading');
+            }, 2000);
         });
     </script>
-    <!-- Chart code -->
-<script>
+    
+    <!-- Enhanced Chart Styling -->
+    <script>
     var chart = AmCharts.makeChart("chartdiv", {
         "type": "funnel",
-        "balloonText": "[[title]]:<b>[[nilai]]</b>",
+        "balloonText": "[[title]]: <b>[[nilai]]</b> cases",
         "labelPosition": "right",
         "labelText": "[[title]]: [[nilai]]",
-        "rotate": true,
+        "rotate": false,
         "colors": [
-            "#67b7dc",
-            "#fdd400",
-            "#84b761",
-            "#cc4748",
-            "#cd82ad",
-            "#2f4074",
-            "#448e4d",
-            "#b7b83f",
-            "#b9783f",
-            "#b93e3d",
-            "#913167"
+            "#991b1b", "#dc2626", "#d97706", "#7c3aed", "#2563eb", "#0891b2", "#059669"
         ],
-        "marginLeft": 15,
-        "marginRight": 160,
+        "marginLeft": 30,
+        "marginRight": 120,
+        "marginTop": 20,
+        "marginBottom": 20,
         "titleField": "title",
         "valueField": "value",
         "theme": "light",
-        "allLabels": [],
-        "balloon": {},
-        "titles": [],
+        "fontSize": 10,
+        "fontFamily": "Inter",
+        "responsive": {
+            "enabled": true,
+            "rules": [{
+                "maxWidth": 450,
+                "marginRight": 100,
+                "fontSize": 9
+            }, {
+                "maxWidth": 350,
+                "marginRight": 80,
+                "fontSize": 8
+            }]
+        },
+        "labelRadius": 8,
+        "autoMargins": false,
+        "funnelAlpha": 0.9,
+        "outlineThickness": 1,
+        "outlineColor": "#FFFFFF",
         "dataProvider": [
             {
-                "title": "Unsafe & Act Condition",
-                "value": "10",
-                "nilai": @ViewBag.at.UnsafeAndActCondition
-            },
-            {
-                "title": "Near Miss",
-                "value": "10",
-                "nilai": @ViewBag.at.NearMiss
-            },
-            {
-                "title": "First Aid",
-                "value": "10",
-                "nilai": @ViewBag.at.FirstAid
-            },
-            {
-                "title": "Medical Treatment Case",
-                "value": "10",
-                "nilai": @ViewBag.at.MedicalTreatmentCase
-            },
-            {
-                "title": "Restricted Work Case",
-                "value": "10",
-                "nilai": @ViewBag.at.RestrictedWorkCase
+                "title": "Fatality",
+                "value": Math.max(@ViewBag.at.Fatality, 1),
+                "nilai": @ViewBag.at.Fatality
             },
             {
                 "title": "Lost Time Injury",
-                "value": "10",
+                "value": Math.max(@ViewBag.at.LostTimeInjury, 1),
                 "nilai": @ViewBag.at.LostTimeInjury
             },
             {
-                "title": "Fatality",
-                "value": "10",
-                "nilai": @ViewBag.at.Fatality
+                "title": "Restricted Work Case",
+                "value": Math.max(@ViewBag.at.RestrictedWorkCase, 1),
+                "nilai": @ViewBag.at.RestrictedWorkCase
+            },
+            {
+                "title": "Medical Treatment Case",
+                "value": Math.max(@ViewBag.at.MedicalTreatmentCase, 1),
+                "nilai": @ViewBag.at.MedicalTreatmentCase
+            },
+            {
+                "title": "First Aid",
+                "value": Math.max(@ViewBag.at.FirstAid, 1),
+                "nilai": @ViewBag.at.FirstAid
+            },
+            {
+                "title": "Near Miss",
+                "value": Math.max(@ViewBag.at.NearMiss, 1),
+                "nilai": @ViewBag.at.NearMiss
+            },
+            {
+                "title": "Unsafe & Act Condition",
+                "value": Math.max(@ViewBag.at.UnsafeAndActCondition, 1),
+                "nilai": @ViewBag.at.UnsafeAndActCondition
             }
         ]
     });
     </script>
 
     <script>
-    var chart = AmCharts.makeChart("chartdiv2", {
+    var chart2 = AmCharts.makeChart("chartdiv2", {
         "theme": "light",
         "type": "serial",
-        "startDuration": 2,
         "dataProvider": @Html.Raw(ViewBag.jsonTop),
         "valueAxes": [{
-            "position": "left",
-            "title": "Karyawan"
+            "gridColor": "#e2e8f0",
+            "gridAlpha": 0.8,
+            "axisColor": "#0891b2",
+            "color": "#1e293b"
         }],
+        "gridAboveGraphs": true,
+        "startDuration": 1,
+        "marginLeft": 40,
+        "marginRight": 20,
+        "marginTop": 20,
+        "marginBottom": 60,
+        "autoMargins": false,
         "graphs": [{
-            "balloonText": "[[category]]: <b>[[value]]</b>",
-//            "fillColorsField": "color",
-            "fillAlphas": 1,
-            "lineAlpha": 0.1,
+            "balloonText": "[[category]]: <b>[[value]]</b> NOC",
+            "fillColorsField": "color",
+            "fillAlphas": 0.8,
+            "lineAlpha": 0.2,
             "type": "column",
-            "valueField": "Count"
+            "valueField": "Count",
+            "gradientOrientation": "vertical"
         }],
         "chartCursor": {
             "categoryBalloonEnabled": false,
@@ -220,21 +661,30 @@
         "categoryField": "Nama",
         "categoryAxis": {
             "gridPosition": "start",
-            "labelRotation": 90
+            "gridAlpha": 0,
+            "tickPosition": "start",
+            "tickLength": 15,
+            "color": "#1e293b",
+            "labelRotation": 45,
+            "autoWrap": true,
+            "titleRotation": 0
         },
-        "export": {
-            "enabled": true
+        "fontFamily": "Inter",
+        "fontSize": 10,
+        "responsive": {
+            "enabled": true,
+            "rules": [{
+                "maxWidth": 450,
+                "marginLeft": 35,
+                "marginBottom": 50,
+                "fontSize": 9
+            }, {
+                "maxWidth": 350,
+                "marginLeft": 30,
+                "marginBottom": 45,
+                "fontSize": 8
+            }]
         }
     });
     </script>
-    <script>
-        // Daterange picker
-        $('.drp').daterangepicker({
-            format: 'DD/MM/YYYY',
-            startDate: '@ViewBag.startdate',
-            endDate: '@ViewBag.enddate'
-        });
-    </script>
 }
-
-

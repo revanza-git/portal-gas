@@ -2,19 +2,219 @@
 
 @{
     Layout = "~/Views/Shared/Panel.cshtml";
+    ViewData["Title"] = "User Management";
 }
 
 @section PageLevelPlugin {
     <link rel="stylesheet" href="~/admin/vendor/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css" />
+    <style>
+        .page-header {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .page-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .page-header p {
+            margin: 0.5rem 0 0 0;
+            opacity: 0.9;
+        }
+        
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stats-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            border-left: 4px solid #2563eb;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+        
+        .stats-card.success { border-left-color: #059669; }
+        .stats-card.warning { border-left-color: #d97706; }
+        .stats-card.info { border-left-color: #0891b2; }
+        
+        .stats-card h3 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+            color: #1e293b;
+        }
+        
+        .stats-card p {
+            color: #64748b;
+            margin: 0.5rem 0 0 0;
+            font-weight: 500;
+        }
+        
+        .actions-bar {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .table-container {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            overflow: hidden;
+        }
+        
+        .table-header {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .table-header h3 {
+            margin: 0;
+            color: #1e293b;
+            font-weight: 600;
+        }
+        
+        .table-body {
+            padding: 1.5rem;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            margin-right: 0.75rem;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-details h5 {
+            margin: 0;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        
+        .user-details p {
+            margin: 0;
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+        
+        .role-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .role-badge.admin {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+        
+        .role-badge.superadmin {
+            background: #f0f9ff;
+            color: #0891b2;
+        }
+        
+        .role-badge.user {
+            background: #ecfdf5;
+            color: #059669;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        @@media (max-width: 768px) {
+            .actions-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .stats-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .page-header h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
 }
 
 @section TitleBar {
-    <strong>User Account</strong>
+    <strong>👥 User Management</strong>
 }
 
 <!-- main area -->
 <div class="main-content">
-    <div class="panel">
+    <!-- Page Header -->
+    <div class="page-header fade-in">
+        <h1>👥 User Account Management</h1>
+        <p>Kelola akun pengguna dan hak akses sistem</p>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-cards fade-in">
+        <div class="stats-card">
+            <h3>@Model.Count()</h3>
+            <p>Total Users</p>
+        </div>
+        <div class="stats-card success">
+            <h3>@Model.Count(u => u.Role == "Admin" || u.Role == "SuperAdmin")</h3>
+            <p>Administrators</p>
+        </div>
+        <div class="stats-card info">
+            <h3>@Model.Select(u => u.Department).Distinct().Count()</h3>
+            <p>Departments</p>
+        </div>
+        <div class="stats-card warning">
+            <h3>@Model.Count(u => u.Role != "Admin" && u.Role != "SuperAdmin")</h3>
+            <p>Regular Users</p>
+        </div>
+    </div>
+
+    <!-- Main Panel -->
+    <div class="panel slide-up">
         <div class="panel-heading border">
             <ol class="breadcrumb mb0 no-padding">
                 <li>
@@ -26,60 +226,122 @@
         <div class="panel-body">
             @if (TempData["message"] != null)
             {
-                <div class="alert alert-success"><i class="fa fa-lg fa-check-circle"></i> @TempData["message"]</div>
+                <div class="alert alert-success">
+                    <i class="fa fa-lg fa-check-circle"></i> @TempData["message"]
+                </div>
             }
             @if (TempData["error"] != null)
             {
-                <div class="alert alert-danger"><i class="fa fa-lg fa-check-circle"></i> @TempData["error"]</div>
-            }
-            @if (User.IsInRole("SuperAdmin"))
-            {
-                <div class="pb25">
-                    <a asp-controller="Account" asp-action="Add" class="btn btn-round btn-sm btn-primary"><i class="fa fa-plus"></i> Add New</a>
+                <div class="alert alert-danger">
+                    <i class="fa fa-lg fa-exclamation-circle"></i> @TempData["error"]
                 </div>
             }
-            <table id="table1" class="table table-bordered bordered table-striped table-condensed datatable">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>UserName</th>
-                        <th>Email</th>
-                        <th>Name</th>
-                        <th>Role</th>
-                        <th>Department</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @{
-                        int no = 1;
-                    }
-                    @foreach (var item in Model)
-                    {
-                        <tr>
-                            <td>@no</td>
-                            <td>@item.UserName</td>
-                            <td>@item.Email</td>
-                            <td>@item.Name</td>
-                            <td>@item.Role</td>
-                            <td>@item.Department</td>
-                            <td>
-                                <form role="form" method="post" asp-action="AccountAction">
-                                    <input name="id" type="hidden" value="@item.Id" />
-                                    <a asp-controller="Account" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-primary btn-round btn-xs"><i class="fa fa-pencil"></i></a>
-                                    <button type="submit" name="Action" value="Delete" onclick="return confirm('Are you sure you want to delete UserName @item.UserName?');" class="btn btn-danger btn-round btn-xs"><i class="fa fa-times"></i></button>
-                                    <button type="submit" name="Action" value="ResetPassword" onclick="return confirm('Are you sure you want to reset password for UserName @item.UserName?');" class="btn btn-success btn-round btn-xs"><i class="fa fa-key"></i></button>
-                                </form>
-                            </td>
-                        </tr>
-                        no++;
-                    }
-                </tbody>
-            </table>
+
+            <!-- Actions Bar -->
+            <div class="actions-bar">
+                <div>
+                    <h3 style="margin: 0; color: #1e293b;">
+                        <i class="fa fa-users" style="margin-right: 0.5rem;"></i>
+                        User Accounts
+                    </h3>
+                    <p style="margin: 0; color: #64748b;">Manage user accounts and permissions</p>
+                </div>
+                @if (User.IsInRole("SuperAdmin"))
+                {
+                    <div>
+                        <a asp-controller="Account" asp-action="Add" class="btn btn-primary btn-round">
+                            <i class="fa fa-plus"></i> Add New User
+                        </a>
+                    </div>
+                }
+            </div>
+
+            <!-- Enhanced Table -->
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>
+                        <i class="fa fa-table" style="margin-right: 0.5rem;"></i>
+                        Users List
+                    </h3>
+                </div>
+                <div class="table-body">
+                    <table id="table1" class="table table-bordered table-striped table-hover datatable">
+                        <thead>
+                            <tr>
+                                <th width="5%">#</th>
+                                <th width="25%">User</th>
+                                <th width="20%">Email</th>
+                                <th width="15%">Role</th>
+                                <th width="20%">Department</th>
+                                <th width="15%">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                int no = 1;
+                            }
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="text-center">
+                                        <strong style="color: #64748b;">@no</strong>
+                                    </td>
+                                    <td>
+                                        <div class="user-info">
+                                            <div class="user-avatar">
+                                                @(item.Name?.Substring(0, 1).ToUpper() ?? "U")
+                                            </div>
+                                            <div class="user-details">
+                                                <h5>@item.Name</h5>
+                                                <p>@@item.UserName</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <i class="fa fa-envelope" style="color: #64748b; margin-right: 0.5rem;"></i>
+                                        @item.Email
+                                    </td>
+                                    <td>
+                                        <span class="role-badge @(item.Role.ToLower().Contains("admin") ? (item.Role == "SuperAdmin" ? "superadmin" : "admin") : "user")">
+                                            @item.Role
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <i class="fa fa-building-o" style="color: #64748b; margin-right: 0.5rem;"></i>
+                                        @item.Department
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <form role="form" method="post" asp-action="AccountAction" style="display: contents;">
+                                                <input name="id" type="hidden" value="@item.Id" />
+                                                <a asp-controller="Account" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-round btn-xs" title="Edit User">
+                                                    <i class="fa fa-pencil"></i>
+                                                </a>
+                                                <button type="submit" name="Action" value="Delete" 
+                                                        onclick="return confirm('Are you sure you want to delete user @item.UserName?');" 
+                                                        class="btn btn-danger btn-round btn-xs" title="Delete User">
+                                                    <i class="fa fa-times"></i>
+                                                </button>
+                                                <button type="submit" name="Action" value="ResetPassword" 
+                                                        onclick="return confirm('Are you sure you want to reset password for @item.UserName?');" 
+                                                        class="btn btn-info btn-round btn-xs" title="Reset Password">
+                                                    <i class="fa fa-key"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                no++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 <!-- /main area -->
+
 @section PageLevelScripts {
     <script src="~/admin/vendor/datatables/datatables.min.js"></script>
     <script src="~/admin/vendor/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
@@ -87,9 +349,66 @@
 
 @section InitPageScripts {
     <script>
-        $('#table1').DataTable({
-            "order": [[0, "desc"]],
-            "scrollX": true
+        $(document).ready(function() {
+            // Enhanced DataTable with modern styling
+            $('#table1').DataTable({
+                "order": [[0, "desc"]],
+                "scrollX": true,
+                "pageLength": 10,
+                "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                "columnDefs": [
+                    { "targets": [5], "orderable": false },
+                    { "targets": [0], "width": "5%" },
+                    { "targets": [1], "width": "25%" },
+                    { "targets": [2], "width": "20%" },
+                    { "targets": [3], "width": "15%" },
+                    { "targets": [4], "width": "20%" },
+                    { "targets": [5], "width": "15%" }
+                ],
+                "language": {
+                    "search": "🔍 Search users:",
+                    "lengthMenu": "Show _MENU_ users per page",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ users",
+                    "paginate": {
+                        "first": "⏮️",
+                        "last": "⏭️",
+                        "next": "▶️",
+                        "previous": "◀️"
+                    },
+                    "emptyTable": "No users found"
+                },
+                "dom": '<"row"<"col-sm-6"l><"col-sm-6"f>>' +
+                       '<"row"<"col-sm-12"tr>>' +
+                       '<"row"<"col-sm-5"i><"col-sm-7"p>>',
+                "drawCallback": function() {
+                    // Add hover effects to table rows
+                    $('#table1 tbody tr').hover(
+                        function() {
+                            $(this).addClass('shadow-hover');
+                        },
+                        function() {
+                            $(this).removeClass('shadow-hover');
+                        }
+                    );
+                }
+            });
+            
+            // Enhanced button interactions
+            $('.btn').hover(
+                function() {
+                    $(this).addClass('shadow-hover');
+                },
+                function() {
+                    $(this).removeClass('shadow-hover');
+                }
+            );
+            
+            // Animate statistics cards
+            $('.stats-card').each(function(index) {
+                $(this).delay(index * 100).queue(function() {
+                    $(this).addClass('fade-in').dequeue();
+                });
+            });
         });
     </script>
 }
