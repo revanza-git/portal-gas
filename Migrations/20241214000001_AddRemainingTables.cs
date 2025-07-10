@@ -3,7 +3,7 @@ using System;
 
 #nullable disable
 
-namespace Admin.Migration
+namespace Admin.Migrations
 {
     /// <inheritdoc />
     public partial class AddRemainingTables : Microsoft.EntityFrameworkCore.Migrations.Migration

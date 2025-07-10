@@ -121,6 +121,15 @@
                         <span>AMAN</span>
                     </a>
                 </li>
+                @if (User.IsInRole("Admin") || User.IsInRole("AtasanAdmin"))
+                {
+                    <li>
+                        <a asp-controller="EmailAdmin" asp-action="Index">
+                            <i class="fa fa-envelope"></i>
+                            <span>Email System</span>
+                        </a>
+                    </li>
+                }
                 <li>
                     <a href="javascript:;" data-toggle="dropdown">
                         <i class="fa fa-plus-square-o"></i>

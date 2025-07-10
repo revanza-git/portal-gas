@@ -10,6 +10,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Admin.Interfaces.Services;
+using Admin.Services;
 
 namespace Admin.Controllers
 {
@@ -22,8 +24,9 @@ namespace Admin.Controllers
         private readonly IEmailRepository emailRepository;
         private readonly ApiHelper apiHelper;
         private readonly IConfiguration configuration;
+        private readonly IEmailService emailService;
 
-        public NewsController(UserManager<ApplicationUser> userManager, INewsRepository repo, IEmailRepository emailRepo, ICommonRepository common, ApiHelper apiHelper, IConfiguration configuration)
+        public NewsController(UserManager<ApplicationUser> userManager, INewsRepository repo, IEmailRepository emailRepo, ICommonRepository common, ApiHelper apiHelper, IConfiguration configuration, IEmailService emailService)
         {
             this.repository = repo;
             this.commonRepository = common;
@@ -31,6 +34,7 @@ namespace Admin.Controllers
             this.userManager = userManager;
             this.apiHelper = apiHelper;
             this.configuration = configuration;
+            this.emailService = emailService;
         }
 
         public async Task<IActionResult> Index()
@@ -112,19 +116,26 @@ namespace Admin.Controllers
                         var role = (await userManager.GetRolesAsync(departmentUser)).FirstOrDefault();
                         if (role == "AtasanAdmin")
                         {
-                            var email = new Email
-                            {
-                                Receiver = departmentUser.Email,
-                                Subject = "News Notification",
-                                Message = $"Dear {onlineUser.Name},<br/><p>User {departmentUser.Name} has posted a news. Please log in to the Nusantara Regas Internal Portal to approve the news.</p>",
-                                Schedule = DateTime.Now,
-                                CreatedOn = DateTime.Now
-                            };
-                            emailRepository.Save(email);
+                            await emailService.SendTemplatedEmailAsync(
+                                "NEWS_APPROVAL",
+                                departmentUser.Email,
+                                new
+                                {
+                                    NewsID = news.NewsID,
+                                    RecipientName = departmentUser.Name,
+                                    Subject = news.Subject,
+                                    AuthorName = onlineUser.Name,
+                                    Department = commonRepository.GetDepartments().FirstOrDefault(x => x.DepartmentID == news.Department)?.Deskripsi,
+                                    PublishingDate = news.PublishingDate.ToString("dd MMMM yyyy"),
+                                    Content = news.Content.Length > 200 ? news.Content.Substring(0, 200) + "..." : news.Content
+                                },
+                                "id",
+                                EmailPriority.Medium,
+                                "NEWS"
+                            );
                         }
                     }
 
-                    await apiHelper.SendEmailAsync();
                     TempData["message"] = $"News {news.NewsID} has been submitted";
                 }
                 else if (action == "publish")

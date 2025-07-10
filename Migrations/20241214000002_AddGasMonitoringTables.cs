@@ -3,7 +3,7 @@ using System;
 
 #nullable disable
 
-namespace Admin.Migration
+namespace Admin.Migrations
 {
     /// <inheritdoc />
     public partial class AddGasMonitoringTables : Microsoft.EntityFrameworkCore.Migrations.Migration

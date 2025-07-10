@@ -3,7 +3,7 @@ using System;
 
 #nullable disable
 
-namespace Admin.Migration
+namespace Admin.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Microsoft.EntityFrameworkCore.Migrations.Migration
@@ -207,233 +207,201 @@ namespace Admin.Migration
                     table.PrimaryKey("PK_Emails", x => x.EmailID);
                 });
 
-            // Galleries
+            // Responsibles
             migrationBuilder.CreateTable(
-                name: "Galleries",
+                name: "Responsibles",
                 columns: table => new
                 {
-                    GalleryID = table.Column<int>(type: "int", nullable: false)
+                    ResponsibleID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Deskripsi = table.Column<string>(type: "varchar(max)", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime", nullable: false),
-                    Creator = table.Column<string>(type: "varchar(max)", nullable: true),
-                    Department = table.Column<string>(type: "varchar(max)", nullable: true)
+                    Deskripsi = table.Column<string>(type: "varchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Galleries", x => x.GalleryID);
+                    table.PrimaryKey("PK_Responsibles", x => x.ResponsibleID);
                 });
 
-            // Photos
+            // SemarLevels
             migrationBuilder.CreateTable(
-                name: "Photos",
+                name: "SemarLevels",
                 columns: table => new
                 {
-                    PhotoID = table.Column<int>(type: "int", nullable: false)
+                    SemarLevelID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Keterangan = table.Column<string>(type: "varchar(max)", nullable: true),
-                    GalleryID = table.Column<int>(type: "int", nullable: false),
-                    FileName = table.Column<string>(type: "varchar(max)", nullable: true),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    CreatedOn = table.Column<DateTime>(type: "datetime", nullable: false),
-                    Creator = table.Column<string>(type: "varchar(max)", nullable: true),
-                    Department = table.Column<string>(type: "varchar(max)", nullable: true)
+                    Deskripsi = table.Column<string>(type: "varchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Photos", x => x.PhotoID);
+                    table.PrimaryKey("PK_SemarLevels", x => x.SemarLevelID);
                 });
 
-            // Videos
+            // SemarTypes
             migrationBuilder.CreateTable(
-                name: "Videos",
+                name: "SemarTypes",
                 columns: table => new
                 {
-                    VideoID = table.Column<int>(type: "int", nullable: false)
+                    SemarTypeID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Keterangan = table.Column<string>(type: "varchar(max)", nullable: true),
-                    FileName = table.Column<string>(type: "varchar(max)", nullable: true),
-                    GalleryID = table.Column<int>(type: "int", nullable: false),
-                    CreatedOn = table.Column<DateTime>(type: "datetime", nullable: false),
-                    Creator = table.Column<string>(type: "varchar(max)", nullable: true),
-                    Department = table.Column<string>(type: "varchar(max)", nullable: true),
-                    Status = table.Column<int>(type: "int", nullable: false)
+                    Deskripsi = table.Column<string>(type: "varchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Videos", x => x.VideoID);
+                    table.PrimaryKey("PK_SemarTypes", x => x.SemarTypeID);
                 });
 
-            // News
+            // SemarProducts
             migrationBuilder.CreateTable(
-                name: "News",
+                name: "SemarProducts",
                 columns: table => new
                 {
-                    NewsID = table.Column<int>(type: "int", nullable: false)
+                    SemarProductID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Subject = table.Column<string>(type: "varchar(max)", nullable: true),
+                    Deskripsi = table.Column<string>(type: "varchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SemarProducts", x => x.SemarProductID);
+                });
+
+            // Semars
+            migrationBuilder.CreateTable(
+                name: "Semars",
+                columns: table => new
+                {
+                    SemarID = table.Column<string>(type: "varchar(450)", nullable: false),
+                    SemarType = table.Column<int>(type: "int", nullable: false),
+                    SemarLevel = table.Column<int>(type: "int", nullable: false),
+                    SemarProduct = table.Column<int>(type: "int", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "date", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "date", nullable: false),
+                    Title = table.Column<string>(type: "varchar(max)", nullable: true),
                     Content = table.Column<string>(type: "text", nullable: true),
+                    Responsible = table.Column<string>(type: "varchar(max)", nullable: true),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    FileName = table.Column<string>(type: "varchar(max)", nullable: true),
+                    ContentType = table.Column<string>(type: "varchar(max)", nullable: true),
                     Department = table.Column<string>(type: "varchar(max)", nullable: true),
-                    Author = table.Column<string>(type: "varchar(max)", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime", nullable: false),
-                    PublishingDate = table.Column<DateTime>(type: "datetime", nullable: false),
-                    Counter = table.Column<int>(type: "int", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false)
+                    Creator = table.Column<string>(type: "varchar(max)", nullable: true),
+                    CreationDateTime = table.Column<DateTime>(type: "datetime", nullable: false),
+                    OverdueNotif = table.Column<int>(type: "int", nullable: false),
+                    NOCID = table.Column<string>(type: "varchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_News", x => x.NewsID);
+                    table.PrimaryKey("PK_Semars", x => x.SemarID);
                 });
 
-            // Overtime
+            // Vendors
             migrationBuilder.CreateTable(
-                name: "Overtime",
+                name: "Vendors",
                 columns: table => new
                 {
-                    overtimeID = table.Column<int>(type: "int", nullable: false)
+                    VendorID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    posisi = table.Column<int>(type: "int", nullable: false),
-                    Department = table.Column<int>(type: "int", nullable: false),
-                    tanggal = table.Column<DateTime>(type: "date", nullable: false),
-                    jamMulaiKerja = table.Column<TimeSpan>(type: "time", nullable: false),
-                    jamSelesaiKerja = table.Column<TimeSpan>(type: "time", nullable: false),
-                    jamAwalLembur = table.Column<TimeSpan>(type: "time", nullable: false),
-                    jamAkhirLembur = table.Column<TimeSpan>(type: "time", nullable: false),
-                    workDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    assigner = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    totalHours = table.Column<double>(type: "float", nullable: false),
-                    status = table.Column<int>(type: "int", nullable: false),
-                    description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreationDateTime = table.Column<DateTime>(type: "datetime", nullable: false)
+                    VendorName = table.Column<string>(type: "varchar(max)", nullable: true),
+                    VendorType = table.Column<string>(type: "varchar(max)", nullable: true),
+                    VendorAddress = table.Column<string>(type: "varchar(max)", nullable: true),
+                    VendorEmail = table.Column<string>(type: "varchar(max)", nullable: true),
+                    VendorPhone = table.Column<string>(type: "varchar(max)", nullable: true),
+                    VendorFax = table.Column<string>(type: "varchar(max)", nullable: true),
+                    VendorContact = table.Column<string>(type: "varchar(max)", nullable: true),
+                    VendorContactPhone = table.Column<string>(type: "varchar(max)", nullable: true),
+                    VendorContactEmail = table.Column<string>(type: "varchar(max)", nullable: true),
+                    VendorDescription = table.Column<string>(type: "varchar(max)", nullable: true),
+                    VendorStatus = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Overtime", x => x.overtimeID);
+                    table.PrimaryKey("PK_Vendors", x => x.VendorID);
                 });
 
-            // OvertimeApprovers
+            // Projects
             migrationBuilder.CreateTable(
-                name: "OvertimeApprovers",
+                name: "Projects",
                 columns: table => new
                 {
-                    OvertimeApproverID = table.Column<int>(type: "int", nullable: false)
+                    ProjectID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserName = table.Column<string>(type: "varchar(max)", nullable: true),
-                    Department = table.Column<string>(type: "varchar(max)", nullable: true),
-                    Role = table.Column<string>(type: "varchar(max)", nullable: true)
+                    ProjectName = table.Column<string>(type: "varchar(max)", nullable: true),
+                    ProjectDescription = table.Column<string>(type: "varchar(max)", nullable: true),
+                    ProjectStartDate = table.Column<DateTime>(type: "date", nullable: false),
+                    ProjectEndDate = table.Column<DateTime>(type: "date", nullable: false),
+                    ProjectStatus = table.Column<int>(type: "int", nullable: false),
+                    VendorID = table.Column<int>(type: "int", nullable: false),
+                    ProjectManager = table.Column<string>(type: "varchar(max)", nullable: true),
+                    ProjectBudget = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    ProjectActualCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    ProjectProgress = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_OvertimeApprovers", x => x.OvertimeApproverID);
+                    table.PrimaryKey("PK_Projects", x => x.ProjectID);
                 });
 
-            // Reschedules
+            // ProjectTasks
             migrationBuilder.CreateTable(
-                name: "Reschedules",
+                name: "ProjectTasks",
                 columns: table => new
                 {
-                    RescheduleID = table.Column<int>(type: "int", nullable: false)
+                    TaskID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    AmanID = table.Column<string>(type: "varchar(max)", nullable: true),
-                    OldEndDate = table.Column<DateTime>(type: "date", nullable: false),
-                    NewEndDate = table.Column<DateTime>(type: "date", nullable: false),
-                    Reason = table.Column<string>(type: "varchar(max)", nullable: true),
-                    Status = table.Column<int>(type: "int", nullable: false)
+                    TaskName = table.Column<string>(type: "varchar(max)", nullable: true),
+                    TaskDescription = table.Column<string>(type: "varchar(max)", nullable: true),
+                    TaskStartDate = table.Column<DateTime>(type: "date", nullable: false),
+                    TaskEndDate = table.Column<DateTime>(type: "date", nullable: false),
+                    TaskStatus = table.Column<int>(type: "int", nullable: false),
+                    ProjectID = table.Column<int>(type: "int", nullable: false),
+                    TaskAssignee = table.Column<string>(type: "varchar(max)", nullable: true),
+                    TaskProgress = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Reschedules", x => x.RescheduleID);
+                    table.PrimaryKey("PK_ProjectTasks", x => x.TaskID);
                 });
 
-            // PelaporanGratifikasi
+            // Workers
             migrationBuilder.CreateTable(
-                name: "PelaporanGratifikasi",
+                name: "Workers",
                 columns: table => new
                 {
-                    PelaporanGratifikasiID = table.Column<int>(type: "int", nullable: false)
+                    WorkerID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserID = table.Column<string>(type: "varchar(max)", nullable: true),
-                    Year = table.Column<int>(type: "int", nullable: false),
-                    Month = table.Column<int>(type: "int", nullable: false),
-                    AdaPenerimaanGratifikasi = table.Column<int>(type: "int", nullable: false),
-                    AdaPemberianGratifikasi = table.Column<int>(type: "int", nullable: false),
-                    AdaPermintaanGratifikasi = table.Column<int>(type: "int", nullable: false),
-                    DeskripsiPenerimaanGratifikasi = table.Column<string>(type: "text", nullable: true),
-                    DeskripsiPemberianGratifikasi = table.Column<string>(type: "text", nullable: true),
-                    DeskripsiPermintaanGratifikasi = table.Column<string>(type: "text", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime", nullable: false),
-                    LastUpdated = table.Column<DateTime>(type: "datetime", nullable: false)
+                    WorkerName = table.Column<string>(type: "varchar(max)", nullable: true),
+                    WorkerPosition = table.Column<string>(type: "varchar(max)", nullable: true),
+                    WorkerDepartment = table.Column<string>(type: "varchar(max)", nullable: true),
+                    WorkerEmail = table.Column<string>(type: "varchar(max)", nullable: true),
+                    WorkerPhone = table.Column<string>(type: "varchar(max)", nullable: true),
+                    WorkerStatus = table.Column<int>(type: "int", nullable: false),
+                    VendorID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PelaporanGratifikasi", x => x.PelaporanGratifikasiID);
+                    table.PrimaryKey("PK_Workers", x => x.WorkerID);
                 });
-
-            // GCG_CocCoi
-            migrationBuilder.CreateTable(
-                name: "GCG_CocCoi",
-                columns: table => new
-                {
-                    Year = table.Column<int>(type: "int", nullable: false),
-                    UserID = table.Column<string>(type: "varchar(450)", nullable: false),
-                    CoI = table.Column<bool>(type: "bit", nullable: false),
-                    CoC = table.Column<bool>(type: "bit", nullable: false),
-                    CreatedOn = table.Column<DateTime>(type: "datetime", nullable: false),
-                    LastUpdated = table.Column<DateTime>(type: "datetime", nullable: false),
-                    CoISignedTime = table.Column<DateTime>(type: "datetime", nullable: true),
-                    CoCSignedTime = table.Column<DateTime>(type: "datetime", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_GCG_CocCoi", x => new { x.Year, x.UserID });
-                });
-
-            // GCG_CocCoi_Deleted
-            migrationBuilder.CreateTable(
-                name: "GCG_CocCoi_Deleted",
-                columns: table => new
-                {
-                    Year = table.Column<int>(type: "int", nullable: false),
-                    UserID = table.Column<string>(type: "varchar(450)", nullable: false),
-                    CoI = table.Column<bool>(type: "bit", nullable: false),
-                    CoC = table.Column<bool>(type: "bit", nullable: false),
-                    CreatedOn = table.Column<DateTime>(type: "datetime", nullable: false),
-                    LastUpdated = table.Column<DateTime>(type: "datetime", nullable: false),
-                    CoISignedTime = table.Column<DateTime>(type: "datetime", nullable: true),
-                    CoCSignedTime = table.Column<DateTime>(type: "datetime", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_GCG_CocCoi_Deleted", x => new { x.Year, x.UserID });
-                });
-
-            // Additional tables will be added in a second migration due to length constraints
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(name: "GCG_CocCoi_Deleted");
-            migrationBuilder.DropTable(name: "GCG_CocCoi");
-            migrationBuilder.DropTable(name: "PelaporanGratifikasi");
-            migrationBuilder.DropTable(name: "Reschedules");
-            migrationBuilder.DropTable(name: "OvertimeApprovers");
-            migrationBuilder.DropTable(name: "Overtime");
-            migrationBuilder.DropTable(name: "News");
-            migrationBuilder.DropTable(name: "Videos");
-            migrationBuilder.DropTable(name: "Photos");
-            migrationBuilder.DropTable(name: "Galleries");
-            migrationBuilder.DropTable(name: "Emails");
+            migrationBuilder.DropTable(name: "AmanCorrectionTypes");
+            migrationBuilder.DropTable(name: "AmanSources");
+            migrationBuilder.DropTable(name: "Amans");
             migrationBuilder.DropTable(name: "Atms");
             migrationBuilder.DropTable(name: "DCUs");
-            migrationBuilder.DropTable(name: "Amans");
-            migrationBuilder.DropTable(name: "JenisPekerjaan");
-            migrationBuilder.DropTable(name: "Jabatan");
-            migrationBuilder.DropTable(name: "Locations");
             migrationBuilder.DropTable(name: "Departments");
-            migrationBuilder.DropTable(name: "AmanSources");
-            migrationBuilder.DropTable(name: "AmanCorrectionTypes");
+            migrationBuilder.DropTable(name: "Emails");
+            migrationBuilder.DropTable(name: "Jabatan");
+            migrationBuilder.DropTable(name: "JenisPekerjaan");
+            migrationBuilder.DropTable(name: "Locations");
+            migrationBuilder.DropTable(name: "Projects");
+            migrationBuilder.DropTable(name: "ProjectTasks");
+            migrationBuilder.DropTable(name: "Responsibles");
+            migrationBuilder.DropTable(name: "SemarLevels");
+            migrationBuilder.DropTable(name: "SemarProducts");
+            migrationBuilder.DropTable(name: "Semars");
+            migrationBuilder.DropTable(name: "SemarTypes");
+            migrationBuilder.DropTable(name: "Vendors");
+            migrationBuilder.DropTable(name: "Workers");
         }
     }
 } 

@@ -17,6 +17,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Admin.Services;
 
 namespace Admin.Controllers
 {
@@ -31,8 +32,9 @@ namespace Admin.Controllers
         private readonly INOCService _nocService;
         private readonly ApiHelper _apiHelper;
         private readonly IConfiguration _configuration;
+        private readonly IEmailService _emailService;
 
-        public NOCController(UserManager<ApplicationUser> userManager, IWebHostEnvironment environment, INOCRepository repo, ICommonRepository common, IEmailRepository emailRepo, INOCService nocService, ApiHelper apiHelper, IConfiguration configuration)
+        public NOCController(UserManager<ApplicationUser> userManager, IWebHostEnvironment environment, INOCRepository repo, ICommonRepository common, IEmailRepository emailRepo, INOCService nocService, ApiHelper apiHelper, IConfiguration configuration, IEmailService emailService)
         {
             _environment = environment;
             _repository = repo;
@@ -42,6 +44,7 @@ namespace Admin.Controllers
             _nocService = nocService;
             _apiHelper = apiHelper;
             _configuration = configuration;
+            _emailService = emailService;
         }
 
         public async Task<ViewResult> Index()
@@ -178,41 +181,51 @@ namespace Admin.Controllers
                 int[] incidentIds = { 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
                 if (incidentIds.Contains(noc.DaftarPengamatan))
                 {
-                    var text = new StringBuilder();
-                    text.Append("<table>");
-                    text.Append($"<tr><td>Waktu</td><td>:</td><td>{noc.EntryDate:dd MMMM yyyy HH:mm}</td></tr>");
-                    text.Append($"<tr><td>Lokasi</td><td>:</td><td>{_crepository.GetLocations().FirstOrDefault(x => x.LocationID == noc.Lokasi)?.Deskripsi}</td></tr>");
-                    text.Append($"<tr><td>Daftar Pengamatan</td><td>:</td><td>{(await _repository.GetObservationListsAsync()).FirstOrDefault(x => x.ObservationListID == noc.DaftarPengamatan)?.Deskripsi}</td></tr>");
-                    text.Append($"<tr><td>CLSR Category</td><td>:</td><td>{(await _repository.GetClsrListsAsync()).FirstOrDefault(x => x.ClsrID == noc.Clsr)?.Deskripsi}</td></tr>");
-                    text.Append($"<tr><td>Deskripsi</td><td>:</td><td>{noc.Deskripsi}</td></tr>");
-                    text.Append($"<tr><td>Tindakan</td><td>:</td><td>{noc.Tindakan}</td></tr>");
-                    text.Append($"<tr><td>Rekomendasi</td><td>:</td><td>{noc.Rekomendasi}</td></tr>");
-                    text.Append($"<tr><td>Prioritas</td><td>:</td><td>{_crepository.GetPriorities().FirstOrDefault(x => x.PriorityID == noc.Prioritas)?.Deskripsi.Split('.')[1]}</td></tr>");
-                    text.Append($"<tr><td>Status</td><td>:</td><td>{_repository.GetNOCStatuses().FirstOrDefault(x => x.NOCStatusID == noc.Status)?.Deskripsi}</td></tr>");
-                    text.Append($"<tr><td>Due Date</td><td>:</td><td>{noc.DueDate:dd MMMM yyyy}</td></tr>");
-                    text.Append("</table>");
+                    await _emailService.SendTemplatedEmailAsync(
+                        "NOC_INCIDENT",
+                        _configuration["Hsse:Receiver1"],
+                        new
+                        {
+                            NOCID = noc.NOCID,
+                            RecipientName = "HSSE Team",
+                            EntryDate = noc.EntryDate.ToString("dd MMMM yyyy HH:mm"),
+                            Location = _crepository.GetLocations().FirstOrDefault(x => x.LocationID == noc.Lokasi)?.Deskripsi,
+                            ObservationType = (await _repository.GetObservationListsAsync()).FirstOrDefault(x => x.ObservationListID == noc.DaftarPengamatan)?.Deskripsi,
+                            ClsrCategory = (await _repository.GetClsrListsAsync()).FirstOrDefault(x => x.ClsrID == noc.Clsr)?.Deskripsi,
+                            Description = noc.Deskripsi,
+                            Action = noc.Tindakan,
+                            Recommendation = noc.Rekomendasi,
+                            Priority = _crepository.GetPriorities().FirstOrDefault(x => x.PriorityID == noc.Prioritas)?.Deskripsi.Split('.')[1],
+                            Status = _repository.GetNOCStatuses().FirstOrDefault(x => x.NOCStatusID == noc.Status)?.Deskripsi,
+                            DueDate = noc.DueDate.ToString("dd MMMM yyyy")
+                        },
+                        "id",
+                        EmailPriority.High,
+                        "NOC"
+                    );
 
-                    var emailIncident1 = new Email
-                    {
-                        Receiver = _configuration["Hsse:Receiver1"],
-                        Subject = "New Incident Alert",
-                        Message = $"Terdapat Incident Baru {text}",
-                        Schedule = DateTime.Now,
-                        CreatedOn = DateTime.Now
-                    };
-                    _emailRepository.Save(emailIncident1);
-
-                    var emailIncident2 = new Email
-                    {
-                        Receiver = _configuration["Hsse:Receiver2"],
-                        Subject = "New Incident Alert",
-                        Message = $"Terdapat Incident Baru {text}",
-                        Schedule = DateTime.Now,
-                        CreatedOn = DateTime.Now
-                    };
-                    _emailRepository.Save(emailIncident2);
-
-                    await _apiHelper.SendEmailAsync();
+                    await _emailService.SendTemplatedEmailAsync(
+                        "NOC_INCIDENT",
+                        _configuration["Hsse:Receiver2"],
+                        new
+                        {
+                            NOCID = noc.NOCID,
+                            RecipientName = "HSSE Team",
+                            EntryDate = noc.EntryDate.ToString("dd MMMM yyyy HH:mm"),
+                            Location = _crepository.GetLocations().FirstOrDefault(x => x.LocationID == noc.Lokasi)?.Deskripsi,
+                            ObservationType = (await _repository.GetObservationListsAsync()).FirstOrDefault(x => x.ObservationListID == noc.DaftarPengamatan)?.Deskripsi,
+                            ClsrCategory = (await _repository.GetClsrListsAsync()).FirstOrDefault(x => x.ClsrID == noc.Clsr)?.Deskripsi,
+                            Description = noc.Deskripsi,
+                            Action = noc.Tindakan,
+                            Recommendation = noc.Rekomendasi,
+                            Priority = _crepository.GetPriorities().FirstOrDefault(x => x.PriorityID == noc.Prioritas)?.Deskripsi.Split('.')[1],
+                            Status = _repository.GetNOCStatuses().FirstOrDefault(x => x.NOCStatusID == noc.Status)?.Deskripsi,
+                            DueDate = noc.DueDate.ToString("dd MMMM yyyy")
+                        },
+                        "id",
+                        EmailPriority.High,
+                        "NOC"
+                    );
                 }
 
                 TempData["message"] = $"{noc.NOCID} has been saved";

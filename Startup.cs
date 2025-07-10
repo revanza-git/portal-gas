@@ -208,6 +208,12 @@ namespace Admin
             services.AddScoped<ViewRenderService>();
             services.AddSingleton<IConverter>(provider => 
                 new SynchronizedConverter(new PdfTools()));
+
+            // Enhanced Email Services
+            services.AddScoped<IEmailTemplateService, EmailTemplateService>();
+            services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<IImmediateEmailService, ImmediateEmailService>();
+            services.AddHostedService<BackgroundEmailService>();
         }
 
         private void ConfigureFrameworkServices(IServiceCollection services)

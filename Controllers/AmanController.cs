@@ -37,8 +37,9 @@ namespace Admin.Controllers
         private readonly IConverter _pdfConverter;
         private readonly IMemoryCache _cache;
         private readonly ICacheService _cacheService;
+        private readonly IEmailService _emailService;
 
-        public AmanController(UserManager<ApplicationUser> userManager, IAmanRepository repo, ICommonRepository common, IEmailRepository emailRepo, ApiHelper apiHelper, IConfiguration configuration, ViewRenderService viewRenderService, IConverter pdfConverter, IMemoryCache cache, ICacheService cacheService)
+        public AmanController(UserManager<ApplicationUser> userManager, IAmanRepository repo, ICommonRepository common, IEmailRepository emailRepo, ApiHelper apiHelper, IConfiguration configuration, ViewRenderService viewRenderService, IConverter pdfConverter, IMemoryCache cache, ICacheService cacheService, IEmailService emailService)
         {
             this.repository = repo;
             this.crepository = common;
@@ -50,6 +51,7 @@ namespace Admin.Controllers
             this._pdfConverter = pdfConverter;
             this._cache = cache;
             this._cacheService = cacheService;
+            this._emailService = emailService;
         }
 
         [ResponseCache(Duration = 300, VaryByQueryKeys = new[] { "page", "size" })]
@@ -222,8 +224,8 @@ namespace Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                var verifier = await userManager.FindByNameAsync(aman.Verifier);
                 var responsible = await userManager.FindByNameAsync(aman.Responsible);
+                var verifier = await userManager.FindByNameAsync(aman.Verifier);
 
                 aman.Creator = userManager.GetUserName(User);
                 aman.Department = responsible.Department;
@@ -244,44 +246,54 @@ namespace Admin.Controllers
                 
                 aman = repository.Amans.FirstOrDefault(x => x.AmanID == aman.AmanID);
 
-                var message = new StringBuilder();
-                message.Append("<table>");
-                message.Append($"<tr><td>No.</td><td>:</td><td>{aman.AmanID}</td></tr>");
-                message.Append($"<tr><td>Start Date</td><td>:</td><td>{aman.StartDate:dd MMMM yyyy}</td></tr>");
-                message.Append($"<tr><td>End Date</td><td>:</td><td>{aman.EndDate:dd MMMM yyyy}</td></tr>");
-                message.Append($"<tr><td>Source</td><td>:</td><td>{crepository.GetAmanSources().FirstOrDefault(x => x.AmanSourceID == aman.Source)?.Deskripsi}</td></tr>");
-                message.Append($"<tr><td>Location</td><td>:</td><td>{crepository.GetLocations().FirstOrDefault(x => x.LocationID == aman.Location)?.Deskripsi}</td></tr>");
-                message.Append($"<tr><td>Findings / Opportunities</td><td>:</td><td>{aman.Findings}</td></tr>");
-                message.Append($"<tr><td>Recommendation</td><td>:</td><td>{aman.Recommendation}</td></tr>");
-                message.Append($"<tr><td>Creator</td><td>:</td><td>{(await userManager.FindByNameAsync(aman.Creator)).Name}</td></tr>");
-                message.Append($"<tr><td>Responsible</td><td>:</td><td>{responsible.Name}</td></tr>");
-                message.Append($"<tr><td>Email</td><td>:</td><td>{responsible.Email}</td></tr>");
-                message.Append($"<tr><td>Verifier</td><td>:</td><td>{verifier.Name}</td></tr>");
-                message.Append($"<tr><td>Auditor(s)</td><td>:</td><td>{aman.Auditors}</td></tr>");
-                message.Append($"<tr><td>Status</td><td>:</td><td>{crepository.GetAmanStatuses().FirstOrDefault(x => x.AmanStatusID == aman.Status)?.Deskripsi}</td></tr>");
-                message.Append("</table>");
-
-                var email = new Email
+                // Use templated email service instead of manual email creation
+                var amanData = new
                 {
-                    Receiver = responsible.Email,
-                    Subject = "New AMAN Notification",
-                    Message = $"Dear {responsible.Name},<br/><p>There is a new AMAN with detail:</p>{message}",
-                    Schedule = DateTime.Now,
-                    CreatedOn = DateTime.Now
+                    AmanID = aman.AmanID,
+                    RecipientName = responsible.Name,
+                    StartDate = aman.StartDate.ToString("dd MMMM yyyy"),
+                    EndDate = aman.EndDate.ToString("dd MMMM yyyy"),
+                    Findings = aman.Findings,
+                    Recommendation = aman.Recommendation,
+                    Responsible = responsible.Name,
+                    ResponsibleEmail = responsible.Email,
+                    Verifier = verifier.Name,
+                    VerifierEmail = verifier.Email
                 };
-                emailRepository.Save(email);
 
-                var email2 = new Email
+                // Send to responsible person
+                await _emailService.SendTemplatedEmailAsync(
+                    "AMAN_NEW",
+                    responsible.Email,
+                    amanData,
+                    "en", // or "id" for Indonesian
+                    EmailPriority.High,
+                    "AMAN"
+                );
+
+                // Send to verifier
+                var verifierData = new
                 {
-                    Receiver = verifier.Email,
-                    Subject = "New AMAN Notification",
-                    Message = $"Dear {verifier.Name},<br/><p>There is a new AMAN with detail:</p>{message}",
-                    Schedule = DateTime.Now,
-                    CreatedOn = DateTime.Now
+                    AmanID = aman.AmanID,
+                    RecipientName = verifier.Name,
+                    StartDate = aman.StartDate.ToString("dd MMMM yyyy"),
+                    EndDate = aman.EndDate.ToString("dd MMMM yyyy"),
+                    Findings = aman.Findings,
+                    Recommendation = aman.Recommendation,
+                    Responsible = responsible.Name,
+                    ResponsibleEmail = responsible.Email,
+                    Verifier = verifier.Name,
+                    VerifierEmail = verifier.Email
                 };
-                emailRepository.Save(email2);
 
-                await apiHelper.SendEmailAsync();
+                await _emailService.SendTemplatedEmailAsync(
+                    "AMAN_NEW",
+                    verifier.Email,
+                    verifierData,
+                    "en",
+                    EmailPriority.High,
+                    "AMAN"
+                );
 
                 TempData["message"] = $"{aman.AmanID} has been saved";
                 return RedirectToAction("Index");
@@ -307,7 +319,7 @@ namespace Admin.Controllers
             {
                 if (file.Length > 0)
                 {
-                    var fileName = aman.AmanID + Path.GetExtension(file.FileName);
+                    var fileName = aman.AmanID + "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + Path.GetExtension(file.FileName);
                     using (var fileStream = new FileStream(Path.Combine(uploadPath, fileName), FileMode.Create))
                     {
                         await file.CopyToAsync(fileStream);
@@ -316,52 +328,31 @@ namespace Admin.Controllers
                     aman.FileName = fileName;
                 }
             }
+            repository.SaveProgress(aman);
 
-            // Use async save if available
-            if (repository is EFAmanRepository efRepo)
+            if (aman.Status == 3)
             {
-                await efRepo.SaveProgressAsync(aman);
-            }
-            else
-            {
-                repository.SaveProgress(aman);
-            }
-            
-            // Phase 2 Optimization: Invalidate cache after progress update
-            _cacheService.InvalidateAmanCache(aman.AmanID);
-
-            var search = repository.Amans.FirstOrDefault(x => x.AmanID == aman.AmanID);
-            if (search.Verifier != null)
-            {
-                var message = new StringBuilder();
-                message.Append("<br><b>Details of AMAN:</b><table>");
-                message.Append($"<tr><td>No.</td><td>:</td><td>{search.AmanID}</td></tr>");
-                message.Append($"<tr><td>Start Date</td><td>:</td><td>{search.StartDate:dd MMMM yyyy}</td></tr>");
-                message.Append($"<tr><td>End Date</td><td>:</td><td>{search.EndDate:dd MMMM yyyy}</td></tr>");
-                message.Append($"<tr><td>Source</td><td>:</td><td>{crepository.GetAmanSources().FirstOrDefault(x => x.AmanSourceID == search.Source)?.Deskripsi}</td></tr>");
-                message.Append($"<tr><td>Location</td><td>:</td><td>{crepository.GetLocations().FirstOrDefault(x => x.LocationID == search.Location)?.Deskripsi}</td></tr>");
-                message.Append($"<tr><td>Findings / Opportunities</td><td>:</td><td>{search.Findings}</td></tr>");
-                message.Append($"<tr><td>Recommendation</td><td>:</td><td>{search.Recommendation}</td></tr>");
-                message.Append($"<tr><td>Creator</td><td>:</td><td>{(await userManager.FindByNameAsync(search.Creator)).Name}</td></tr>");
-                message.Append($"<tr><td>Responsible</td><td>:</td><td>{(await userManager.FindByNameAsync(search.Responsible)).Name}</td></tr>");
-                message.Append($"<tr><td>Email</td><td>:</td><td>{(await userManager.FindByNameAsync(search.Responsible)).Email}</td></tr>");
-                message.Append($"<tr><td>Verifier</td><td>:</td><td>{(await userManager.FindByNameAsync(search.Verifier)).Name}</td></tr>");
-                message.Append($"<tr><td>Status</td><td>:</td><td>{crepository.GetAmanStatuses().FirstOrDefault(x => x.AmanStatusID == search.Status)?.Deskripsi}</td></tr>");
-                message.Append("</table>");
-
-                var verifier = await userManager.FindByNameAsync(search.Verifier);
-                var message2 = aman.Progress == 100 ? "<br/>Please log in to the Nusantara Regas Internal Portal to close it." : "";
-                var email = new Email
-                {
-                    Receiver = verifier.Email,
-                    Subject = "AMAN Status Update Notification",
-                    Message = $"Dear {verifier.Name},<br/><p>The progress of AMAN with ID {aman.AmanID} has been updated to {aman.Progress}%.</p>{message}{message2}",
-                    Schedule = DateTime.Now,
-                    CreatedOn = DateTime.Now
-                };
-                emailRepository.Save(email);
-
-                await apiHelper.SendEmailAsync();
+                var verifier = await userManager.FindByNameAsync(aman.Verifier);
+                await _emailService.SendTemplatedEmailAsync(
+                    "AMAN_PROGRESS",
+                    verifier.Email,
+                    new
+                    {
+                        AmanID = aman.AmanID,
+                        RecipientName = verifier.Name,
+                        Status = "Completed - Waiting for Verification",
+                        Progress = 100,
+                        StartDate = aman.StartDate.ToString("dd MMMM yyyy"),
+                        EndDate = aman.EndDate.ToString("dd MMMM yyyy"),
+                        Findings = aman.Findings,
+                        Recommendation = aman.Recommendation,
+                        Responsible = (await userManager.FindByNameAsync(aman.Responsible)).Name,
+                        Creator = (await userManager.FindByNameAsync(aman.Creator)).Name
+                    },
+                    "id",
+                    EmailPriority.Medium,
+                    "AMAN"
+                );
             }
             TempData["message"] = $"Progress {aman.AmanID} has been updated";
             return RedirectToAction("ViewAction", new { ID = aman.AmanID });
@@ -372,40 +363,34 @@ namespace Admin.Controllers
         {
             var aman = repository.Amans.FirstOrDefault(x => x.AmanID == reschedule.AmanID);
             var verifier = await userManager.FindByNameAsync(aman.Verifier);
+            var responsible = await userManager.FindByNameAsync(aman.Responsible);
 
-            var message = new StringBuilder();
-            message.Append("<b>Details of AMAN:</b><br><table>");
-            message.Append($"<tr><td>No.</td><td>:</td><td>{aman.AmanID}</td></tr>");
-            message.Append($"<tr><td>Start Date</td><td>:</td><td>{aman.StartDate:dd MMMM yyyy}</td></tr>");
-            message.Append($"<tr><td>End Date</td><td>:</td><td>{aman.EndDate:dd MMMM yyyy}</td></tr>");
-            message.Append($"<tr><td>Source</td><td>:</td><td>{crepository.GetAmanSources().FirstOrDefault(x => x.AmanSourceID == aman.Source)?.Deskripsi}</td></tr>");
-            message.Append($"<tr><td>Location</td><td>:</td><td>{crepository.GetLocations().FirstOrDefault(x => x.LocationID == aman.Location)?.Deskripsi}</td></tr>");
-            message.Append($"<tr><td>Findings / Opportunities</td><td>:</td><td>{aman.Findings}</td></tr>");
-            message.Append($"<tr><td>Recommendation</td><td>:</td><td>{aman.Recommendation}</td></tr>");
-            message.Append($"<tr><td>Creator</td><td>:</td><td>{(await userManager.FindByNameAsync(aman.Creator)).Name}</td></tr>");
-            message.Append($"<tr><td>Responsible</td><td>:</td><td>{(await userManager.FindByNameAsync(aman.Responsible)).Name}</td></tr>");
-            message.Append($"<tr><td>Email</td><td>:</td><td>{(await userManager.FindByNameAsync(aman.Responsible)).Email}</td></tr>");
-            message.Append($"<tr><td>Verifier</td><td>:</td><td>{(await userManager.FindByNameAsync(aman.Verifier)).Name}</td></tr>");
-            message.Append($"<tr><td>Status</td><td>:</td><td>{crepository.GetAmanStatuses().FirstOrDefault(x => x.AmanStatusID == aman.Status)?.Deskripsi}</td></tr>");
-            message.Append("</table>");
-
-            message.Append("<br><b>Details of Reschedule Data:</b><br><table>");
-            message.Append($"<tr><td>Old End Date</td><td>:</td><td>{reschedule.OldEndDate:dd MMMM yyyy}</td></tr>");
-            message.Append($"<tr><td>New End Date</td><td>:</td><td>{reschedule.NewEndDate:dd MMMM yyyy}</td></tr>");
-            message.Append($"<tr><td>Reason</td><td>:</td><td>{reschedule.Reason}</td></tr>");
-            message.Append("</table>");
-
-            var email = new Email
-            {
-                Receiver = verifier.Email,
-                Subject = "AMAN Reschedule Notification",
-                Message = $"Dear {verifier.Name},<br/><p>AMAN with ID {aman.AmanID} has been requested for reschedule.</p>{message}<br/>Please log in to the Nusantara Regas Internal Portal to approve or reject it.",
-                Schedule = DateTime.Now,
-                CreatedOn = DateTime.Now
-            };
-            emailRepository.Save(email);
-
-            await apiHelper.SendEmailAsync();
+            await _emailService.SendTemplatedEmailAsync(
+                "AMAN_PROGRESS",
+                verifier.Email,
+                new
+                {
+                    AmanID = aman.AmanID,
+                    RecipientName = verifier.Name,
+                    Status = "Reschedule Request",
+                    Progress = 0,
+                    StartDate = aman.StartDate.ToString("dd MMMM yyyy"),
+                    EndDate = aman.EndDate.ToString("dd MMMM yyyy"),
+                    OldEndDate = reschedule.OldEndDate.ToString("dd MMMM yyyy"),
+                    NewEndDate = reschedule.NewEndDate.ToString("dd MMMM yyyy"),
+                    RescheduleReason = reschedule.Reason,
+                    Findings = aman.Findings,
+                    Recommendation = aman.Recommendation,
+                    Responsible = responsible.Name,
+                    ResponsibleEmail = responsible.Email,
+                    Creator = (await userManager.FindByNameAsync(aman.Creator)).Name,
+                    Source = crepository.GetAmanSources().FirstOrDefault(x => x.AmanSourceID == aman.Source)?.Deskripsi,
+                    Location = crepository.GetLocations().FirstOrDefault(x => x.LocationID == aman.Location)?.Deskripsi
+                },
+                "id",
+                EmailPriority.Medium,
+                "AMAN"
+            );
 
             repository.SaveReschedule(reschedule);
             TempData["message"] = $"New schedule for {reschedule.AmanID} has been saved";
@@ -420,31 +405,43 @@ namespace Admin.Controllers
 
             if (action == "Approve")
             {
-                var email = new Email
-                {
-                    Receiver = responsible.Email,
-                    Subject = "AMAN Reschedule Approve Notification",
-                    Message = $"Dear {responsible.Name},<br/><p>Reschedule request for {aman.AmanID} has been approved.",
-                    Schedule = DateTime.Now,
-                    CreatedOn = DateTime.Now
-                };
-                emailRepository.Save(email);
-                await apiHelper.SendEmailAsync();
+                await _emailService.SendTemplatedEmailAsync(
+                    "AMAN_PROGRESS",
+                    responsible.Email,
+                    new
+                    {
+                        AmanID = aman.AmanID,
+                        RecipientName = responsible.Name,
+                        Status = "Reschedule Approved",
+                        Progress = 0,
+                        NextStep = "Continue with new deadline",
+                        NewEndDate = reschedule.NewEndDate.ToString("dd MMMM yyyy")
+                    },
+                    "id",
+                    EmailPriority.Medium,
+                    "AMAN"
+                );
                 repository.ApproveReschedule(reschedule);
                 TempData["message"] = $"New schedule for {reschedule.AmanID} has been approved";
             }
             else if (action == "Reject")
             {
-                var email = new Email
-                {
-                    Receiver = responsible.Email,
-                    Subject = "AMAN Reschedule Reject Notification",
-                    Message = $"Dear {responsible.Name},<br/><p>Reschedule request for {aman.AmanID} has been rejected by Verifier.",
-                    Schedule = DateTime.Now,
-                    CreatedOn = DateTime.Now
-                };
-                emailRepository.Save(email);
-                await apiHelper.SendEmailAsync();
+                await _emailService.SendTemplatedEmailAsync(
+                    "AMAN_PROGRESS",
+                    responsible.Email,
+                    new
+                    {
+                        AmanID = aman.AmanID,
+                        RecipientName = responsible.Name,
+                        Status = "Reschedule Rejected",
+                        Progress = 0,
+                        NextStep = "Continue with original deadline",
+                        RejectionReason = "Reschedule request has been rejected by Verifier"
+                    },
+                    "id",
+                    EmailPriority.Medium,
+                    "AMAN"
+                );
                 repository.RejectReschedule(reschedule);
                 TempData["message"] = $"New schedule for {reschedule.AmanID} has been rejected";
             }

@@ -16,6 +16,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Admin.Services;
 
 namespace Admin.Controllers
 {
@@ -30,8 +31,9 @@ namespace Admin.Controllers
         private readonly ISemarService _semarService;
         private readonly ApiHelper _apiHelper;
         private readonly IConfiguration _configuration;
+        private readonly IEmailService _emailService;
 
-        public SemarController(UserManager<ApplicationUser> userManager, IWebHostEnvironment environment, ISemarRepository repo, ICommonRepository common, IEmailRepository email, ISemarService semarService, ApiHelper apiHelper, IConfiguration configuration)
+        public SemarController(UserManager<ApplicationUser> userManager, IWebHostEnvironment environment, ISemarRepository repo, ICommonRepository common, IEmailRepository email, ISemarService semarService, ApiHelper apiHelper, IConfiguration configuration, IEmailService emailService)
         {
             _environment = environment;
             _repository = repo;
@@ -41,6 +43,7 @@ namespace Admin.Controllers
             _semarService = semarService;
             _apiHelper = apiHelper;
             _configuration = configuration;
+            _emailService = emailService;
         }
 
         [HttpGet]
@@ -189,39 +192,36 @@ namespace Admin.Controllers
                 {
                     if (semar.Type == 1)
                     {
-                        var message = new StringBuilder();
-                        message.Append("<table>");
-                        message.Append($"<tr><td>Id.</td><td>:</td><td>{semar.SemarID}</td></tr>");
-                        message.Append($"<tr><td>Type</td><td>:</td><td>{_crepository.GetSemarTypes().FirstOrDefault(x => x.SemarTypeID == semar.Type)?.Deskripsi}</td></tr>");
-                        message.Append($"<tr><td>No. Dokumen</td><td>:</td><td>{semar.NoDocument}</td></tr>");
-                        message.Append($"<tr><td>Title</td><td>:</td><td>{semar.Title}</td></tr>");
-                        message.Append($"<tr><td>Level</td><td>:</td><td>{_crepository.GetSemarLevels().FirstOrDefault(x => x.SemarLevelID == semar.SemarLevel)?.Deskripsi}</td></tr>");
-                        message.Append($"<tr><td>Owner</td><td>:</td><td>{_crepository.GetAllDepartments().FirstOrDefault(x => x.DepartmentID == semar.Owner)?.Deskripsi}</td></tr>");
-                        message.Append($"<tr><td>Description</td><td>:</td><td>{semar.Description}</td></tr>");
-                        message.Append($"<tr><td>Revision</td><td>:</td><td>{semar.Revision}</td></tr>");
-                        message.Append($"<tr><td>Published Date</td><td>:</td><td>{semar.PublishDate:dd MMMM yyyy}</td></tr>");
-                        message.Append($"<tr><td>Expired Date</td><td>:</td><td>{semar.ExpiredDate:dd MMMM yyyy}</td></tr>");
-                        message.Append("</table>");
-
                         var admins = _userManager.Users.Where(x => x.Department == semar.Owner && x.UserName != semar.Creator).ToList();
                         foreach (var admin in admins)
                         {
                             if ((await _userManager.GetRolesAsync(await _userManager.FindByNameAsync(admin.UserName))).FirstOrDefault() == "AtasanAdmin")
                             {
-                                var email = new Email
-                                {
-                                    Receiver = admin.Email,
-                                    Subject = "SEMAR Approval Notification",
-                                    Message = $"Dear {admin.Name},<br/><p>SEMAR berikut ini membutuhkan approval dari Anda:</p>{message}",
-                                    Schedule = DateTime.Now,
-                                    CreatedOn = DateTime.Now
-                                };
-                                _emailRepository.Save(email);
+                                await _emailService.SendTemplatedEmailAsync(
+                                    "SEMAR_APPROVAL",
+                                    admin.Email,
+                                    new
+                                    {
+                                        SemarID = semar.SemarID,
+                                        RecipientName = admin.Name,
+                                        Type = _crepository.GetSemarTypes().FirstOrDefault(x => x.SemarTypeID == semar.Type)?.Deskripsi,
+                                        NoDocument = semar.NoDocument,
+                                        Title = semar.Title,
+                                        Level = _crepository.GetSemarLevels().FirstOrDefault(x => x.SemarLevelID == semar.SemarLevel)?.Deskripsi,
+                                        Owner = _crepository.GetAllDepartments().FirstOrDefault(x => x.DepartmentID == semar.Owner)?.Deskripsi,
+                                        Description = semar.Description,
+                                        Revision = semar.Revision,
+                                        PublishedDate = semar.PublishDate.ToString("dd MMMM yyyy"),
+                                        ExpiredDate = semar.ExpiredDate.ToString("dd MMMM yyyy")
+                                    },
+                                    "id",
+                                    EmailPriority.Medium,
+                                    "SEMAR"
+                                );
                             }
                         }
                     }
                 }
-                await _apiHelper.SendEmailAsync();
                 _repository.Save(semar, mode);
                 TempData["message"] = $"{semar.SemarID} has been saved";
                 return RedirectToAction("Index");
